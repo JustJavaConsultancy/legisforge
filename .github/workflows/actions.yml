@@ -1,5 +1,6 @@
 name: build-legisforge
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
