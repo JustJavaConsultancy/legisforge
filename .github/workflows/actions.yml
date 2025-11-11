@@ -65,14 +65,14 @@ jobs:
         run: railway variables --help 
 
 
-#       - name: Deploy to Railway
-#         env:
-#           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-#           RAILWAY_PROJECT_ID: 7edc707c-73e3-4b8b-915b-019e9d0b6114
-#           RAILWAY_SERVICE_ID: Devflow
-#         run: |
-#           IMAGE_REF="kazeemakinrinde/devflow:latest"
-#           echo "Updating service image to: $IMAGE_REF"
-#           railway variables --set "RAILWAY_SERVICE_IMAGE=$IMAGE_REF" --service $RAILWAY_SERVICE_ID
+      - name: Deploy to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_PROJECT_ID: 7edc707c-73e3-4b8b-915b-019e9d0b6114
+          RAILWAY_SERVICE_ID: legisforge
+        run: |
+          IMAGE_REF="kazeemakinrinde/legisforge:latest"
+          echo "Updating service image to: $IMAGE_REF"
+          railway variables --set "RAILWAY_SERVICE_IMAGE=$IMAGE_REF" --service $RAILWAY_SERVICE_ID
 
-# #          railway up --service 44789973-0362-4a36-a751-5e97098a7090 --detach
+#          railway up --service 44789973-0362-4a36-a751-5e97098a7090 --detach
