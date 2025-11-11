@@ -1,3 +1,6 @@
+server:
+  port: 9092
+
 spring:
   application:
     name: legisForge
@@ -26,4 +29,26 @@ spring:
     multipart:
       max-file-size: 500MB
       max-request-size: 500MB
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: legisForge
+            client-secret: QboksoFkHEup2qXBJAbrXjPuwuPdYRSV
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
+            scope: openid,profile,email
+        provider:
+          keycloak:
+            issuer-uri: https://ngcloak-production.up.railway.app/realms/legisForge
+            user-name-attribute: preferred_username
+      resourceserver:
+        jwt:
+          issuer-uri: https://ngcloak-production.up.railway.app/realms/legisForge
 
+keycloak:
+  client-id: legisForge
+  client-secret: QboksoFkHEup2qXBJAbrXjPuwuPdYRSV
+  realm: legisForge
+  base-url: https://ngcloak-production.up.railway.app
