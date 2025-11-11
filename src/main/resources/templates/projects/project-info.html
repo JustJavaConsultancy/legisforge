@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+  <style>
+    .case-card:hover {
+            transform: translateY(-5px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #2c3b4e 0%, #37516d 100%);
+        }
+
+        .legal-border {
+            border-left: 4px solid #9b2f2f;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+ .case-type-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .case-type-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .case-type-card.selected {
+            border: 2px solid #9b2f2f;
+            background-color: #fdf5f5;
+        }
+
+        @media (max-width: 640px) {
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-card .text-2xl {
+                font-size: 1.5rem;
+            }
+
+            .case-card {
+                padding: 1rem;
+            }
+
+            .case-card .text-lg {
+                font-size: 1.125rem;
+            }
+
+            .modal-content {
+                margin: 1rem;
+                width: calc(100% - 2rem);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .cases-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .case-type-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-buttons {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .modal-buttons button {
+                width: 100%;
+            }
+        }
+
+        /* Task progress styles */
+        .task-item {
+            transition: all 0.3s ease;
+        }
+
+        .task-item:hover {
+            background-color: #f5f7fa;
+        }
+
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .task-available {
+            border-left: 4px solid #436587;
+        }
+
+        .task-in-progress {
+            border-left: 4px solid #ca8a04;
+        }
+
+        .task-completed {
+            border-left: 4px solid #10b981;
+        }
+
+        .task-locked {
+            border-left: 4px solid #d4d4d4;
+            opacity: 0.6;
+        }
+  </style>
+</head>
+<body>
+<!-- Main Content Area -->
+<main layout:fragment="content">
+  <!-- Header Section -->
+  <div class="mb-6 lg:mb-8 animate-fade-in">
+    <div class="page-header flex justify-between items-start lg:items-center">
+      <div>
+        <div class="flex items-center space-x-4">
+          <button onclick="window.history.back()" class="text-legal-navy-500 hover:text-legal-navy-700">
+            <i class="fas fa-arrow-left"></i>
+          </button>
+          <div>
+            <h1 class="text-2xl lg:text-3xl font-bold text-primary font-serif">TechCorp Strategic Merger</h1>
+            <p class="text-legal-navy-600 mt-2">Matter #MC-2023-0876 • Global Ventures LLC</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Project Overview -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <!-- Project Details Card -->
+    <div class="lg:col-span-2 bg-white rounded-lg shadow-sm border border-legal-ivory-400 overflow-hidden">
+      <div class="px-4 lg:px-6 py-4 border-b border-legal-ivory-400">
+        <h2 class="text-lg font-bold text-primary font-serif">Project Overview</h2>
+      </div>
+      <div class="p-4 lg:p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h3 class="font-medium text-legal-navy-700 mb-3">Transaction Details</h3>
+            <div class="space-y-3">
+              <div class="flex justify-between">
+                <span class="text-legal-navy-600">Transaction Type:</span>
+                <span class="font-medium text-legal-navy-900">Merger</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-legal-navy-600">Acquiring Company:</span>
+                <span class="font-medium text-legal-navy-900">TechCorp Inc.</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-legal-navy-600">Target Company:</span>
+                <span class="font-medium text-legal-navy-900">Innovate Solutions Ltd.</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-legal-navy-600">Industry:</span>
+                <span class="font-medium text-legal-navy-900">Technology</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-legal-navy-600">Deal Size:</span>
+                <span class="font-medium text-legal-navy-900">Large ($100M - $1B)</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="font-medium text-legal-navy-700 mb-3">Project Timeline</h3>
+            <div class="space-y-3">
+              <div class="flex justify-between">
+                <span class="text-legal-navy-600">Opened:</span>
+                <span class="font-medium text-legal-navy-900">Oct 15, 2023</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-legal-navy-600">Expected Close:</span>
+                <span class="font-medium text-legal-navy-900">Jan 30, 2024</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-legal-navy-600">Days Remaining:</span>
+                <span class="font-medium text-legal-navy-900">45 days</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-legal-navy-600">Status:</span>
+                <span class="status-badge bg-amber-100 text-amber-800">Document Review</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <h3 class="font-medium text-legal-navy-700 mb-3">Transaction Description</h3>
+          <p class="text-legal-navy-700">
+            This strategic merger combines TechCorp's enterprise software solutions with Innovate Solutions' cutting-edge AI technology to create a comprehensive digital transformation platform. The combined entity will operate under the TechCorp brand and will be positioned as a market leader in the enterprise technology space.
+          </p>
+        </div>
+
+        <div class="mt-6">
+          <h3 class="font-medium text-legal-navy-700 mb-3">Key Legal Considerations</h3>
+          <ul class="list-disc pl-5 text-legal-navy-700 space-y-1">
+            <li>Antitrust compliance and regulatory approvals</li>
+            <li>Intellectual property transfer and licensing agreements</li>
+            <li>Employee retention and benefits harmonization</li>
+            <li>Data privacy and security compliance</li>
+            <li>Tax implications of the merger structure</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress & Team Card -->
+    <div class="bg-white rounded-lg shadow-sm border border-legal-ivory-400 overflow-hidden">
+      <div class="px-4 lg:px-6 py-4 border-b border-legal-ivory-400">
+        <h2 class="text-lg font-bold text-primary font-serif">Progress & Team</h2>
+      </div>
+      <div class="p-4 lg:p-6">
+        <!-- Progress Ring -->
+        <div class="flex justify-center mb-6">
+          <div class="relative">
+            <svg class="w-32 h-32 progress-ring" viewBox="0 0 36 36">
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#e5e7eb" stroke-width="2"/>
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#2c3b4e" stroke-width="2" stroke-dasharray="100" stroke-dashoffset="25" class="progress-ring-circle"/>
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <span class="text-2xl font-bold text-legal-navy-900">75%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-legal-navy-600">Overall Progress</span>
+              <span class="font-medium text-legal-navy-700">75%</span>
+            </div>
+            <div class="w-full bg-legal-ivory-300 rounded-full h-2">
+              <div class="bg-legal-navy-600 h-2 rounded-full" style="width: 75%"></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-legal-navy-600">Documentation</span>
+              <span class="font-medium text-legal-navy-700">85%</span>
+            </div>
+            <div class="w-full bg-legal-ivory-300 rounded-full h-2">
+              <div class="bg-green-500 h-2 rounded-full" style="width: 85%"></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-legal-navy-600">Due Diligence</span>
+              <span class="font-medium text-legal-navy-700">70%</span>
+            </div>
+            <div class="w-full bg-legal-ivory-300 rounded-full h-2">
+              <div class="bg-amber-500 h-2 rounded-full" style="width: 70%"></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-legal-navy-600">Regulatory Compliance</span>
+              <span class="font-medium text-legal-navy-700">60%</span>
+            </div>
+            <div class="w-full bg-legal-ivory-300 rounded-full h-2">
+              <div class="bg-blue-500 h-2 rounded-full" style="width: 60%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <h3 class="font-medium text-legal-navy-700 mb-3">Project Team</h3>
+          <div class="space-y-3">
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 rounded-full bg-legal-burgundy-600 flex items-center justify-center text-white text-xs font-bold">
+                RK
+              </div>
+              <div>
+                <p class="font-medium text-sm">Robert Kensington</p>
+                <p class="text-xs text-legal-navy-500">Senior Partner</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 rounded-full bg-legal-navy-600 flex items-center justify-center text-white text-xs font-bold">
+                AS
+              </div>
+              <div>
+                <p class="font-medium text-sm">Amanda Sterling</p>
+                <p class="text-xs text-legal-navy-500">Associate</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 rounded-full bg-legal-gold-600 flex items-center justify-center text-white text-xs font-bold">
+                MJ
+              </div>
+              <div>
+                <p class="font-medium text-sm">Michael Johnson</p>
+                <p class="text-xs text-legal-navy-500">Paralegal</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Current Task Section -->
+  <div class="bg-white rounded-lg shadow-sm border border-legal-ivory-400 overflow-hidden mb-6">
+    <div class="px-4 lg:px-6 py-4 border-b border-legal-ivory-400 flex justify-between items-center">
+      <h2 class="text-lg font-bold text-primary font-serif">Current Task</h2>
+      <span class="status-badge bg-amber-100 text-amber-800">In Progress</span>
+    </div>
+    <div class="p-4 lg:p-6">
+      <div class="task-item p-4 border border-legal-ivory-400 rounded-lg task-in-progress">
+        <div class="flex justify-between items-start mb-3">
+          <h3 class="font-bold text-legal-navy-900">Finalize Merger Agreement</h3>
+          <span class="status-badge bg-blue-100 text-blue-800">High Priority</span>
+        </div>
+        <p class="text-legal-navy-600 text-sm mb-4">
+          Draft and finalize the merger agreement document with all necessary clauses and provisions. Ensure compliance with regulatory requirements and client specifications.
+        </p>
+        <div class="flex justify-between items-center">
+          <div>
+            <span class="text-xs text-legal-navy-500">Due: Dec 15, 2023</span>
+            <span class="text-xs text-legal-navy-500 ml-4">Claimed by: Robert Kensington</span>
+          </div>
+          <button id="completeTask" class="px-3 py-1 bg-legal-navy-600 text-white text-sm rounded hover:bg-legal-navy-700 transition-colors duration-200 claim-task">
+            Claim Task
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Completed Tasks Section -->
+  <div class="mt-8">
+    <div class="bg-white rounded-lg shadow-sm border border-legal-ivory-400 overflow-hidden">
+      <div class="px-4 lg:px-6 py-4 border-b border-legal-ivory-400 flex justify-between items-center">
+        <h2 class="text-lg font-bold text-primary font-serif">Completed Tasks</h2>
+        <span class="status-badge bg-green-100 text-green-800">5 Tasks Completed</span>
+      </div>
+      <div class="p-4 lg:p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Completed Task 1 -->
+          <div class="task-item p-3 border border-legal-ivory-400 rounded-lg task-completed bg-green-50">
+            <div class="flex items-start space-x-3">
+              <i class="fas fa-check-circle text-green-500 mt-1"></i>
+              <div class="flex-1">
+                <label class="font-medium text-legal-navy-900 block">Initial Client Consultation</label>
+                <p class="text-sm text-legal-navy-500 mt-1">Completed: Oct 20, 2023 • By: Robert Kensington</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Completed Task 2 -->
+          <div class="task-item p-3 border border-legal-ivory-400 rounded-lg task-completed bg-green-50">
+            <div class="flex items-start space-x-3">
+              <i class="fas fa-check-circle text-green-500 mt-1"></i>
+              <div class="flex-1">
+                <label class="font-medium text-legal-navy-900 block">Confidentiality Agreements</label>
+                <p class="text-sm text-legal-navy-500 mt-1">Completed: Oct 25, 2023 • By: Amanda Sterling</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Completed Task 3 -->
+          <div class="task-item p-3 border border-legal-ivory-400 rounded-lg task-completed bg-green-50">
+            <div class="flex items-start space-x-3">
+              <i class="fas fa-check-circle text-green-500 mt-1"></i>
+              <div class="flex-1">
+                <label class="font-medium text-legal-navy-900 block">Due Diligence Checklist</label>
+                <p class="text-sm text-legal-navy-500 mt-1">Completed: Nov 5, 2023 • By: Michael Johnson</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Completed Task 4 -->
+          <div class="task-item p-3 border border-legal-ivory-400 rounded-lg task-completed bg-green-50">
+            <div class="flex items-start space-x-3">
+              <i class="fas fa-check-circle text-green-500 mt-1"></i>
+              <div class="flex-1">
+                <label class="font-medium text-legal-navy-900 block">Letter of Intent</label>
+                <p class="text-sm text-legal-navy-500 mt-1">Completed: Nov 15, 2023 • By: Robert Kensington</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Completed Task 5 -->
+          <div class="task-item p-3 border border-legal-ivory-400 rounded-lg task-completed bg-green-50">
+            <div class="flex items-start space-x-3">
+              <i class="fas fa-check-circle text-green-500 mt-1"></i>
+              <div class="flex-1">
+                <label class="font-medium text-legal-navy-900 block">Financial Records Review</label>
+                <p class="text-sm text-legal-navy-500 mt-1">Completed: Nov 25, 2023 • By: Amanda Sterling</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</body>
+</html>

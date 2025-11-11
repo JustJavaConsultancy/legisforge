@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LegisForge - Legal Analytics Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // Professional legal color palette
+                        'legal-navy': {
+                            '50': '#f5f7fa',
+                            '100': '#eaeff4',
+                            '200': '#d0dde8',
+                            '300': '#a6c0d5',
+                            '400': '#769ebb',
+                            '500': '#567fa1',
+                            '600': '#436587',
+                            '700': '#37516d',
+                            '800': '#30455c',
+                            '900': '#2c3b4e',
+                        },
+                        'legal-burgundy': {
+                            '50': '#fdf5f5',
+                            '100': '#faeaea',
+                            '200': '#f5d5d5',
+                            '300': '#ecb3b3',
+                            '400': '#df8383',
+                            '500': '#cd5555',
+                            '600': '#b93d3d',
+                            '700': '#9b2f2f',
+                            '800': '#802929',
+                            '900': '#6a2626',
+                        },
+                        'legal-gold': {
+                            '50': '#fefce8',
+                            '100': '#fef9c3',
+                            '200': '#fef08a',
+                            '300': '#fde047',
+                            '400': '#facc15',
+                            '500': '#eab308',
+                            '600': '#ca8a04',
+                            '700': '#a16207',
+                            '800': '#854d0e',
+                            '900': '#713f12',
+                        },
+                        'legal-ivory': {
+                            '50': '#fefefe',
+                            '100': '#fdfdfd',
+                            '200': '#fbfbfb',
+                            '300': '#f8f8f8',
+                            '400': '#f3f3f3',
+                            '500': '#e8e8e8',
+                            '600': '#d4d4d4',
+                            '700': '#b5b5b5',
+                            '800': '#949494',
+                            '900': '#787878',
+                        },
+                        'primary': '#2c3b4e', // legal-navy-900
+                        'secondary': '#9b2f2f', // legal-burgundy-700
+                        'accent': '#ca8a04', // legal-gold-600
+                        'light': '#f5f7fa', // legal-navy-50
+                        'dark': '#1a202c',
+                    },
+                    fontFamily: {
+                        'serif': ['Georgia', 'Times New Roman', 'serif'],
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-in': 'slideIn 0.3s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideIn: {
+                            '0%': { transform: 'translateY(-10px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        }
+                    },
+                    screens: {
+                        'xs': '475px',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .sidebar {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(120, 113, 108, 0.5) transparent;
+        }
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background-color: rgba(120, 113, 108, 0.5);
+            border-radius: 20px;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #2c3b4e 0%, #37516d 100%);
+        }
+
+        /* Professional Legal Logo */
+        .logo-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-icon {
+            position: relative;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-scales {
+            position: relative;
+            width: 36px;
+            height: 36px;
+        }
+
+        .logo-beam {
+            position: absolute;
+            width: 30px;
+            height: 3px;
+            background: #eab308;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 2px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .logo-pan {
+            position: absolute;
+            width: 14px;
+            height: 8px;
+            background: #9b2f2f;
+            border-radius: 0 0 7px 7px;
+            top: 60%;
+        }
+
+        .logo-pan-left {
+            left: 2px;
+            transform: rotate(15deg);
+        }
+
+        .logo-pan-right {
+            right: 2px;
+            transform: rotate(-15deg);
+        }
+
+        .logo-stand {
+            position: absolute;
+            width: 4px;
+            height: 12px;
+            background: #2c3b4e;
+            top: 38%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 2px 2px 0 0;
+        }
+
+        .logo-document {
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 16px;
+            background: white;
+            border-radius: 2px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-document::before {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 2px;
+            background: #2c3b4e;
+            border-radius: 1px;
+        }
+
+        .logo-document::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 2px;
+            background: #2c3b4e;
+            border-radius: 1px;
+            top: 8px;
+        }
+
+        .legal-border {
+            border-left: 4px solid #9b2f2f;
+        }
+        /* Mobile menu toggle */
+        .mobile-menu-toggle {
+            display: none;
+        }
+
+        @media (max-width: 1024px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0 !important;
+                width: 100%;
+            }
+
+            .header {
+                left: 0 !important;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .header-search {
+                width: 100%;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .user-info {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-light">
+<div class="flex h-screen w-full overflow-hidden">
+    <!-- Mobile Menu Toggle -->
+    <div class="mobile-menu-toggle fixed top-4 left-4 z-50 lg:hidden">
+        <button id="menuToggle" class="p-2 rounded-lg bg-legal-navy-800 text-white shadow-md">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <!-- Fixed Sidebar -->
+    <div id="sidebar" class="sidebar fixed inset-y-0 left-0 z-40 w-64 gradient-bg text-white flex flex-col overflow-y-auto transition-transform duration-300 lg:translate-x-0">
+        <!-- Logo -->
+        <div class="p-6 border-b border-legal-navy-700">
+            <div class="flex items-center space-x-3">
+                <div class="logo-container">
+                    <span class="material-icons text-3xl text-legal-white-600">description</span>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold font-serif">LegisForge</h1>
+                    <p class="text-xs text-legal-navy-300">Legal M&A Platform</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 px-4 py-6">
+            <ul class="space-y-2">
+                <li>
+                    <a th:href="@{/}" class="flex items-center space-x-3 px-4 py-3 rounded-lg" th:classappend="${currentPath == '/'} ? ' bg-legal-navy-700 text-white transition-all duration-200' : ' hover:bg-legal-navy-700 hover:text-white transition-all duration-200'">
+                        <i class="fas fa-gavel w-5 text-center"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/projects}" class="flex items-center space-x-3 px-4 py-3 rounded-lg" th:classappend="${currentPath == '/projects'} ? ' bg-legal-navy-700 text-white transition-all duration-200' : ' hover:bg-legal-navy-700 hover:text-white transition-all duration-200'" >
+                        <i class="fas fa-balance-scale w-5 text-center"></i>
+                        <span>Projects</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-legal-navy-700 hover:text-white transition-all duration-200">
+                        <i class="fas fa-file-contract w-5 text-center"></i>
+                        <span>Documents</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-legal-navy-700 hover:text-white transition-all duration-200">
+                        <i class="fas fa-users w-5 text-center"></i>
+                        <span>Clients</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-legal-navy-700 hover:text-white transition-all duration-200">
+                        <i class="fas fa-landmark w-5 text-center"></i>
+                        <span>Firm Resources</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- User Profile -->
+        <div class="p-4 border-t border-legal-navy-700">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-legal-burgundy-600 flex items-center justify-center text-white font-bold">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <div>
+                    <p class="font-medium">Robert Kensington</p>
+                    <p class="text-xs text-legal-navy-300">Senior Partner</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content flex-1 flex flex-col lg:ml-64 w-full overflow-hidden">
+        <!-- Fixed Header -->
+        <header class="header fixed top-0 right-0 lg:left-64 z-30 bg-white shadow-sm py-4 px-6 flex items-center justify-between border-b border-legal-ivory-400 w-full">
+            <div class="header-content flex flex-1 items-center justify-between w-full">
+                <div class="header-search flex-1 max-w-xl">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-legal-navy-500"></i>
+                        </div>
+                        <input type="text" class="block w-full pl-10 pr-3 py-2 border border-legal-ivory-400 rounded-lg bg-legal-ivory-100 focus:outline-none focus:ring-2 focus:ring-legal-burgundy-500 focus:border-transparent" placeholder="Search cases, documents, or clients...">
+                    </div>
+                </div>
+
+                <div class="header-actions flex items-center space-x-4 lg:space-x-6 ml-4">
+                    <div class="relative">
+                        <button class="relative p-2 text-legal-navy-700 hover:bg-legal-ivory-200 rounded-lg transition-colors duration-200">
+                            <i class="far fa-bell text-xl"></i>
+                            <span class="absolute top-0 right-0 w-5 h-5 bg-legal-burgundy-600 text-white text-xs rounded-full flex items-center justify-center">5</span>
+                        </button>
+                    </div>
+
+                    <div class="user-info hidden lg:flex items-center space-x-3 border-l border-legal-ivory-400 pl-6">
+                        <div class="text-right">
+                            <p class="font-medium">Robert Kensington</p>
+                            <p class="text-sm text-legal-navy-500">Senior Partner</p>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-legal-burgundy-600 flex items-center justify-center text-white font-bold">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 mt-16 p-4 lg:p-6 overflow-y-auto w-full">
+            <div layout:fragment="content"></div>
+        </main>
+    </div>
+</div>
+
+<script>
+    // Navigation handling
+    document.addEventListener('DOMContentLoaded', function() {
+        const navLinks = document.querySelectorAll('nav a');
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                navLinks.forEach(l => l.classList.remove('bg-legal-navy-700', 'text-white'));
+                navLinks.forEach(l => l.classList.add('hover:bg-legal-navy-700', 'hover:text-white'));
+                this.classList.add('bg-legal-navy-700', 'text-white');
+                this.classList.remove('hover:bg-legal-navy-700', 'hover:text-white');
+            });
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+
+        if (menuToggle && sidebar) {
+            menuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const isClickInsideSidebar = sidebar.contains(event.target);
+            const isClickInsideMenuToggle = menuToggle.contains(event.target);
+
+            if (!isClickInsideSidebar && !isClickInsideMenuToggle && window.innerWidth < 1024) {
+                sidebar.classList.remove('active');
+            }
+        });
+    });
+</script>
+</body>
+</html>
