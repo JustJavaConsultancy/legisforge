@@ -3,8 +3,8 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+  <meta charset="UTF-8">
+  <title>Title</title>
   <style>
     .legal-border {
             border-left: 4px solid #9b2f2f;
@@ -41,7 +41,42 @@
             border: 2px solid #9b2f2f;
             background-color: #fdf5f5;
         }
-    @media (max-width: 640px) {
+
+        .error-message {
+            color: #e53e3e;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        .input-error {
+            border-color: #e53e3e;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-right: -0.5rem;
+            margin-left: -0.5rem;
+        }
+
+        .form-col {
+            flex: 1 0 0%;
+            padding-right: 0.5rem;
+            padding-left: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn-disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 640px) {
             .stat-card {
                 padding: 1rem;
             }
@@ -61,6 +96,10 @@
             .modal-content {
                 margin: 1rem;
                 width: calc(100% - 2rem);
+            }
+
+            .form-col {
+                flex: 0 0 100%;
             }
         }
 
@@ -424,7 +463,10 @@
           <i class="fas fa-times text-xl"></i>
         </button>
       </div>
-      <div class="p-4 lg:p-6">
+      <form th:action="@{~/create-project}" th:object="${formData}" method="post" id="newCaseForm" class="p-4 lg:p-6">
+        <!-- Hidden field for transactionType -->
+        <input type="hidden" id="transactionType" name="transactionType">
+
         <div class="mb-6">
           <h4 class="font-medium text-legal-navy-700 mb-3">Select Transaction Type</h4>
           <div class="case-type-grid grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -443,26 +485,29 @@
               <p class="text-legal-navy-500 text-xs lg:text-sm mt-1">One company purchases another</p>
             </div>
           </div>
+          <div id="transactionTypeError" class="error-message">Please select a transaction type</div>
         </div>
 
         <div id="companyInfoSection" class="space-y-4">
           <h4 class="font-medium text-legal-navy-700 mb-3">Company Information</h4>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-legal-navy-700 mb-1">Acquiring/Merging Company</label>
-              <input type="text" id="acquiringCompany" class="w-full px-3 py-2 border border-legal-ivory-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-legal-burgundy-500 focus:border-transparent" placeholder="Enter company name">
+          <div class="form-row">
+            <div class="form-col">
+              <label class="block text-sm font-medium text-legal-navy-700 mb-1">Acquiring/Merging Company *</label>
+              <input type="text" id="acquiringCompany" name="acquiringCompany" class="w-full px-3 py-2 border border-legal-ivory-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-legal-burgundy-500 focus:border-transparent" placeholder="Enter company name" required>
+              <div id="acquiringCompanyError" class="error-message">This field is required</div>
             </div>
-            <div>
-              <label class="block text-sm font-medium text-legal-navy-700 mb-1">Target Company</label>
-              <input type="text" id="targetCompany" class="w-full px-3 py-2 border border-legal-ivory-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-legal-burgundy-500 focus:border-transparent" placeholder="Enter company name">
+            <div class="form-col">
+              <label class="block text-sm font-medium text-legal-navy-700 mb-1">Target Company *</label>
+              <input type="text" id="targetCompany" name="targetCompany" class="w-full px-3 py-2 border border-legal-ivory-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-legal-burgundy-500 focus:border-transparent" placeholder="Enter company name" required>
+              <div id="targetCompanyError" class="error-message">This field is required</div>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-legal-navy-700 mb-1">Industry</label>
-              <select id="industry" class="w-full px-3 py-2 border border-legal-ivory-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-legal-burgundy-500 focus:border-transparent">
+          <div class="form-row">
+            <div class="form-col">
+              <label class="block text-sm font-medium text-legal-navy-700 mb-1">Industry *</label>
+              <select id="industry" name="industry" class="w-full px-3 py-2 border border-legal-ivory-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-legal-burgundy-500 focus:border-transparent" required>
                 <option value="">Select Industry</option>
                 <option value="technology">Technology</option>
                 <option value="healthcare">Healthcare</option>
@@ -472,31 +517,51 @@
                 <option value="energy">Energy</option>
                 <option value="other">Other</option>
               </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-legal-navy-700 mb-1">Deal Size</label>
-              <select id="dealSize" class="w-full px-3 py-2 border border-legal-ivory-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-legal-burgundy-500 focus:border-transparent">
-                <option value="">Select Deal Size</option>
-                <option value="small">Small (Under $10M)</option>
-                <option value="medium">Medium ($10M - $100M)</option>
-                <option value="large">Large ($100M - $1B)</option>
-                <option value="mega">Mega (Over $1B)</option>
-              </select>
+              <div id="industryError" class="error-message">Please select an industry</div>
             </div>
           </div>
 
-          <div>
-            <label class="block text-sm font-medium text-legal-navy-700 mb-1">Transaction Description</label>
-            <textarea id="transactionDescription" class="w-full px-3 py-2 border border-legal-ivory-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-legal-burgundy-500 focus:border-transparent" rows="3" placeholder="Describe the purpose and goals of this transaction"></textarea>
+          <h4 class="font-medium text-legal-navy-700 mb-3 mt-6">Contact Information</h4>
+
+          <div class="form-row">
+            <div class="form-col">
+              <label class="block text-sm font-medium text-legal-navy-700 mb-1">Acquiring Company Email *</label>
+              <input type="email" id="acquiringEmail" name="acquiringEmail" class="w-full px-3 py-2 border border-legal-ivory-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-legal-burgundy-500 focus:border-transparent" placeholder="Enter email address" required>
+              <div id="acquiringEmailError" class="error-message">Please enter a valid email address</div>
+            </div>
+            <div class="form-col">
+              <label class="block text-sm font-medium text-legal-navy-700 mb-1">Acquiring Company Phone *</label>
+              <input type="tel" id="acquiringPhone" name="acquiringPhone" class="w-full px-3 py-2 border border-legal-ivory-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-legal-burgundy-500 focus:border-transparent" placeholder="Enter phone number" required>
+              <div id="acquiringPhoneError" class="error-message">Please enter a valid phone number</div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-col">
+              <label class="block text-sm font-medium text-legal-navy-700 mb-1">Target Company Email *</label>
+              <input type="email" id="targetEmail" name="targetEmail" class="w-full px-3 py-2 border border-legal-ivory-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-legal-burgundy-500 focus:border-transparent" placeholder="Enter email address" required>
+              <div id="targetEmailError" class="error-message">Please enter a valid email address</div>
+            </div>
+            <div class="form-col">
+              <label class="block text-sm font-medium text-legal-navy-700 mb-1">Target Company Phone *</label>
+              <input type="tel" id="targetPhone" name="targetPhone" class="w-full px-3 py-2 border border-legal-ivory-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-legal-burgundy-500 focus:border-transparent" placeholder="Enter phone number" required>
+              <div id="targetPhoneError" class="error-message">Please enter a valid phone number</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="block text-sm font-medium text-legal-navy-700 mb-1">Transaction Description *</label>
+            <textarea id="transactionDescription" name="transactionDescription" class="w-full px-3 py-2 border border-legal-ivory-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-legal-burgundy-500 focus:border-transparent" rows="3" placeholder="Describe the purpose and goals of this transaction" required></textarea>
+            <div id="transactionDescriptionError" class="error-message">This field is required</div>
           </div>
         </div>
-      </div>
+      </form>
       <div class="px-4 lg:px-6 py-4 border-t border-legal-ivory-400 flex justify-end space-x-3 modal-buttons">
         <button id="cancelCase" class="px-4 py-2 border border-legal-navy-300 text-legal-navy-700 rounded-lg hover:bg-legal-navy-50 transition-colors duration-200">
           Cancel
         </button>
         <button id="createCase" class="px-4 py-2 bg-legal-burgundy-600 text-white rounded-lg hover:bg-legal-burgundy-700 transition-colors duration-200 flex items-center">
-          <i class="fas fa-plus mr-2"></i> Create Case
+          <i class="fas fa-plus mr-2"></i> Create Project
         </button>
       </div>
     </div>
@@ -510,6 +575,9 @@
             const cancelCase = document.getElementById('cancelCase');
             const createCase = document.getElementById('createCase');
             const caseTypeCards = document.querySelectorAll('#newCaseModal .case-type-card');
+            const form = document.getElementById('newCaseForm');
+            const transactionTypeField = document.getElementById('transactionType');
+            let selectedTransactionType = null;
 
             newCaseBtn.addEventListener('click', function() {
                 newCaseModal.classList.remove('hidden');
@@ -519,6 +587,15 @@
             function closeModalFunction() {
                 newCaseModal.classList.add('hidden');
                 document.body.style.overflow = 'auto';
+                // Reset form
+                form.reset();
+                selectedTransactionType = null;
+                transactionTypeField.value = '';
+                caseTypeCards.forEach(c => c.classList.remove('selected'));
+                // Clear error states
+                clearErrors();
+                // Re-enable create button when modal is closed
+                enableCreateButton();
             }
 
             closeModal.addEventListener('click', closeModalFunction);
@@ -530,21 +607,112 @@
                     closeModalFunction();
                 }
             });
+
             // Case type selection in new case modal
             caseTypeCards.forEach(card => {
                 card.addEventListener('click', function() {
                     caseTypeCards.forEach(c => c.classList.remove('selected'));
                     this.classList.add('selected');
+                    selectedTransactionType = this.getAttribute('data-type');
+                    transactionTypeField.value = selectedTransactionType;
+                    document.getElementById('transactionTypeError').style.display = 'none';
                 });
             });
 
-            // Tab functionality
-            const tabs = document.querySelectorAll('.flex.space-x-8 button');
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    tabs.forEach(t => t.classList.remove('tab-active'));
-                    this.classList.add('tab-active');
+            // Function to disable create button
+            function disableCreateButton() {
+                createCase.disabled = true;
+                createCase.classList.add('btn-disabled');
+                createCase.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Creating...';
+            }
+
+            // Function to enable create button
+            function enableCreateButton() {
+                createCase.disabled = false;
+                createCase.classList.remove('btn-disabled');
+                createCase.innerHTML = '<i class="fas fa-plus mr-2"></i> Create Project';
+            }
+
+            // Form validation
+            function validateForm() {
+                let isValid = true;
+
+                // Validate transaction type
+                if (!selectedTransactionType) {
+                    document.getElementById('transactionTypeError').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('transactionTypeError').style.display = 'none';
+                }
+
+                // Validate required fields
+                const requiredFields = [
+                    'acquiringCompany', 'targetCompany', 'industry',
+                    'acquiringEmail', 'acquiringPhone', 'targetEmail',
+                    'targetPhone', 'transactionDescription'
+                ];
+
+                requiredFields.forEach(field => {
+                    const element = document.getElementById(field);
+                    const errorElement = document.getElementById(field + 'Error');
+
+                    if (!element.value.trim()) {
+                        element.classList.add('input-error');
+                        errorElement.style.display = 'block';
+                        isValid = false;
+                    } else {
+                        element.classList.remove('input-error');
+                        errorElement.style.display = 'none';
+                    }
                 });
+
+                // Validate email format
+                const emailFields = ['acquiringEmail', 'targetEmail'];
+                emailFields.forEach(field => {
+                    const element = document.getElementById(field);
+                    const errorElement = document.getElementById(field + 'Error');
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                    if (element.value.trim() && !emailRegex.test(element.value)) {
+                        element.classList.add('input-error');
+                        errorElement.textContent = 'Please enter a valid email address';
+                        errorElement.style.display = 'block';
+                        isValid = false;
+                    }
+                });
+
+                return isValid;
+            }
+
+            function clearErrors() {
+                const errorElements = document.querySelectorAll('.error-message');
+                errorElements.forEach(element => {
+                    element.style.display = 'none';
+                });
+
+                const inputElements = document.querySelectorAll('.input-error');
+                inputElements.forEach(element => {
+                    element.classList.remove('input-error');
+                });
+            }
+
+            // Handle form submission
+            createCase.addEventListener('click', function() {
+                if (validateForm()) {
+                    // Disable the button immediately when submission starts
+                    disableCreateButton();
+
+                    // Submit the form
+                    form.submit();
+
+                    // Optional: You can also add a timeout to prevent multiple submissions
+                    // and re-enable the button after a certain time if submission fails
+                    setTimeout(() => {
+                        if (createCase.disabled) {
+                            enableCreateButton();
+                        }
+                    }, 10000); // Re-enable after 10 seconds if still disabled
+                }
             });
     });
   </script>
