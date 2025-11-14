@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LegisForge - Legal Analytics Dashboard</title>
+    <title>LegisForge - Acquisition Analytics Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -327,6 +327,21 @@
             color: #6b7280;
         }
 
+        .urgency-high {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+
+        .urgency-medium {
+            background-color: #fef3c7;
+            color: #d97706;
+        }
+
+        .urgency-low {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
         @media (max-width: 1024px) {
             .mobile-menu-toggle {
                 display: block;
@@ -402,528 +417,383 @@
     </style>
 </head>
 <body>
-        <main layout:fragment="content">
-            <!-- Welcome Section -->
-            <div class="mb-6 lg:mb-8 animate-fade-in">
-                <h1 class="text-2xl lg:text-3xl font-bold text-primary font-serif">Dashboard</h1>
-                <p class="text-legal-navy-600 mt-2">M&A Process Analytics & Document Workflow Monitoring</p>
-            </div>
+<main layout:fragment="content">
+    <!-- Welcome Section -->
+    <div class="mb-6 lg:mb-8 animate-fade-in">
+        <h1 class="text-2xl lg:text-3xl font-bold text-primary font-serif">Acquisition Dashboard</h1>
+        <p class="text-legal-navy-600 mt-2">M&A Acquisition Analytics & Workflow Monitoring</p>
+    </div>
 
-            <!-- Key Metrics Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8">
-                <!-- Merger Processes -->
-                <div class="stat-card bg-white rounded-lg shadow-sm p-4 lg:p-6 legal-border animate-slide-in border border-legal-ivory-400">
+    <!-- Key Metrics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8">
+        <!-- Active Acquisitions -->
+        <div class="stat-card bg-white rounded-lg shadow-sm p-4 lg:p-6 legal-border animate-slide-in border border-legal-ivory-400">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-legal-navy-500 text-sm font-medium">Active Acquisitions</p>
+                    <p class="text-2xl lg:text-3xl font-bold text-primary mt-2">16</p>
+                    <div class="flex items-center mt-2 text-green-600 text-sm">
+                        <i class="fas fa-arrow-up mr-1"></i>
+                        <span>7 new this week</span>
+                    </div>
+                </div>
+                <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-lg bg-legal-burgundy-100 flex items-center justify-center">
+                    <i class="fas fa-building text-legal-burgundy-600 text-lg lg:text-xl"></i>
+                </div>
+            </div>
+            <div class="mt-4 pt-4 border-t border-legal-ivory-300">
+                <div class="flex justify-between text-sm">
+                    <span class="text-legal-navy-600">Due This Month</span>
+                    <span class="font-medium text-primary">5</span>
+                </div>
+                <div class="flex justify-between text-sm mt-1">
+                    <span class="text-legal-navy-600">High Priority</span>
+                    <span class="font-medium text-primary">3</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Completed Acquisitions -->
+        <div class="stat-card bg-white rounded-lg shadow-sm p-4 lg:p-6 legal-border animate-slide-in border border-legal-ivory-400" style="animation-delay: 0.1s;">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-legal-navy-500 text-sm font-medium">Completed Acquisitions</p>
+                    <p class="text-2xl lg:text-3xl font-bold text-primary mt-2">6</p>
+                    <div class="flex items-center mt-2 text-green-600 text-sm">
+                        <i class="fas fa-check-circle mr-1"></i>
+                        <span>2 this week</span>
+                    </div>
+                </div>
+                <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-lg bg-legal-navy-100 flex items-center justify-center">
+                    <i class="fas fa-handshake text-legal-navy-600 text-lg lg:text-xl"></i>
+                </div>
+            </div>
+            <div class="mt-4 pt-4 border-t border-legal-ivory-300">
+                <div class="flex justify-between text-sm">
+                    <span class="text-legal-navy-600">This Month</span>
+                    <span class="font-medium text-primary">3</span>
+                </div>
+                <div class="flex justify-between text-sm mt-1">
+                    <span class="text-legal-navy-600">Last Month</span>
+                    <span class="font-medium text-primary">4</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Acquisition Documents -->
+        <div class="stat-card bg-white rounded-lg shadow-sm p-4 lg:p-6 legal-border animate-slide-in border border-legal-ivory-400" style="animation-delay: 0.2s;">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-legal-navy-500 text-sm font-medium">Acquisition Documents</p>
+                    <p class="text-2xl lg:text-3xl font-bold text-primary mt-2">142</p>
+                    <div class="flex items-center mt-2 text-green-600 text-sm">
+                        <i class="fas fa-arrow-up mr-1"></i>
+                        <span>42 this week</span>
+                    </div>
+                </div>
+                <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-lg bg-legal-gold-100 flex items-center justify-center">
+                    <i class="fas fa-file-contract text-legal-gold-600 text-lg lg:text-xl"></i>
+                </div>
+            </div>
+            <div class="mt-4 pt-4 border-t border-legal-ivory-300">
+                <div class="flex justify-between text-sm">
+                    <span class="text-legal-navy-600">Pending Review</span>
+                    <span class="font-medium text-primary">28</span>
+                </div>
+                <div class="flex justify-between text-sm mt-1">
+                    <span class="text-legal-navy-600">AI Generated</span>
+                    <span class="font-medium text-primary">98</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Two Column Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mb-6 lg:mb-8">
+        <!-- Project Metrics Graph -->
+        <div class="graph-container animate-fade-in">
+            <div class="graph-header">
+                <h3 class="graph-title">Acquisition Project Metrics</h3>
+            </div>
+            <div class="h-80 lg:h-96">
+                <canvas id="projectMetricsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Upcoming Deadlines Section -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden animate-fade-in border border-legal-ivory-400">
+            <div class="px-4 lg:px-6 py-4 border-b border-legal-ivory-400 flex justify-between items-center">
+                <h2 class="text-lg lg:text-xl font-bold text-primary font-serif">Upcoming Deadlines</h2>
+                <a href="#" class="text-secondary hover:text-legal-burgundy-800 font-medium text-sm">View All</a>
+            </div>
+            <div class="divide-y divide-legal-ivory-300 max-h-[580px] overflow-y-auto">
+                <div class="p-4 lg:p-6 process-row transition-colors duration-200">
                     <div class="flex justify-between items-start">
                         <div>
-                            <p class="text-legal-navy-500 text-sm font-medium">Merger Matters</p>
-                            <p class="text-2xl lg:text-3xl font-bold text-primary mt-2">14</p>
-                            <div class="flex items-center mt-2 text-green-600 text-sm">
-                                <i class="fas fa-arrow-up mr-1"></i>
-                                <span>3 new this week</span>
+                            <h4 class="font-medium text-legal-navy-900">StartUp Innovations Acquisition</h4>
+                            <p class="text-legal-navy-600 text-sm mt-1">Due Diligence Phase</p>
+                            <div class="flex items-center mt-2">
+                                <span class="status-badge urgency-high">High Priority</span>
+                                <span class="text-legal-navy-500 text-sm ml-3"><i class="far fa-clock mr-1"></i>Due: Tomorrow</span>
                             </div>
                         </div>
-                        <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-lg bg-legal-navy-100 flex items-center justify-center">
-                            <i class="fas fa-handshake text-legal-navy-600 text-lg lg:text-xl"></i>
-                        </div>
-                    </div>
-                    <div class="mt-4 pt-4 border-t border-legal-ivory-300">
-                        <div class="flex justify-between text-sm">
-                            <span class="text-legal-navy-600">Active</span>
-                            <span class="font-medium text-primary">8</span>
-                        </div>
-                        <div class="flex justify-between text-sm mt-1">
-                            <span class="text-legal-navy-600">Completed</span>
-                            <span class="font-medium text-primary">6</span>
+                        <div class="text-right">
+                            <p class="text-legal-navy-500 text-sm">Matter #AC-2023-0543</p>
+                            <p class="text-legal-navy-400 text-xs mt-1">Innovate Partners Inc.</p>
                         </div>
                     </div>
                 </div>
-
-                <!-- Acquisition Processes -->
-                <div class="stat-card bg-white rounded-lg shadow-sm p-4 lg:p-6 legal-border animate-slide-in border border-legal-ivory-400" style="animation-delay: 0.1s;">
+                <div class="p-4 lg:p-6 process-row transition-colors duration-200">
                     <div class="flex justify-between items-start">
                         <div>
-                            <p class="text-legal-navy-500 text-sm font-medium">Acquisition Matters</p>
-                            <p class="text-2xl lg:text-3xl font-bold text-primary mt-2">22</p>
-                            <div class="flex items-center mt-2 text-green-600 text-sm">
-                                <i class="fas fa-arrow-up mr-1"></i>
-                                <span>7 new this week</span>
+                            <h4 class="font-medium text-legal-navy-900">Asset Purchase Agreement</h4>
+                            <p class="text-legal-navy-600 text-sm mt-1">Risk Assessment Phase</p>
+                            <div class="flex items-center mt-2">
+                                <span class="status-badge urgency-medium">Medium Priority</span>
+                                <span class="text-legal-navy-500 text-sm ml-3"><i class="far fa-clock mr-1"></i>Due: 3 days</span>
                             </div>
                         </div>
-                        <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-lg bg-legal-burgundy-100 flex items-center justify-center">
-                            <i class="fas fa-building text-legal-burgundy-600 text-lg lg:text-xl"></i>
-                        </div>
-                    </div>
-                    <div class="mt-4 pt-4 border-t border-legal-ivory-300">
-                        <div class="flex justify-between text-sm">
-                            <span class="text-legal-navy-600">Active</span>
-                            <span class="font-medium text-primary">16</span>
-                        </div>
-                        <div class="flex justify-between text-sm mt-1">
-                            <span class="text-legal-navy-600">Completed</span>
-                            <span class="font-medium text-primary">6</span>
+                        <div class="text-right">
+                            <p class="text-legal-navy-500 text-sm">Matter #AC-2023-0678</p>
+                            <p class="text-legal-navy-400 text-xs mt-1">Capital Holdings Ltd.</p>
                         </div>
                     </div>
                 </div>
-
-                <!-- Generated Documents -->
-                <div class="stat-card bg-white rounded-lg shadow-sm p-4 lg:p-6 legal-border animate-slide-in border border-legal-ivory-400" style="animation-delay: 0.2s;">
+                <div class="p-4 lg:p-6 process-row transition-colors duration-200">
                     <div class="flex justify-between items-start">
                         <div>
-                            <p class="text-legal-navy-500 text-sm font-medium">Legal Documents</p>
-                            <p class="text-2xl lg:text-3xl font-bold text-primary mt-2">187</p>
-                            <div class="flex items-center mt-2 text-green-600 text-sm">
-                                <i class="fas fa-arrow-up mr-1"></i>
-                                <span>42 this week</span>
+                            <h4 class="font-medium text-legal-navy-900">TechCorp Asset Acquisition</h4>
+                            <p class="text-legal-navy-600 text-sm mt-1">Document Finalization</p>
+                            <div class="flex items-center mt-2">
+                                <span class="status-badge urgency-medium">Medium Priority</span>
+                                <span class="text-legal-navy-500 text-sm ml-3"><i class="far fa-clock mr-1"></i>Due: 1 week</span>
                             </div>
                         </div>
-                        <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-lg bg-legal-gold-100 flex items-center justify-center">
-                            <i class="fas fa-file-contract text-legal-gold-600 text-lg lg:text-xl"></i>
+                        <div class="text-right">
+                            <p class="text-legal-navy-500 text-sm">Matter #AC-2023-0789</p>
+                            <p class="text-legal-navy-400 text-xs mt-1">Global Ventures LLC</p>
                         </div>
                     </div>
-                    <div class="mt-4 pt-4 border-t border-legal-ivory-300">
-                        <div class="flex justify-between text-sm">
-                            <span class="text-legal-navy-600">This Month</span>
-                            <span class="font-medium text-primary">142</span>
+                </div>
+                <div class="p-4 lg:p-6 process-row transition-colors duration-200">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="font-medium text-legal-navy-900">Data Solutions Merger</h4>
+                            <p class="text-legal-navy-600 text-sm mt-1">Regulatory Compliance</p>
+                            <div class="flex items-center mt-2">
+                                <span class="status-badge urgency-low">Low Priority</span>
+                                <span class="text-legal-navy-500 text-sm ml-3"><i class="far fa-clock mr-1"></i>Due: 2 weeks</span>
+                            </div>
                         </div>
-                        <div class="flex justify-between text-sm mt-1">
-                            <span class="text-legal-navy-600">AI Generated</span>
-                            <span class="font-medium text-primary">156</span>
+                        <div class="text-right">
+                            <p class="text-legal-navy-500 text-sm">Matter #AC-2023-0821</p>
+                            <p class="text-legal-navy-400 text-xs mt-1">Enterprise Solutions Corp.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 lg:p-6 process-row transition-colors duration-200">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="font-medium text-legal-navy-900">Manufacturing Division Purchase</h4>
+                            <p class="text-legal-navy-600 text-sm mt-1">Contract Negotiation</p>
+                            <div class="flex items-center mt-2">
+                                <span class="status-badge urgency-low">Low Priority</span>
+                                <span class="text-legal-navy-500 text-sm ml-3"><i class="far fa-clock mr-1"></i>Due: 3 weeks</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-legal-navy-500 text-sm">Matter #AC-2023-0915</p>
+                            <p class="text-legal-navy-400 text-xs mt-1">Industrial Partners Inc.</p>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Process Stage Analytics -->
-            <div class="mb-6 lg:mb-8">
-                <div class="graph-container animate-fade-in">
-                    <div class="graph-header">
-                        <h3 class="graph-title">M&A Process Stage Analytics</h3>
-                    </div>
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <!-- Main Chart -->
-                        <div class="h-80 lg:h-96">
-                            <canvas id="stageAnalyticsChart"></canvas>
-                        </div>
-
-                        <!-- Stage Statistics -->
-                        <div class="bg-legal-ivory-50 rounded-lg p-4">
-                            <h4 class="font-semibold text-legal-navy-800 mb-4">Stage Statistics</h4>
-                            <div class="space-y-3">
-                                <div class="stage-stat">
-                                    <div class="stage-info">
-                                        <div class="stage-color" style="background-color: #2c3b4e;"></div>
-                                        <div>
-                                            <div class="stage-name">Document Upload</div>
-                                            <div class="text-xs text-legal-navy-500">Corporate, IP & Employment Docs</div>
-                                        </div>
-                                    </div>
-                                    <div class="stage-stats">
-                                        <div class="stat-item">
-                                            <div class="stat-value">12</div>
-                                            <div class="stat-label">Active</div>
-                                        </div>
-                                        <div class="stat-item">
-                                            <div class="stat-value">3.2d</div>
-                                            <div class="stat-label">Avg. Time</div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="stage-stat">
-                                    <div class="stage-info">
-                                        <div class="stage-color" style="background-color: #436587;"></div>
-                                        <div>
-                                            <div class="stage-name">Document Combination</div>
-                                            <div class="text-xs text-legal-navy-500">System combines documents</div>
-                                        </div>
-                                    </div>
-                                    <div class="stage-stats">
-                                        <div class="stat-item">
-                                            <div class="stat-value">8</div>
-                                            <div class="stat-label">Active</div>
-                                        </div>
-                                        <div class="stat-item">
-                                            <div class="stat-value">1.5d</div>
-                                            <div class="stat-label">Avg. Time</div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="stage-stat">
-                                    <div class="stage-info">
-                                        <div class="stage-color" style="background-color: #ca8a04;"></div>
-                                        <div>
-                                            <div class="stage-name">Risk Analysis</div>
-                                            <div class="text-xs text-legal-navy-500">IP, Employment & Corporate Risk</div>
-                                        </div>
-                                    </div>
-                                    <div class="stage-stats">
-                                        <div class="stat-item">
-                                            <div class="stat-value">15</div>
-                                            <div class="stat-label">Active</div>
-                                        </div>
-                                        <div class="stat-item">
-                                            <div class="stat-value">5.7d</div>
-                                            <div class="stat-label">Avg. Time</div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="stage-stat">
-                                    <div class="stage-info">
-                                        <div class="stage-color" style="background-color: #9b2f2f;"></div>
-                                        <div>
-                                            <div class="stage-name">Red Document Generation</div>
-                                            <div class="text-xs text-legal-navy-500">Based on combined risk analysis</div>
-                                        </div>
-                                    </div>
-                                    <div class="stage-stats">
-                                        <div class="stat-item">
-                                            <div class="stat-value">5</div>
-                                            <div class="stat-label">Active</div>
-                                        </div>
-                                        <div class="stat-item">
-                                            <div class="stat-value">2.3d</div>
-                                            <div class="stat-label">Avg. Time</div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="stage-stat">
-                                    <div class="stage-info">
-                                        <div class="stage-color" style="background-color: #10b981;"></div>
-                                        <div>
-                                            <div class="stage-name">Completed</div>
-                                            <div class="text-xs text-legal-navy-500">Process finalized</div>
-                                        </div>
-                                    </div>
-                                    <div class="stage-stats">
-                                        <div class="stat-item">
-                                            <div class="stat-value">9</div>
-                                            <div class="stat-label">This Week</div>
-                                        </div>
-                                        <div class="stat-item">
-                                            <div class="stat-value">14.5d</div>
-                                            <div class="stat-label">Avg. Total</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <!-- Active Acquisition Matters Section -->
+    <div class="mb-6 lg:mb-8">
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden animate-fade-in border border-legal-ivory-400">
+            <div class="px-4 lg:px-6 py-4 border-b border-legal-ivory-400 flex justify-between items-center">
+                <h2 class="text-lg lg:text-xl font-bold text-primary font-serif">Active Acquisition Matters</h2>
+                <a href="#" class="text-secondary hover:text-legal-burgundy-800 font-medium text-sm">View All Matters</a>
             </div>
-
-            <!-- Active Legal Matters Section -->
-            <div class="mb-6 lg:mb-8">
-                <div class="bg-white rounded-lg shadow-sm overflow-hidden animate-fade-in border border-legal-ivory-400">
-                    <div class="px-4 lg:px-6 py-4 border-b border-legal-ivory-400 flex justify-between items-center">
-                        <h2 class="text-lg lg:text-xl font-bold text-primary font-serif">Active Legal Matters</h2>
-                        <a href="#" class="text-secondary hover:text-legal-burgundy-800 font-medium text-sm">View All Matters</a>
-                    </div>
-                    <div class="table-container overflow-x-auto">
-                        <table class="w-full">
-                            <thead class="bg-legal-ivory-100">
-                            <tr>
-                                <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-legal-navy-500 uppercase tracking-wider">Matter Name</th>
-                                <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-legal-navy-500 uppercase tracking-wider">Type</th>
-                                <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-legal-navy-500 uppercase tracking-wider">Client</th>
-                                <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-legal-navy-500 uppercase tracking-wider">Status</th>
-                                <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-legal-navy-500 uppercase tracking-wider">Progress</th>
-                            </tr>
-                            </thead>
-                            <tbody class="divide-y divide-legal-ivory-300">
-                            <tr class="process-row transition-colors duration-200">
-                                <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
-                                    <div class="font-medium text-legal-navy-900">TechCorp Strategic Merger</div>
-                                    <div class="text-xs text-legal-navy-500">Matter #MC-2023-0876</div>
-                                </td>
-                                <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
-                                    <span class="status-badge bg-legal-navy-100 text-legal-navy-800">Merger</span>
-                                </td>
-                                <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-legal-navy-600">Global Ventures LLC</td>
-                                <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
-                                    <span class="status-badge bg-amber-100 text-amber-800">Document Review</span>
-                                </td>
-                                <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
-                                    <div class="w-full bg-legal-ivory-300 rounded-full h-2">
-                                        <div class="bg-legal-navy-600 h-2 rounded-full" style="width: 75%"></div>
-                                    </div>
-                                    <span class="text-xs text-legal-navy-500 mt-1">75%</span>
-                                </td>
-                            </tr>
-                            <tr class="process-row transition-colors duration-200">
-                                <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
-                                    <div class="font-medium text-legal-navy-900">StartUp Innovations Acquisition</div>
-                                    <div class="text-xs text-legal-navy-500">Matter #AC-2023-0543</div>
-                                </td>
-                                <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
-                                    <span class="status-badge bg-legal-burgundy-100 text-legal-burgundy-800">Acquisition</span>
-                                </td>
-                                <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-legal-navy-600">Innovate Partners Inc.</td>
-                                <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
-                                    <span class="status-badge bg-blue-100 text-blue-800">Due Diligence</span>
-                                </td>
-                                <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
-                                    <div class="w-full bg-legal-ivory-300 rounded-full h-2">
-                                        <div class="bg-legal-burgundy-600 h-2 rounded-full" style="width: 45%"></div>
-                                    </div>
-                                    <span class="text-xs text-legal-navy-500 mt-1">45%</span>
-                                </td>
-                            </tr>
-                            <tr class="process-row transition-colors duration-200">
-                                <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
-                                    <div class="font-medium text-legal-navy-900">Global Expansion Merger</div>
-                                    <div class="text-xs text-legal-navy-500">Matter #MC-2023-0921</div>
-                                </td>
-                                <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
-                                    <span class="status-badge bg-legal-navy-100 text-legal-navy-800">Merger</span>
-                                </td>
-                                <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-legal-navy-600">Enterprise Solutions Corp.</td>
-                                <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
-                                    <span class="status-badge bg-green-100 text-green-800">Final Approval</span>
-                                </td>
-                                <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
-                                    <div class="w-full bg-legal-ivory-300 rounded-full h-2">
-                                        <div class="bg-green-500 h-2 rounded-full" style="width: 90%"></div>
-                                    </div>
-                                    <span class="text-xs text-legal-navy-500 mt-1">90%</span>
-                                </td>
-                            </tr>
-                            <tr class="process-row transition-colors duration-200">
-                                <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
-                                    <div class="font-medium text-legal-navy-900">Asset Purchase Agreement</div>
-                                    <div class="text-xs text-legal-navy-500">Matter #AC-2023-0678</div>
-                                </td>
-                                <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
-                                    <span class="status-badge bg-legal-burgundy-100 text-legal-burgundy-800">Acquisition</span>
-                                </td>
-                                <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-legal-navy-600">Capital Holdings Ltd.</td>
-                                <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
-                                    <span class="status-badge bg-purple-100 text-purple-800">Risk Assessment</span>
-                                </td>
-                                <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
-                                    <div class="w-full bg-legal-ivory-300 rounded-full h-2">
-                                        <div class="bg-purple-500 h-2 rounded-full" style="width: 60%"></div>
-                                    </div>
-                                    <span class="text-xs text-legal-navy-500 mt-1">60%</span>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            <div class="table-container overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-legal-ivory-100">
+                    <tr>
+                        <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-legal-navy-500 uppercase tracking-wider">Acquisition Name</th>
+                        <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-legal-navy-500 uppercase tracking-wider">Client</th>
+                        <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-legal-navy-500 uppercase tracking-wider">Status</th>
+                        <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-legal-navy-500 uppercase tracking-wider">Deadline</th>
+                        <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-legal-navy-500 uppercase tracking-wider">Progress</th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-legal-ivory-300">
+                    <tr class="process-row transition-colors duration-200">
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
+                            <div class="font-medium text-legal-navy-900">StartUp Innovations Acquisition</div>
+                            <div class="text-xs text-legal-navy-500">Matter #AC-2023-0543</div>
+                        </td>
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-legal-navy-600">Innovate Partners Inc.</td>
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
+                            <span class="status-badge bg-blue-100 text-blue-800">Due Diligence</span>
+                        </td>
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
+                            <span class="text-legal-navy-700 font-medium">Tomorrow</span>
+                        </td>
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
+                            <div class="w-full bg-legal-ivory-300 rounded-full h-2">
+                                <div class="bg-legal-burgundy-600 h-2 rounded-full" style="width: 45%"></div>
+                            </div>
+                            <span class="text-xs text-legal-navy-500 mt-1">45%</span>
+                        </td>
+                    </tr>
+                    <tr class="process-row transition-colors duration-200">
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
+                            <div class="font-medium text-legal-navy-900">Asset Purchase Agreement</div>
+                            <div class="text-xs text-legal-navy-500">Matter #AC-2023-0678</div>
+                        </td>
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-legal-navy-600">Capital Holdings Ltd.</td>
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
+                            <span class="status-badge bg-purple-100 text-purple-800">Risk Assessment</span>
+                        </td>
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
+                            <span class="text-legal-navy-700 font-medium">3 days</span>
+                        </td>
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
+                            <div class="w-full bg-legal-ivory-300 rounded-full h-2">
+                                <div class="bg-purple-500 h-2 rounded-full" style="width: 60%"></div>
+                            </div>
+                            <span class="text-xs text-legal-navy-500 mt-1">60%</span>
+                        </td>
+                    </tr>
+                    <tr class="process-row transition-colors duration-200">
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
+                            <div class="font-medium text-legal-navy-900">TechCorp Asset Acquisition</div>
+                            <div class="text-xs text-legal-navy-500">Matter #AC-2023-0789</div>
+                        </td>
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-legal-navy-600">Global Ventures LLC</td>
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
+                            <span class="status-badge bg-amber-100 text-amber-800">Document Review</span>
+                        </td>
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
+                            <span class="text-legal-navy-700 font-medium">1 week</span>
+                        </td>
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
+                            <div class="w-full bg-legal-ivory-300 rounded-full h-2">
+                                <div class="bg-amber-500 h-2 rounded-full" style="width: 75%"></div>
+                            </div>
+                            <span class="text-xs text-legal-navy-500 mt-1">75%</span>
+                        </td>
+                    </tr>
+                    <tr class="process-row transition-colors duration-200">
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
+                            <div class="font-medium text-legal-navy-900">Data Solutions Merger</div>
+                            <div class="text-xs text-legal-navy-500">Matter #AC-2023-0821</div>
+                        </td>
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-legal-navy-600">Enterprise Solutions Corp.</td>
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
+                            <span class="status-badge bg-green-100 text-green-800">Final Approval</span>
+                        </td>
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
+                            <span class="text-legal-navy-700 font-medium">2 weeks</span>
+                        </td>
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
+                            <div class="w-full bg-legal-ivory-300 rounded-full h-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: 90%"></div>
+                            </div>
+                            <span class="text-xs text-legal-navy-500 mt-1">90%</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
-            <div class="bg-white rounded-lg shadow-sm overflow-hidden animate-fade-in border border-legal-ivory-400">
-                <div class="px-4 lg:px-6 py-4 border-b border-legal-ivory-400 flex justify-between items-center">
-                    <h2 class="text-lg lg:text-xl font-bold text-primary font-serif">Recent Activities</h2>
-                    <a href="#" class="text-secondary hover:text-legal-burgundy-800 font-medium text-sm">View All</a>
-                </div>
-                <div class="divide-y divide-legal-ivory-300 max-h-[580px] overflow-y-auto p-3 lg:p-4">
-                    <div class="activity-item py-3">
-                        <div class="flex items-start space-x-3">
-                            <div class="w-8 h-8 rounded-full bg-legal-navy-600 flex items-center justify-center text-white flex-shrink-0 mt-1">
-                                <i class="fas fa-file-contract text-xs"></i>
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="font-medium text-legal-navy-900">NDA generated for TechCorp</h4>
-                                <p class="text-legal-navy-600 text-sm mt-1">AI drafted a non-disclosure agreement for merger process</p>
-                                <p class="text-legal-navy-400 text-xs mt-1">2 hours ago</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="activity-item py-3">
-                        <div class="flex items-start space-x-3">
-                            <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white flex-shrink-0 mt-1">
-                                <i class="fas fa-check-circle text-xs"></i>
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="font-medium text-legal-navy-900">Due diligence completed</h4>
-                                <p class="text-legal-navy-600 text-sm mt-1">AI analysis found no critical issues in StartUp acquisition</p>
-                                <p class="text-legal-navy-400 text-xs mt-1">5 hours ago</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="activity-item py-3">
-                        <div class="flex items-start space-x-3">
-                            <div class="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-white flex-shrink-0 mt-1">
-                                <i class="fas fa-exclamation-triangle text-xs"></i>
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="font-medium text-legal-navy-900">Risk flagged in employment docs</h4>
-                                <p class="text-legal-navy-600 text-sm mt-1">AI detected compliance issues in Global Expansion merger</p>
-                                <p class="text-legal-navy-400 text-xs mt-1">1 day ago</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="activity-item py-3">
-                        <div class="flex items-start space-x-3">
-                            <div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white flex-shrink-0 mt-1">
-                                <i class="fas fa-balance-scale text-xs"></i>
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="font-medium text-legal-navy-900">Regulatory compliance review</h4>
-                                <p class="text-legal-navy-600 text-sm mt-1">Completed antitrust assessment for TechCorp merger</p>
-                                <p class="text-legal-navy-400 text-xs mt-1">2 days ago</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="activity-item py-3">
-                        <div class="flex items-start space-x-3">
-                            <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white flex-shrink-0 mt-1">
-                                <i class="fas fa-user-check text-xs"></i>
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="font-medium text-legal-navy-900">Client review completed</h4>
-                                <p class="text-legal-navy-600 text-sm mt-1">Global Ventures approved the term sheet</p>
-                                <p class="text-legal-navy-400 text-xs mt-1">3 days ago</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="activity-item py-3">
-                        <div class="flex items-start space-x-3">
-                            <div class="w-8 h-8 rounded-full bg-legal-burgundy-500 flex items-center justify-center text-white flex-shrink-0 mt-1">
-                                <i class="fas fa-file-upload text-xs"></i>
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="font-medium text-legal-navy-900">Corporate documents uploaded</h4>
-                                <p class="text-legal-navy-600 text-sm mt-1">All required documents submitted for Asset Purchase</p>
-                                <p class="text-legal-navy-400 text-xs mt-1">4 days ago</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    // Initialize Charts
-                    initializeCharts();
-                });
+        </div>
+    </div>
 
-                function initializeCharts() {
-                    // Process Stage Analytics Chart
-                    const stageCtx = document.getElementById('stageAnalyticsChart').getContext('2d');
-                    const stageChart = new Chart(stageCtx, {
-                        type: 'bar',
-                        data: {
-                            labels: ['Document Upload', 'Document Combination', 'Risk Analysis', 'Red Document', 'Completed'],
-                            datasets: [
-                                {
-                                    label: 'Active Cases',
-                                    data: [12, 8, 15, 5, 0],
-                                    backgroundColor: [
-                                        '#2c3b4e',
-                                        '#436587',
-                                        '#ca8a04',
-                                        '#9b2f2f',
-                                        '#10b981'
-                                    ],
-                                    borderWidth: 0,
-                                    barPercentage: 0.6,
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Charts
+            initializeCharts();
+        });
+
+        function initializeCharts() {
+            // Project Metrics Chart
+            const projectMetricsCtx = document.getElementById('projectMetricsChart').getContext('2d');
+            const projectMetricsChart = new Chart(projectMetricsCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [
+                        {
+                            label: 'Acquisition Projects',
+                            data: [8, 12, 10, 15, 18, 22, 20, 25, 18, 16, 14, 10],
+                            backgroundColor: '#9b2f2f',
+                            borderWidth: 0,
+                            barPercentage: 0.7,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    family: 'Inter, sans-serif'
                                 },
-                                {
-                                    label: 'Avg. Days',
-                                    data: [3.2, 1.5, 5.7, 2.3, 14.5],
-                                    type: 'line',
-                                    borderColor: '#6b7280',
-                                    backgroundColor: 'rgba(107, 114, 128, 0.1)',
-                                    borderWidth: 2,
-                                    pointBackgroundColor: '#6b7280',
-                                    pointBorderColor: '#ffffff',
-                                    pointBorderWidth: 2,
-                                    pointRadius: 4,
-                                    fill: false,
-                                    yAxisID: 'y1'
-                                }
-                            ]
+                                usePointStyle: true,
+                            }
                         },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    position: 'top',
-                                    labels: {
-                                        font: {
-                                            family: 'Inter, sans-serif'
-                                        },
-                                        usePointStyle: true,
-                                    }
-                                },
-                                tooltip: {
-                                    backgroundColor: '#2c3b4e',
-                                    titleFont: {
-                                        family: 'Inter, sans-serif'
-                                    },
-                                    bodyFont: {
-                                        family: 'Inter, sans-serif'
-                                    },
-                                    callbacks: {
-                                        label: function(context) {
-                                            if (context.datasetIndex === 0) {
-                                                return `Active Cases: ${context.parsed.y}`;
-                                            } else {
-                                                return `Avg. Days: ${context.parsed.y}`;
-                                            }
-                                        }
-                                    }
-                                }
+                        tooltip: {
+                            backgroundColor: '#2c3b4e',
+                            titleFont: {
+                                family: 'Inter, sans-serif'
                             },
-                            scales: {
-                                x: {
-                                    grid: {
-                                        display: false
-                                    },
-                                    ticks: {
-                                        font: {
-                                            family: 'Inter, sans-serif'
-                                        }
-                                    }
-                                },
-                                y: {
-                                    beginAtZero: true,
-                                    title: {
-                                        display: true,
-                                        text: 'Active Cases',
-                                        font: {
-                                            family: 'Inter, sans-serif'
-                                        }
-                                    },
-                                    ticks: {
-                                        font: {
-                                            family: 'Inter, sans-serif'
-                                        }
-                                    },
-                                    grid: {
-                                        color: '#f3f4f6'
-                                    }
-                                },
-                                y1: {
-                                    position: 'right',
-                                    beginAtZero: true,
-                                    title: {
-                                        display: true,
-                                        text: 'Average Days',
-                                        font: {
-                                            family: 'Inter, sans-serif'
-                                        }
-                                    },
-                                    ticks: {
-                                        font: {
-                                            family: 'Inter, sans-serif'
-                                        }
-                                    },
-                                    grid: {
-                                        drawOnChartArea: false,
-                                    }
-                                }
+                            bodyFont: {
+                                family: 'Inter, sans-serif'
                             }
                         }
-                    });
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'Inter, sans-serif'
+                                }
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Projects',
+                                font: {
+                                    family: 'Inter, sans-serif'
+                                }
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'Inter, sans-serif'
+                                },
+                                stepSize: 5
+                            },
+                            grid: {
+                                color: '#f3f4f6'
+                            }
+                        }
+                    }
                 }
-            </script>
+            });
+        }
+    </script>
 
-        </main>
-
+</main>
 </body>
 </html>
