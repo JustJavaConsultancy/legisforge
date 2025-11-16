@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acquisition Risk Dashboard</title>
+    <style>
+        /* Risk Meter Styles */
+        .risk-meter {
+            height: 12px;
+            border-radius: 6px;
+            background: linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #ef4444 100%);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .risk-indicator {
+            position: absolute;
+            top: -2px;
+            width: 4px;
+            height: 16px;
+            background-color: #1f2937;
+            border-radius: 2px;
+            transform: translateX(-50%);
+            transition: left 0.5s ease;
+        }
+
+        .risk-level-low { color: #10b981; }
+        .risk-level-medium { color: #f59e0b; }
+        .risk-level-high { color: #ef4444; }
+        .risk-level-critical { color: #7c2d12; }
+
+        .risk-card {
+            transition: all 0.3s ease;
+            border-left-width: 4px;
+        }
+
+        .risk-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .risk-card.low { border-left-color: #10b981; }
+        .risk-card.medium { border-left-color: #f59e0b; }
+        .risk-card.high { border-left-color: #ef4444; }
+        .risk-card.critical { border-left-color: #7c2d12; }
+
+        /* Deal info header */
+        .deal-header {
+            background: linear-gradient(135deg, #2c3b4e 0%, #37516d 100%);
+            color: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+        }
+
+        /* Status indicators */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-critical {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-high {
+            background: #fed7aa;
+            color: #9a3412;
+        }
+
+        .status-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-low {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .severity-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .severity-low {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .severity-medium {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .severity-high {
+            background-color: #fed7aa;
+            color: #9a3412;
+        }
+
+        .severity-critical {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Progress bars */
+        .progress-container {
+            background-color: #e5e7eb;
+            border-radius: 0.375rem;
+            overflow: hidden;
+            height: 8px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-critical { background-color: #ef4444; }
+        .progress-high { background-color: #f59e0b; }
+        .progress-medium { background-color: #eab308; }
+        .progress-low { background-color: #10b981; }
+
+        /* Risk matrix - Made fully responsive */
+        .risk-matrix {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            width: 100%;
+        }
+
+        /* Responsive adjustments for risk matrix */
+        @media (max-width: 1200px) {
+            .risk-matrix {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .risk-matrix {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+        }
+
+        .matrix-item {
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        /* Responsive padding for matrix items */
+        @media (max-width: 1200px) {
+            .matrix-item {
+                padding: 1.25rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .matrix-item {
+                padding: 1rem;
+            }
+        }
+
+        .matrix-item:hover {
+            transform: scale(1.05);
+        }
+
+        .matrix-critical {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border: 2px solid #ef4444;
+        }
+
+        .matrix-high {
+            background: linear-gradient(135deg, #fffbeb 0%, #fed7aa 100%);
+            border: 2px solid #f59e0b;
+        }
+
+        .matrix-medium {
+            background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+            border: 2px solid #eab308;
+        }
+
+        .matrix-low {
+            background: linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%);
+            border: 2px solid #10b981;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.75rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #e5e7eb;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            top: 0.25rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background-color: #3b82f6;
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px #3b82f6;
+        }
+
+        .timeline-item.critical::before {
+            background-color: #ef4444;
+            box-shadow: 0 0 0 2px #ef4444;
+        }
+
+        .timeline-item.high::before {
+            background-color: #f59e0b;
+            box-shadow: 0 0 0 2px #f59e0b;
+        }
+
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        /* Action buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.65rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #9b2f2f 0%, #7c2525 100%);
+            color: white;
+            box-shadow: 0 2px 4px rgba(155, 47, 47, 0.2);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #8a2a2a 0%, #6c2020 100%);
+            box-shadow: 0 4px 8px rgba(155, 47, 47, 0.3);
+            transform: translateY(-1px);
+        }
+
+        /* Additional responsive adjustments */
+        .risk-matrix-container {
+            width: 100%;
+            overflow: hidden;
+        }
+
+        /* Ensure the parent container doesn't cause overflow */
+        .grid-cols-1.lg\:grid-cols-3 {
+            width: 100%;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+<!-- Main Content Area -->
+<main layout:fragment="content">
+    <!-- Deal Information Header -->
+    <div class="deal-header mb-6 lg:mb-8 animate-fade-in">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+            <div>
+                <h1 class="text-2xl lg:text-3xl font-bold text-white font-serif">Acquisition Risk Dashboard</h1>
+                <p class="text-legal-navy-200 mt-2">Comprehensive risk analysis for Tech Innovations Inc. acquisition</p>
+            </div>
+            <div class="mt-4 lg:mt-0">
+                <div class="flex flex-col xs:flex-row gap-2">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full bg-white bg-opacity-20 text-white text-sm">
+                        <i class="fas fa-dollar-sign mr-1"></i>
+                        Deal Value: $245M
+                    </span>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full bg-white bg-opacity-20 text-white text-sm">
+                        <i class="far fa-calendar mr-1"></i>
+                        Closing: Dec 15, 2023
+                    </span>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full bg-red-400 text-white text-sm font-medium">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                        High Risk Acquisition
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Combined Risk Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
+        <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-legal-navy-700">Overall Risk Score</h3>
+                <span class="text-xs font-medium px-2 py-1 rounded-full bg-red-100 text-red-800">High Risk</span>
+            </div>
+            <div class="mt-4">
+                <div class="text-3xl font-bold text-red-600">74/100</div>
+                <div class="mt-2">
+                    <div class="risk-meter">
+                        <div class="risk-indicator" style="left: 74%;"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-legal-navy-500 mt-1">
+                        <span>Low</span>
+                        <span>Medium</span>
+                        <span>High</span>
+                        <span>Critical</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-legal-navy-700">Total Value at Risk</h3>
+                <span class="text-xs font-medium px-2 py-1 rounded-full bg-red-100 text-red-800">$55.5M</span>
+            </div>
+            <div class="mt-4">
+                <div class="text-3xl font-bold text-red-700">22.7%</div>
+                <p class="text-sm text-legal-navy-600 mt-2">Of total acquisition value</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-legal-navy-700">Critical Issues</h3>
+                <span class="text-xs font-medium px-2 py-1 rounded-full bg-red-100 text-red-800">11 Issues</span>
+            </div>
+            <div class="mt-4">
+                <div class="text-3xl font-bold text-red-700">11</div>
+                <p class="text-sm text-legal-navy-600 mt-2">Require immediate resolution</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-legal-navy-700">Risk Mitigation Progress</h3>
+                <span class="text-xs font-medium px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">42%</span>
+            </div>
+            <div class="mt-4">
+                <div class="text-3xl font-bold text-yellow-600">42%</div>
+                <p class="text-sm text-legal-navy-600 mt-2">Of mitigation actions completed</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Distribution by Category -->
+    <div>
+        <!-- Risk Breakdown Chart -->
+        <div class="lg:col-span-2 bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400">
+            <h3 class="text-lg font-bold text-primary font-serif mb-4">Risk Distribution by Category</h3>
+            <div class="chart-container">
+                <canvas id="riskDistributionChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Category Breakdown -->
+    <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400 mb-6 lg:mb-8">
+        <h3 class="text-lg font-bold text-primary font-serif mb-6">Risk Category Analysis</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- IP Risks -->
+            <div class="risk-card high p-4 bg-white rounded-lg border border-legal-ivory-400">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="text-base font-semibold text-legal-navy-900">Intellectual Property</h4>
+                    <span class="status-badge status-high">High Risk</span>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-legal-navy-600">Risk Score:</span>
+                            <span class="font-medium text-red-600">72/100</span>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar progress-high" style="width: 72%"></div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-legal-navy-600">Value at Risk:</span>
+                        <span class="font-medium text-red-700">$18.5M</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-legal-navy-600">Critical Issues:</span>
+                        <span class="font-medium text-red-700">4</span>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t border-gray-200">
+                    <div class="text-xs text-legal-navy-500">Patent infringement claims and ownership gaps identified</div>
+                </div>
+            </div>
+
+            <!-- Employment Risks -->
+            <div class="risk-card high p-4 bg-white rounded-lg border border-legal-ivory-400">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="text-base font-semibold text-legal-navy-900">Employment</h4>
+                    <span class="status-badge status-high">High Risk</span>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-legal-navy-600">Risk Score:</span>
+                            <span class="font-medium text-red-600">68/100</span>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar progress-high" style="width: 68%"></div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-legal-navy-600">Value at Risk:</span>
+                        <span class="font-medium text-red-700">$14.2M</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-legal-navy-600">Critical Issues:</span>
+                        <span class="font-medium text-red-700">3</span>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t border-gray-200">
+                    <div class="text-xs text-legal-navy-500">Contractor misclassification and executive compensation liabilities</div>
+                </div>
+            </div>
+
+            <!-- Corporate Risks -->
+            <div class="risk-card critical p-4 bg-white rounded-lg border border-legal-ivory-400">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="text-base font-semibold text-legal-navy-900">Corporate</h4>
+                    <span class="status-badge status-critical">Critical Risk</span>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-legal-navy-600">Risk Score:</span>
+                            <span class="font-medium text-red-600">71/100</span>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar progress-critical" style="width: 71%"></div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-legal-navy-600">Value at Risk:</span>
+                        <span class="font-medium text-red-700">$22.8M</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-legal-navy-600">Critical Issues:</span>
+                        <span class="font-medium text-red-700">4</span>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t border-gray-200">
+                    <div class="text-xs text-legal-navy-500">International tax compliance and pending litigation exposure</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Critical Risks -->
+    <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400 mb-6 lg:mb-8">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">
+            <h3 class="text-lg font-bold text-primary font-serif">Top Critical Risks Requiring Immediate Attention</h3>
+            <div class="mt-2 lg:mt-0">
+                <button class="btn btn-primary">
+                    <i class="fas fa-download mr-2"></i>
+                    Export Risk Report
+                </button>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-legal-ivory-300">
+                <thead>
+                <tr>
+                    <th class="px-4 py-3 bg-legal-navy-50 text-left text-xs font-medium text-legal-navy-700 uppercase tracking-wider">Risk Description</th>
+                    <th class="px-4 py-3 bg-legal-navy-50 text-left text-xs font-medium text-legal-navy-700 uppercase tracking-wider">Category</th>
+                    <th class="px-4 py-3 bg-legal-navy-50 text-left text-xs font-medium text-legal-navy-700 uppercase tracking-wider">Severity</th>
+                    <th class="px-4 py-3 bg-legal-navy-50 text-left text-xs font-medium text-legal-navy-700 uppercase tracking-wider">Value Impact</th>
+                    <th class="px-4 py-3 bg-legal-navy-50 text-left text-xs font-medium text-legal-navy-700 uppercase tracking-wider">Mitigation Status</th>
+                    <th class="px-4 py-3 bg-legal-navy-50 text-left text-xs font-medium text-legal-navy-700 uppercase tracking-wider">Due Date</th>
+                </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-legal-ivory-200">
+                <tr>
+                    <td class="px-4 py-4 text-sm font-medium text-legal-navy-900">International Tax Compliance Issues</td>
+                    <td class="px-4 py-4 text-sm text-legal-navy-700">Corporate</td>
+                    <td class="px-4 py-4">
+                        <span class="severity-indicator severity-critical">Critical</span>
+                    </td>
+                    <td class="px-4 py-4 text-sm font-medium text-red-700">-$12.5M</td>
+                    <td class="px-4 py-4">
+                        <div class="flex items-center">
+                            <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                                <div class="bg-red-600 h-2 rounded-full" style="width: 25%"></div>
+                            </div>
+                            <span class="text-xs text-gray-600">25%</span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-4 text-sm text-legal-navy-700">Before Closing</td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-4 text-sm font-medium text-legal-navy-900">Patent Infringement Claim</td>
+                    <td class="px-4 py-4 text-sm text-legal-navy-700">IP</td>
+                    <td class="px-4 py-4">
+                        <span class="severity-indicator severity-critical">Critical</span>
+                    </td>
+                    <td class="px-4 py-4 text-sm font-medium text-red-700">-$12.0M</td>
+                    <td class="px-4 py-4">
+                        <div class="flex items-center">
+                            <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                                <div class="bg-yellow-500 h-2 rounded-full" style="width: 45%"></div>
+                            </div>
+                            <span class="text-xs text-gray-600">45%</span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-4 text-sm text-legal-navy-700">Before Closing</td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-4 text-sm font-medium text-legal-navy-900">Contractor Misclassification</td>
+                    <td class="px-4 py-4 text-sm text-legal-navy-700">Employment</td>
+                    <td class="px-4 py-4">
+                        <span class="severity-indicator severity-critical">Critical</span>
+                    </td>
+                    <td class="px-4 py-4 text-sm font-medium text-red-700">-$8.5M</td>
+                    <td class="px-4 py-4">
+                        <div class="flex items-center">
+                            <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: 65%"></div>
+                            </div>
+                            <span class="text-xs text-gray-600">65%</span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-4 text-sm text-legal-navy-700">Before Closing</td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-4 text-sm font-medium text-legal-navy-900">Pending Litigation Exposure</td>
+                    <td class="px-4 py-4 text-sm text-legal-navy-700">Corporate</td>
+                    <td class="px-4 py-4">
+                        <span class="severity-indicator severity-critical">Critical</span>
+                    </td>
+                    <td class="px-4 py-4 text-sm font-medium text-red-700">-$8.2M</td>
+                    <td class="px-4 py-4">
+                        <div class="flex items-center">
+                            <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                                <div class="bg-yellow-500 h-2 rounded-full" style="width: 30%"></div>
+                            </div>
+                            <span class="text-xs text-gray-600">30%</span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-4 text-sm text-legal-navy-700">15 Days</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Risk Timeline & Recommendations -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mb-6 lg:mb-8">
+        <!-- Risk Timeline -->
+        <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400">
+            <h3 class="text-lg font-bold text-primary font-serif mb-4">Risk Resolution Timeline</h3>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="text-sm font-medium text-legal-navy-900">Initial due diligence completed</div>
+                    <div class="text-xs text-legal-navy-500 mt-1">Oct 15, 2023 • All risk categories assessed</div>
+                </div>
+                <div class="timeline-item critical">
+                    <div class="text-sm font-medium text-legal-navy-900">Critical risks identified across all categories</div>
+                    <div class="text-xs text-legal-navy-500 mt-1">Oct 25, 2023 • $55.5M total exposure</div>
+                </div>
+                <div class="timeline-item high">
+                    <div class="text-sm font-medium text-legal-navy-900">Mitigation plans developed</div>
+                    <div class="text-xs text-legal-navy-500 mt-1">Nov 5, 2023 • 42% completion target</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="text-sm font-medium text-legal-navy-900">Final risk assessment due</div>
+                    <div class="text-xs text-legal-navy-500 mt-1">Nov 15, 2023 • Next milestone</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="text-sm font-medium text-legal-navy-900">Acquisition closing date</div>
+                    <div class="text-xs text-legal-navy-500 mt-1">Dec 15, 2023 • All critical risks must be resolved</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Acquisition Recommendations -->
+        <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400">
+            <h3 class="text-lg font-bold text-primary font-serif mb-4">Acquisition Recommendations</h3>
+
+            <div class="space-y-4">
+                <div class="p-4 bg-red-50 rounded-lg border border-red-200">
+                    <h4 class="font-medium text-red-900 mb-2">Price Adjustment Required</h4>
+                    <p class="text-sm text-red-700">Recommend reducing offer price by $55.5M (22.7%) to account for identified risks, or establish $40M escrow for potential liabilities.</p>
+                </div>
+
+                <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                    <h4 class="font-medium text-yellow-900 mb-2">Pre-Closing Conditions</h4>
+                    <p class="text-sm text-yellow-700">All critical risks must be resolved before acquisition close. Focus on tax compliance, patent claims, and contractor classification.</p>
+                </div>
+
+                <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <h4 class="font-medium text-blue-900 mb-2">Post-Acquisition Integration</h4>
+                    <p class="text-sm text-blue-700">Implement comprehensive risk monitoring system and establish cross-functional risk management team for first 180 days.</p>
+                </div>
+
+                <div class="p-4 bg-green-50 rounded-lg border border-green-200">
+                    <h4 class="font-medium text-green-900 mb-2">Opportunity Areas</h4>
+                    <p class="text-sm text-green-700">Strong engineering team retention and IP portfolio present significant upside potential with proper risk mitigation.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize risk distribution chart
+        document.addEventListener('DOMContentLoaded', function() {
+            const riskDistributionCtx = document.getElementById('riskDistributionChart').getContext('2d');
+            const riskDistributionChart = new Chart(riskDistributionCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['IP Risks', 'Employment Risks', 'Corporate Risks', 'Financial Risks', 'Operational Risks'],
+                    datasets: [{
+                        label: 'Risk Value ($M)',
+                        data: [18.5, 14.2, 22.8, 8.5, 6.2],
+                        backgroundColor: [
+                            '#ef4444',
+                            '#f59e0b',
+                            '#dc2626',
+                            '#eab308',
+                            '#d97706'
+                        ],
+                        borderColor: [
+                            '#ef4444',
+                            '#f59e0b',
+                            '#dc2626',
+                            '#eab308',
+                            '#d97706'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Risk Value: $${context.raw}M`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Risk Value ($ Millions)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Risk Categories'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</main>
+</body>
+</html>

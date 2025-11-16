@@ -110,4 +110,12 @@ public class ProjectController {
     public String corporateRisk() {
         return "tasks/corporateRisk";
     }
+    @GetMapping("/combined-report")
+    public String combinedReport() {
+        return "tasks/combinedRisk";
+    }
+    @GetMapping("/red-document")
+    public String redDocument() {
+        return "tasks/redDocument";
+    }
 }

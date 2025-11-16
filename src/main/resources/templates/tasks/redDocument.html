@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .document-container {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            border: 1px solid #e2e8f0;
+        }
+
+        .risk-flag {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .risk-high {
+            background-color: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .risk-medium {
+            background-color: #fffbeb;
+            color: #d97706;
+            border: 1px solid #fed7aa;
+        }
+
+        .risk-low {
+            background-color: #f0fdf4;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
+        }
+
+        .recommendation-box {
+            background-color: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .critical-issue {
+            background-color: #fef2f2;
+            border-left: 4px solid #dc2626;
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .ai-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-nav-btn.active {
+            background-color: #f1f5f9;
+            border-color: #cbd5e1;
+            font-weight: 600;
+        }
+
+        .value-impact {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
+            color: white;
+            border-radius: 0.75rem;
+        }
+
+        .confidence-meter {
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #3b82f6 100%);
+        }
+    </style>
+</head>
+<body>
+<main layout:fragment="content">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+            <div>
+                <h1 class="text-2xl lg:text-3xl font-bold text-primary font-serif">AI Due Diligence Report</h1>
+                <p class="text-gray-600 mt-2">AI-generated comprehensive due diligence report for acquisition analysis</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deal Overview Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+        <div class="document-container p-5">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-semibold text-gray-800">Deal Value</h3>
+                <i class="fas fa-dollar-sign text-gray-400 text-xl"></i>
+            </div>
+            <div class="text-2xl font-bold text-gray-900">$245M</div>
+            <p class="text-sm text-gray-600 mt-1">Tech Innovations Inc.</p>
+        </div>
+
+        <div class="document-container p-5">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-semibold text-gray-800">Risk Score</h3>
+                <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+            </div>
+            <div class="text-2xl font-bold text-red-600">72/100</div>
+            <p class="text-sm text-gray-600 mt-1">High Risk</p>
+        </div>
+
+        <div class="document-container p-5">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-semibold text-gray-800">Value at Risk</h3>
+                <i class="fas fa-chart-line text-amber-500 text-xl"></i>
+            </div>
+            <div class="text-2xl font-bold text-amber-600">$18.5M</div>
+            <p class="text-sm text-gray-600 mt-1">7.5% of deal value</p>
+        </div>
+
+        <div class="document-container p-5">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-semibold text-gray-800">AI Confidence</h3>
+                <i class="fas fa-robot text-blue-500 text-xl"></i>
+            </div>
+            <div class="text-2xl font-bold text-blue-600">94%</div>
+            <p class="text-sm text-gray-600 mt-1">Based on 127 documents</p>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 xl:grid-cols-4 gap-8">
+        <!-- Report Navigation -->
+        <div class="xl:col-span-1">
+            <div class="document-container p-6 mb-6">
+                <h3 class="text-lg font-bold text-primary font-serif mb-4">Report Sections</h3>
+                <div class="space-y-2">
+                    <button class="w-full text-left p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors duration-200 section-nav-btn active" data-section="1">
+                        <div class="font-medium text-gray-900">1. Executive Summary</div>
+                        <div class="text-xs text-gray-500 mt-1">Critical findings and recommendations</div>
+                    </button>
+
+                    <button class="w-full text-left p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors duration-200 section-nav-btn" data-section="2">
+                        <div class="font-medium text-gray-900">2. IP Portfolio Analysis</div>
+                        <div class="text-xs text-gray-500 mt-1">Asset inventory and valuation</div>
+                    </button>
+
+                    <button class="w-full text-left p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors duration-200 section-nav-btn" data-section="3">
+                        <div class="font-medium text-gray-900">3. Critical Risks</div>
+                        <div class="text-xs text-gray-500 mt-1">Patent and ownership issues</div>
+                    </button>
+
+                    <button class="w-full text-left p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors duration-200 section-nav-btn" data-section="4">
+                        <div class="font-medium text-gray-900">4. Acquisition Strategy</div>
+                        <div class="text-xs text-gray-500 mt-1">Deal structure recommendations</div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="document-container p-6">
+                <h3 class="text-lg font-bold text-primary font-serif mb-4">AI Analysis Details</h3>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-sm font-medium text-gray-700">Confidence Score</span>
+                            <span class="text-sm font-bold text-gray-900">94%</span>
+                        </div>
+                        <div class="confidence-meter">
+                            <div class="confidence-fill" style="width: 94%"></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div class="p-3 bg-blue-50 rounded-lg">
+                            <div class="text-lg font-bold text-blue-700">127</div>
+                            <div class="text-xs text-blue-600">Documents Analyzed</div>
+                        </div>
+                        <div class="p-3 bg-green-50 rounded-lg">
+                            <div class="text-lg font-bold text-green-700">42</div>
+                            <div class="text-xs text-green-600">IP Assets</div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-gray-200">
+                        <h4 class="font-medium text-gray-800 mb-2">AI Model</h4>
+                        <p class="text-sm text-gray-600">LegisForge M&A Analyzer v3.2</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Content -->
+        <div class="xl:col-span-3">
+            <div class="document-container p-8">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-primary font-serif">Due Diligence Report: Tech Innovations Inc.</h2>
+                        <p class="text-gray-600 mt-1">Acquisition analysis for Global Solutions Corp.</p>
+                    </div>
+                    <span class="ai-badge">
+                                    <i class="fas fa-robot"></i>
+                                    AI-Generated Report
+                                </span>
+                </div>
+
+                <!-- Executive Summary -->
+                <div class="document-section active" id="page1">
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold text-primary font-serif mb-4 pb-2 border-b border-gray-200">Executive Summary</h3>
+                        <p class="text-gray-700 mb-4">This AI-generated due diligence report provides a comprehensive analysis of Tech Innovations Inc. as an acquisition target for Global Solutions Corp. The analysis identifies significant intellectual property risks that could impact deal valuation and post-acquisition integration.</p>
+
+                        <div class="critical-issue">
+                            <h4 class="font-bold text-red-700 mb-3 text-lg">CRITICAL FINDINGS</h4>
+                            <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                                <li>Active patent infringement claim on core encryption technology</li>
+                                <li>Ownership disputes on key patents from former employees</li>
+                                <li>Insufficient trade secret protection for proprietary algorithms</li>
+                                <li>Trademark transfer restrictions in key markets</li>
+                            </ul>
+                        </div>
+
+                        <div class="recommendation-box">
+                            <h4 class="font-bold text-blue-700 mb-3 text-lg">AI RECOMMENDATION</h4>
+                            <p class="text-gray-700">Based on identified risks, recommend reducing offer price by $18.5M or implementing escrow arrangement to cover potential IP liabilities. Critical issues must be resolved before acquisition closing.</p>
+                        </div>
+                    </div>
+
+                    <div class="value-impact p-6 rounded-xl mb-6">
+                        <h4 class="font-bold text-white mb-4 text-lg">Deal Value Impact Analysis</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="text-center p-4 bg-white bg-opacity-20 rounded-lg">
+                                <div class="text-2xl font-bold text-white">$245M</div>
+                                <div class="text-white text-opacity-90 text-sm">Original Value</div>
+                            </div>
+                            <div class="text-center p-4 bg-white bg-opacity-20 rounded-lg">
+                                <div class="text-2xl font-bold text-white">$226.5M</div>
+                                <div class="text-white text-opacity-90 text-sm">After Risk Adjustment</div>
+                            </div>
+                            <div class="text-center p-4 bg-white bg-opacity-20 rounded-lg">
+                                <div class="text-2xl font-bold text-white">-$18.5M</div>
+                                <div class="text-white text-opacity-90 text-sm">Value at Risk</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- IP Portfolio Analysis -->
+                <div class="document-section hidden" id="page2">
+                    <h3 class="text-xl font-bold text-primary font-serif mb-6 pb-2 border-b border-gray-200">IP Portfolio Analysis</h3>
+
+                    <div class="mb-6">
+                        <p class="text-gray-700 mb-4">Tech Innovations Inc. maintains a portfolio of 42 intellectual property assets across patents, trademarks, copyrights, and trade secrets.</p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <h4 class="font-bold text-gray-800 mb-3 flex items-center">
+                                    Patent Portfolio
+                                    <span class="risk-flag risk-high ml-2">HIGH RISK</span>
+                                </h4>
+                                <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                                    <li>12 utility patents covering core technologies</li>
+                                    <li>3 design patents for user interface elements</li>
+                                    <li>5 pending patent applications</li>
+                                </ul>
+                                <div class="mt-3 p-2 bg-red-50 rounded text-sm text-red-700">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>
+                                    2 critical ownership issues identified
+                                </div>
+                            </div>
+
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <h4 class="font-bold text-gray-800 mb-3 flex items-center">
+                                    Trademark Portfolio
+                                    <span class="risk-flag risk-medium ml-2">MEDIUM RISK</span>
+                                </h4>
+                                <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                                    <li>8 registered trademarks in key markets</li>
+                                    <li>3 pending trademark applications</li>
+                                    <li>Brand recognition in North America and Europe</li>
+                                </ul>
+                                <div class="mt-3 p-2 bg-amber-50 rounded text-sm text-amber-700">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Transfer restrictions in Asia-Pacific
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="recommendation-box">
+                            <h4 class="font-bold text-blue-700 mb-2">VALUATION IMPACT</h4>
+                            <p class="text-gray-700">The IP portfolio represents approximately 65% of the company's valuation. Critical risks identified could reduce portfolio value by 18-25%.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Critical Risks -->
+                <div class="document-section hidden" id="page3">
+                    <h3 class="text-xl font-bold text-primary font-serif mb-6 pb-2 border-b border-gray-200">Critical Risk Assessment</h3>
+
+                    <div class="space-y-6">
+                        <div class="critical-issue">
+                            <h4 class="font-bold text-red-700 mb-3 text-lg">Patent Infringement Claim</h4>
+                            <p class="text-gray-700 mb-3">Active infringement claim on US Patent 10,123,456 "System and Method for Advanced Data Encryption" - the company's most valuable patent representing 22% of IP portfolio value.</p>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <h5 class="font-semibold text-gray-800 mb-1">Risk Details</h5>
+                                    <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                                        <li>Claim filed by SecureTech Systems</li>
+                                        <li>Potential damages: $12-18M</li>
+                                        <li>Could result in product injunction</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h5 class="font-semibold text-gray-800 mb-1">Acquisition Impact</h5>
+                                    <p class="text-gray-700">Targets flagship product line. Could reduce deal value by 7-10%.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="critical-issue">
+                            <h4 class="font-bold text-red-700 mb-3 text-lg">IP Ownership Gaps</h4>
+                            <p class="text-gray-700 mb-3">Three key patents have questionable ownership documentation with potential claims from former employees and contractors.</p>
+
+                            <div class="space-y-3">
+                                <div class="p-3 bg-red-50 rounded-lg border border-red-200">
+                                    <h5 class="font-semibold text-red-800">US Patent 10,234,567</h5>
+                                    <p class="text-sm text-red-700">Former CTO claiming partial ownership</p>
+                                </div>
+                                <div class="p-3 bg-red-50 rounded-lg border border-red-200">
+                                    <h5 class="font-semibold text-red-800">US Patent 10,345,678</h5>
+                                    <p class="text-sm text-red-700">Missing inventor assignments</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Acquisition Strategy -->
+                <div class="document-section hidden" id="page4">
+                    <h3 class="text-xl font-bold text-primary font-serif mb-6 pb-2 border-b border-gray-200">Acquisition Strategy & Recommendations</h3>
+
+                    <div class="mb-6">
+                        <h4 class="font-bold text-gray-800 mb-4">Deal Structure Options</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div class="p-5 border border-gray-300 rounded-lg bg-white">
+                                <h5 class="font-bold text-gray-800 mb-3 text-lg">Option 1: Price Reduction</h5>
+                                <p class="text-gray-700 mb-4">Reduce offer price by $18.5M to account for identified IP risks and resolution costs.</p>
+                                <div class="p-3 bg-gray-100 rounded">
+                                    <div class="text-lg font-bold text-gray-800">New Deal Value: $226.5M</div>
+                                    <div class="text-sm text-gray-600">-7.5% adjustment</div>
+                                </div>
+                            </div>
+                            <div class="p-5 border border-gray-300 rounded-lg bg-white">
+                                <h5 class="font-bold text-gray-800 mb-3 text-lg">Option 2: Escrow Arrangement</h5>
+                                <p class="text-gray-700 mb-4">Maintain $245M offer with $25M escrow for 18 months to cover IP liabilities.</p>
+                                <div class="p-3 bg-gray-100 rounded">
+                                    <div class="text-lg font-bold text-gray-800">Risk Coverage: High</div>
+                                    <div class="text-sm text-gray-600">18-month protection</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="recommendation-box">
+                            <h4 class="font-bold text-blue-700 mb-3">PRE-CLOSING REQUIREMENTS</h4>
+                            <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                                <li>Resolve patent infringement claim through settlement or licensing</li>
+                                <li>Secure verified ownership for all key patents</li>
+                                <li>Renegotiate trademark licenses to remove transfer restrictions</li>
+                                <li>Implement trade secret protection program</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="text-sm text-gray-500">
+                            Report ID: AI-DD-2023-045-TECH-INNOV | Generated: Nov 5, 2023
+                        </div>
+                        <div class="flex gap-3">
+                            <button class="flex items-center px-4 py-2 bg-secondary hover:bg-legal-burgundy-800 text-white rounded-lg transition-colors duration-200 font-medium">
+                                <i class="fas fa-download mr-2"></i>
+                                PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>
