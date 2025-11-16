@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Corporate Document Viewer</title>
+    <style>
+        /* Enhanced Document Viewer Styles */
+        .document-viewer {
+            height: calc(100vh - 200px);
+            min-height: 500px;
+        }
+
+        .document-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e8e8e8;
+            padding: 1.5rem;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .document-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #f0f4f8;
+            padding-bottom: 1.5rem;
+        }
+
+        .document-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1e293b;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            line-height: 1.3;
+        }
+
+        .document-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            min-width: 120px;
+        }
+
+        .meta-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .meta-value {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 0.95rem;
+        }
+
+        .document-content {
+            line-height: 1.7;
+            font-size: 1rem;
+            color: #334155;
+        }
+
+        .document-section {
+            margin-bottom: 3rem;
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .document-section.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e2e8f0;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: #9b2f2f;
+        }
+
+        .document-footer {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #f0f4f8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .document-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.65rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #9b2f2f 0%, #7c2525 100%);
+            color: white;
+            box-shadow: 0 2px 4px rgba(155, 47, 47, 0.2);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #8a2a2a 0%, #6c2020 100%);
+            box-shadow: 0 4px 8px rgba(155, 47, 47, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #475569;
+            color: white;
+            box-shadow: 0 2px 4px rgba(71, 85, 105, 0.2);
+        }
+        .btn-secondary:hover {
+            background: #374151;
+            box-shadow: 0 4px 8px rgba(71, 85, 105, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #475569;
+            border: 1.5px solid #cbd5e1;
+        }
+        .btn-outline:hover {
+            background: #f8fafc;
+            border-color: #9b2f2f;
+            color: #9b2f2f;
+        }
+
+        .source-doc-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .source-doc-item:hover {
+            background-color: #f8fafc;
+            border-color: #9b2f2f;
+            transform: translateX(4px);
+        }
+
+        .source-doc-icon {
+            margin-right: 1rem;
+            color: #9b2f2f;
+            font-size: 1.25rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fef2f2;
+            border-radius: 8px;
+        }
+
+        .source-doc-info {
+            flex: 1;
+        }
+
+        .source-doc-name {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+
+        .source-doc-size {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .document-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1.5rem;
+            background: white;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            color: #475569;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-button:hover {
+            background: #9b2f2f;
+            border-color: #9b2f2f;
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(155, 47, 47, 0.2);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f1f5f9;
+            border-color: #e2e8f0;
+            color: #94a3b8;
+        }
+
+        .nav-button:disabled:hover {
+            background: #f1f5f9;
+            border-color: #e2e8f0;
+            color: #94a3b8;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .document-pagination {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .page-info {
+            font-size: 0.875rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .page-input {
+            width: 70px;
+            padding: 0.5rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .page-input:focus {
+            outline: none;
+            border-color: #9b2f2f;
+            box-shadow: 0 0 0 3px rgba(155, 47, 47, 0.1);
+        }
+
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: white;
+            padding: 0.5rem;
+            border-radius: 8px;
+            border: 1.5px solid #e2e8f0;
+        }
+
+        .zoom-button {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 6px;
+            color: #475569;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .zoom-button:hover {
+            background: #9b2f2f;
+            border-color: #9b2f2f;
+            color: white;
+        }
+
+        .zoom-level {
+            font-size: 0.875rem;
+            color: #475569;
+            min-width: 50px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .ai-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+        }
+
+        .confidence-meter {
+            height: 8px;
+            background-color: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #3b82f6 100%);
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .ai-process-step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            border-left: 4px solid #9b2f2f;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .ai-step-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1.5rem;
+            flex-shrink: 0;
+            color: #9b2f2f;
+            font-size: 1.25rem;
+        }
+
+        .ai-step-content {
+            flex: 1;
+        }
+
+        .ai-step-title {
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .ai-step-description {
+            font-size: 0.95rem;
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        /* Corporate-specific styles */
+        .corporate-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .corporate-table th,
+        .corporate-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .corporate-table th {
+            background-color: #f8fafc;
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .corporate-table tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .corporate-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .financial-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .positive {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .negative {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .neutral {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .compliance-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .compliant {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .non-compliant {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .review-needed {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .insight-box {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 12px;
+            border-left: 4px solid #0ea5e9;
+        }
+
+        .insight-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .insight-icon {
+            width: 32px;
+            height: 32px;
+            background: #0ea5e9;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: white;
+        }
+
+        .insight-title {
+            font-weight: 700;
+            color: #0369a1;
+            font-size: 1.1rem;
+        }
+
+        .insight-content {
+            color: #0c4a6e;
+            line-height: 1.6;
+        }
+
+        .financial-highlight {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid #10b981;
+        }
+
+        /* Enhanced responsive design */
+        @media (max-width: 1024px) {
+            .document-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar-wrapper {
+                margin-top: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .document-navigation {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .document-pagination {
+                order: 1;
+                justify-content: center;
+            }
+
+            .zoom-controls {
+                order: 2;
+                justify-content: center;
+            }
+
+            .nav-button {
+                order: 3;
+                justify-content: center;
+            }
+
+            .document-actions {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .document-meta {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .ai-process-step {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .ai-step-icon {
+                margin-right: 0;
+                margin-bottom: 1rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .document-title {
+                font-size: 1.5rem;
+            }
+
+            .section-title {
+                font-size: 1.25rem;
+            }
+
+            .document-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .document-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .document-footer {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .document-pagination {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* FIXED: Equal height containers */
+        .equal-height-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .equal-height-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* NEW: Fixed grid layout for equal heights */
+        .document-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            height: 100%;
+        }
+
+        @media (min-width: 1024px) {
+            .document-grid {
+                grid-template-columns: 3fr 1fr;
+                grid-template-rows: 1fr;
+            }
+        }
+
+        /* NEW: Container wrappers with fixed height */
+        .document-wrapper {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .sidebar-wrapper {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        /* NEW: Fixed document viewer height */
+        .document-viewer-fixed {
+            height: 100%;
+            min-height: 500px;
+        }
+
+        /* NEW: Enhanced sidebar */
+        .sidebar-fixed {
+            height: 100%;
+        }
+
+        .sidebar-content {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            padding: 1.5rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* NEW: Status indicators */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-complete {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body>
+<main layout:fragment="content">
+    <!-- Page Header -->
+    <div class="mb-8 animate-fade-in">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+            <div>
+                <h1 class="text-2xl lg:text-3xl font-bold text-primary font-serif">AI-Combined Corporate Document</h1>
+                <p class="text-legal-navy-600 mt-2">Review the AI-generated consolidated corporate documentation for acquisition due diligence</p>
+            </div>
+            <div class="mt-4 lg:mt-0">
+                <span class="status-badge status-complete">
+                    <i class="fas fa-check-circle"></i>
+                    Analysis Complete
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Processing Information -->
+    <div class="bg-white rounded-xl shadow-sm p-6 mb-8 border border-legal-ivory-400">
+        <div class="flex flex-col xs:flex-row xs:items-center mb-6 gap-4">
+            <span class="ai-badge mr-3">
+                <i class="fas fa-robot"></i>
+                AI-Generated Document
+            </span>
+            <div class="flex items-center gap-4">
+                <span class="text-sm text-legal-navy-600 font-semibold">Confidence Score: 94%</span>
+                <div class="confidence-meter w-32">
+                    <div class="confidence-fill" style="width: 94%"></div>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="text-xl font-bold text-primary font-serif mb-6">AI Processing Summary</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="ai-process-step">
+                <div class="ai-step-icon">
+                    <i class="fas fa-file-import"></i>
+                </div>
+                <div class="ai-step-content">
+                    <h4 class="ai-step-title">Document Ingestion</h4>
+                    <p class="ai-step-description">Processed 156 corporate documents with 96% accuracy, including financial statements, legal documents, and governance records.</p>
+                </div>
+            </div>
+
+            <div class="ai-process-step">
+                <div class="ai-step-icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <div class="ai-step-content">
+                    <h4 class="ai-step-title">Financial Analysis</h4>
+                    <p class="ai-step-description">Analyzed 3 years of financial data, identified trends, and calculated key financial ratios and metrics.</p>
+                </div>
+            </div>
+
+            <div class="ai-process-step">
+                <div class="ai-step-icon">
+                    <i class="fas fa-sitemap"></i>
+                </div>
+                <div class="ai-step-content">
+                    <h4 class="ai-step-title">Structure Generation</h4>
+                    <p class="ai-step-description">Created comprehensive document structure with 8 sections covering all corporate due diligence areas.</p>
+                </div>
+            </div>
+
+            <div class="ai-process-step">
+                <div class="ai-step-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="ai-step-content">
+                    <h4 class="ai-step-title">Compliance Verification</h4>
+                    <p class="ai-step-description">Verified regulatory compliance across multiple jurisdictions and identified potential compliance gaps.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document Navigation -->
+    <div class="document-navigation">
+        <button class="nav-button" id="prevPage">
+            <i class="fas fa-chevron-left"></i>
+            Previous Page
+        </button>
+
+        <div class="document-pagination">
+            <span class="page-info">Page <span id="currentPage">1</span> of <span id="totalPages">8</span></span>
+            <input type="number" id="pageInput" class="page-input" min="1" max="8" value="1">
+            <button id="goToPage" class="btn btn-outline">
+                Go
+            </button>
+        </div>
+
+        <div class="zoom-controls">
+            <button class="zoom-button" id="zoomOut">
+                <i class="fas fa-search-minus"></i>
+            </button>
+            <span class="zoom-level" id="zoomLevel">100%</span>
+            <button class="zoom-button" id="zoomIn">
+                <i class="fas fa-search-plus"></i>
+            </button>
+        </div>
+
+        <button class="nav-button" id="nextPage">
+            Next Page
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+
+    <!-- Document Viewer - FIXED FOR EQUAL HEIGHT -->
+    <div class="document-grid">
+        <!-- Document Content -->
+        <div class="document-wrapper">
+            <div class="document-viewer-fixed">
+                <div class="document-container equal-height-container" id="documentContainer">
+                    <div class="document-header">
+                        <h2 class="document-title">Consolidated Corporate Documentation: Tech Innovations Inc.</h2>
+                    </div>
+
+                    <div class="document-meta">
+                        <div class="meta-item">
+                            <span class="meta-label">AI Generated</span>
+                            <span class="meta-value">November 5, 2023</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Last Modified</span>
+                            <span class="meta-value">November 5, 2023</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">AI Model</span>
+                            <span class="meta-value">LegisForge Corporate Analyzer v2.1</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">File Size</span>
+                            <span class="meta-value">5.2 MB</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Pages</span>
+                            <span class="meta-value">8</span>
+                        </div>
+                    </div>
+
+                    <div class="document-content equal-height-content" id="documentContent">
+                        <!-- Page 1: Executive Summary -->
+                        <div class="document-section active" id="page1">
+                            <h3 class="section-title">Executive Summary</h3>
+                            <p>This AI-generated document consolidates all corporate documentation for Tech Innovations Inc. as part of the due diligence process for the upcoming acquisition by Global Solutions Corp. The analysis covers financial performance, legal compliance, corporate governance, and operational metrics.</p>
+                            <p>The corporate documentation has been automatically analyzed to provide a comprehensive overview of the company's financial health, compliance status, and operational efficiency.</p>
+
+                            <div class="insight-box">
+                                <div class="insight-header">
+                                    <div class="insight-icon">
+                                        <i class="fas fa-lightbulb"></i>
+                                    </div>
+                                    <h4 class="insight-title">AI Insight</h4>
+                                </div>
+                                <div class="insight-content">
+                                    The company demonstrates strong revenue growth of 28% CAGR over the past 3 years, with healthy profit margins. Key risk areas identified in international tax compliance and pending litigation matters. The balance sheet shows strong liquidity with a current ratio of 2.8.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Page 2: Financial Performance -->
+                        <div class="document-section" id="page2">
+                            <h3 class="section-title">Financial Performance Analysis</h3>
+                            <p>Tech Innovations Inc. has demonstrated consistent financial growth over the past three fiscal years:</p>
+
+                            <h4 class="font-semibold mt-6 mb-4 text-lg">Financial Highlights (2021-2023)</h4>
+                            <table class="corporate-table">
+                                <thead>
+                                <tr>
+                                    <th>Metric</th>
+                                    <th>2021</th>
+                                    <th>2022</th>
+                                    <th>2023</th>
+                                    <th>Growth Trend</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>Revenue</td>
+                                    <td>$42.5M</td>
+                                    <td>$54.2M</td>
+                                    <td>$68.9M</td>
+                                    <td><span class="financial-indicator positive">+27.5% CAGR</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Gross Profit</td>
+                                    <td>$25.5M</td>
+                                    <td>$33.4M</td>
+                                    <td>$43.8M</td>
+                                    <td><span class="financial-indicator positive">+31.1% CAGR</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Net Income</td>
+                                    <td>$6.8M</td>
+                                    <td>$9.2M</td>
+                                    <td>$12.1M</td>
+                                    <td><span class="financial-indicator positive">+33.3% CAGR</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Operating Cash Flow</td>
+                                    <td>$8.2M</td>
+                                    <td>$10.5M</td>
+                                    <td>$14.3M</td>
+                                    <td><span class="financial-indicator positive">+32.0% CAGR</span></td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="financial-highlight mt-6">
+                                <h4 class="font-semibold text-green-900 mb-2">Key Financial Ratios</h4>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                    <div>
+                                        <div class="text-gray-600">Current Ratio</div>
+                                        <div class="font-bold text-green-700">2.8</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-gray-600">Debt-to-Equity</div>
+                                        <div class="font-bold text-green-700">0.35</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-gray-600">Gross Margin</div>
+                                        <div class="font-bold text-green-700">63.6%</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-gray-600">ROE</div>
+                                        <div class="font-bold text-green-700">18.2%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Page 3: Corporate Governance -->
+                        <div class="document-section" id="page3">
+                            <h3 class="section-title">Corporate Governance</h3>
+                            <p>The company maintains robust corporate governance practices with the following structure:</p>
+
+                            <h4 class="font-semibold mt-6 mb-4 text-lg">Board of Directors Composition</h4>
+                            <table class="corporate-table">
+                                <thead>
+                                <tr>
+                                    <th>Director</th>
+                                    <th>Position</th>
+                                    <th>Tenure</th>
+                                    <th>Committee Membership</th>
+                                    <th>Independence</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>Sarah Johnson</td>
+                                    <td>Chairperson</td>
+                                    <td>5 years</td>
+                                    <td>Executive, Governance</td>
+                                    <td><span class="compliance-status compliant">Independent</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Michael Chen</td>
+                                    <td>CEO & Director</td>
+                                    <td>8 years</td>
+                                    <td>Executive</td>
+                                    <td><span class="compliance-status non-compliant">Non-Independent</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Robert Williams</td>
+                                    <td>Lead Director</td>
+                                    <td>4 years</td>
+                                    <td>Audit, Compensation</td>
+                                    <td><span class="compliance-status compliant">Independent</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Lisa Rodriguez</td>
+                                    <td>Director</td>
+                                    <td>3 years</td>
+                                    <td>Audit, Risk</td>
+                                    <td><span class="compliance-status compliant">Independent</span></td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="insight-box mt-6">
+                                <div class="insight-header">
+                                    <div class="insight-icon">
+                                        <i class="fas fa-chart-line"></i>
+                                    </div>
+                                    <h4 class="insight-title">Governance Assessment</h4>
+                                </div>
+                                <div class="insight-content">
+                                    The board demonstrates strong independence with 75% independent directors. All required committees are properly constituted with documented charters. Meeting minutes show active oversight and strategic guidance. No related-party transactions identified that require special disclosure.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Page 4: Legal & Compliance -->
+                        <div class="document-section" id="page4">
+                            <h3 class="section-title">Legal & Compliance Status</h3>
+                            <p>Comprehensive review of legal standing and regulatory compliance:</p>
+
+                            <h4 class="font-semibold mt-6 mb-4 text-lg">Compliance Overview</h4>
+                            <table class="corporate-table">
+                                <thead>
+                                <tr>
+                                    <th>Compliance Area</th>
+                                    <th>Status</th>
+                                    <th>Last Review</th>
+                                    <th>Issues Identified</th>
+                                    <th>Risk Level</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>Corporate Filings</td>
+                                    <td><span class="compliance-status compliant">Compliant</span></td>
+                                    <td>Oct 2023</td>
+                                    <td>0</td>
+                                    <td><span class="financial-indicator positive">Low</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Tax Compliance</td>
+                                    <td><span class="compliance-status review-needed">Review Needed</span></td>
+                                    <td>Sep 2023</td>
+                                    <td>2</td>
+                                    <td><span class="financial-indicator neutral">Medium</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Regulatory Licenses</td>
+                                    <td><span class="compliance-status compliant">Compliant</span></td>
+                                    <td>Nov 2023</td>
+                                    <td>0</td>
+                                    <td><span class="financial-indicator positive">Low</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Pending Litigation</td>
+                                    <td><span class="compliance-status non-compliant">Active</span></td>
+                                    <td>Current</td>
+                                    <td>3 cases</td>
+                                    <td><span class="financial-indicator negative">High</span></td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                                <h4 class="font-semibold text-yellow-800 mb-2">Pending Legal Matters</h4>
+                                <ul class="text-sm text-yellow-700 space-y-1">
+                                    <li>• Patent infringement claim - Estimated exposure: $2.5M</li>
+                                    <li>• Employee classification lawsuit - Estimated exposure: $1.2M</li>
+                                    <li>• Contract dispute with vendor - Estimated exposure: $0.8M</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Additional sections would continue here... -->
+                    </div>
+
+                    <div class="document-footer">
+                        <div class="document-actions">
+                            <button class="btn btn-primary">
+                                <i class="fas fa-download"></i>
+                                Download PDF
+                            </button>
+                            <button class="btn btn-secondary">
+                                <i class="fas fa-print"></i>
+                                Print Document
+                            </button>
+                        </div>
+                        <div class="text-sm text-legal-navy-500 font-medium">
+                            Document ID: CORP-AI-CONSOL-2023-156
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Document Sidebar - FIXED FOR EQUAL HEIGHT -->
+        <div class="sidebar-wrapper">
+            <div class="sidebar-fixed">
+                <div class="sidebar-content">
+                    <h3 class="text-xl font-bold text-primary font-serif mb-6">Source Documents</h3>
+
+                    <div class="source-documents equal-height-content">
+                        <div class="source-doc-item">
+                            <div class="source-doc-icon">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                            </div>
+                            <div class="source-doc-info">
+                                <div class="source-doc-name">Financial Statements (24 files)</div>
+                                <div class="source-doc-size">8.7 MB • Processed</div>
+                            </div>
+                        </div>
+
+                        <div class="source-doc-item">
+                            <div class="source-doc-icon">
+                                <i class="fas fa-balance-scale"></i>
+                            </div>
+                            <div class="source-doc-info">
+                                <div class="source-doc-name">Legal Documents</div>
+                                <div class="source-doc-size">6.2 MB • Processed</div>
+                            </div>
+                        </div>
+
+                        <div class="source-doc-item">
+                            <div class="source-doc-icon">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div class="source-doc-info">
+                                <div class="source-doc-name">Corporate Governance</div>
+                                <div class="source-doc-size">4.8 MB • Processed</div>
+                            </div>
+                        </div>
+
+                        <div class="source-doc-item">
+                            <div class="source-doc-icon">
+                                <i class="fas fa-gavel"></i>
+                            </div>
+                            <div class="source-doc-info">
+                                <div class="source-doc-name">Compliance Records</div>
+                                <div class="source-doc-size">3.5 MB • Processed</div>
+                            </div>
+                        </div>
+
+                        <div class="source-doc-item">
+                            <div class="source-doc-icon">
+                                <i class="fas fa-file-contract"></i>
+                            </div>
+                            <div class="source-doc-info">
+                                <div class="source-doc-name">Contracts & Agreements</div>
+                                <div class="source-doc-size">7.1 MB • Processed</div>
+                            </div>
+                        </div>
+
+                        <div class="source-doc-item">
+                            <div class="source-doc-icon">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <div class="source-doc-info">
+                                <div class="source-doc-name">Tax Documents</div>
+                                <div class="source-doc-size">5.3 MB • Processed</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <h4 class="font-semibold text-gray-700 mb-3">Document Statistics</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Total Documents:</span>
+                                <span class="font-semibold">156</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Total Pages:</span>
+                                <span class="font-semibold">892</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Processing Time:</span>
+                                <span class="font-semibold">4.2 min</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Data Points Analyzed:</span>
+                                <span class="font-semibold">12,458</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Page navigation functionality
+            const totalPages = 8;
+            let currentPage = 1;
+
+            const currentPageElement = document.getElementById('currentPage');
+            const totalPagesElement = document.getElementById('totalPages');
+            const pageInput = document.getElementById('pageInput');
+            const prevPageButton = document.getElementById('prevPage');
+            const nextPageButton = document.getElementById('nextPage');
+            const goToPageButton = document.getElementById('goToPage');
+
+            // Initialize page display
+            totalPagesElement.textContent = totalPages;
+            updatePageDisplay();
+
+            // Previous page button
+            prevPageButton.addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    updatePageDisplay();
+                }
+            });
+
+            // Next page button
+            nextPageButton.addEventListener('click', function() {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    updatePageDisplay();
+                }
+            });
+
+            // Go to page button
+            goToPageButton.addEventListener('click', function() {
+                const pageNum = parseInt(pageInput.value);
+                if (pageNum >= 1 && pageNum <= totalPages) {
+                    currentPage = pageNum;
+                    updatePageDisplay();
+                }
+            });
+
+            // Page input validation
+            pageInput.addEventListener('change', function() {
+                let value = parseInt(this.value);
+                if (value < 1) value = 1;
+                if (value > totalPages) value = totalPages;
+                this.value = value;
+            });
+
+            // Update page display
+            function updatePageDisplay() {
+                // Hide all pages
+                for (let i = 1; i <= totalPages; i++) {
+                    const pageElement = document.getElementById(`page${i}`);
+                    if (pageElement) {
+                        pageElement.classList.remove('active');
+                    }
+                }
+
+                // Show current page
+                const currentPageElement = document.getElementById(`page${currentPage}`);
+                if (currentPageElement) {
+                    currentPageElement.classList.add('active');
+                }
+
+                // Update UI elements
+                document.getElementById('currentPage').textContent = currentPage;
+                pageInput.value = currentPage;
+
+                // Update button states
+                prevPageButton.disabled = currentPage === 1;
+                nextPageButton.disabled = currentPage === totalPages;
+            }
+
+            // Zoom functionality
+            const zoomInButton = document.getElementById('zoomIn');
+            const zoomOutButton = document.getElementById('zoomOut');
+            const zoomLevelElement = document.getElementById('zoomLevel');
+            let zoomLevel = 100;
+
+            zoomInButton.addEventListener('click', function() {
+                if (zoomLevel < 200) {
+                    zoomLevel += 10;
+                    updateZoom();
+                }
+            });
+
+            zoomOutButton.addEventListener('click', function() {
+                if (zoomLevel > 50) {
+                    zoomLevel -= 10;
+                    updateZoom();
+                }
+            });
+
+            function updateZoom() {
+                zoomLevelElement.textContent = `${zoomLevel}%`;
+                document.getElementById('documentContent').style.fontSize = `${zoomLevel / 100}rem`;
+            }
+        });
+    </script>
+</main>
+</body>
+</html>

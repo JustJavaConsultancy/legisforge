@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Employment Risk Analysis</title>
+    <style>
+        /* Risk Meter Styles */
+        .risk-meter {
+            height: 12px;
+            border-radius: 6px;
+            background: linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #ef4444 100%);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .risk-indicator {
+            position: absolute;
+            top: -2px;
+            width: 4px;
+            height: 16px;
+            background-color: #1f2937;
+            border-radius: 2px;
+            transform: translateX(-50%);
+            transition: left 0.5s ease;
+        }
+
+        .risk-level-low { color: #10b981; }
+        .risk-level-medium { color: #f59e0b; }
+        .risk-level-high { color: #ef4444; }
+        .risk-level-critical { color: #7c2d12; }
+
+        .risk-card {
+            transition: all 0.3s ease;
+            border-left-width: 4px;
+        }
+
+        .risk-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .risk-card.low { border-left-color: #10b981; }
+        .risk-card.medium { border-left-color: #f59e0b; }
+        .risk-card.high { border-left-color: #ef4444; }
+        .risk-card.critical { border-left-color: #7c2d12; }
+
+        /* Deal Value Impact */
+        .value-impact {
+            position: relative;
+            height: 120px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .value-bar {
+            width: 40px;
+            border-radius: 4px 4px 0 0;
+            transition: all 0.3s ease;
+        }
+
+        /* Risk timeline */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.75rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #e5e7eb;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            top: 0.25rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background-color: #3b82f6;
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px #3b82f6;
+        }
+
+        .timeline-item.critical::before {
+            background-color: #ef4444;
+            box-shadow: 0 0 0 2px #ef4444;
+        }
+
+        .timeline-item.high::before {
+            background-color: #f59e0b;
+            box-shadow: 0 0 0 2px #f59e0b;
+        }
+
+        .timeline-item.medium::before {
+            background-color: #10b981;
+            box-shadow: 0 0 0 2px #10b981;
+        }
+
+        /* Deal info header */
+        .deal-header {
+            background: linear-gradient(135deg, #2c3b4e 0%, #37516d 100%);
+            color: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+        }
+
+        /* Employment specific styles */
+        .employee-count-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            background-color: #f0f9ff;
+            color: #0369a1;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .compliance-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .compliant {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .non-compliant {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .review-needed {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .severity-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .severity-low {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .severity-medium {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .severity-high {
+            background-color: #fed7aa;
+            color: #9a3412;
+        }
+
+        .severity-critical {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .department-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            background-color: #f8fafc;
+            color: #475569;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+<!-- Main Content Area -->
+<main layout:fragment="content">
+    <!-- Deal Information Header -->
+    <div class="deal-header mb-6 lg:mb-8 animate-fade-in">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+            <div>
+                <h1 class="text-2xl lg:text-3xl font-bold text-white font-serif">Employment Due Diligence: Tech Innovations Inc.</h1>
+                <p class="text-legal-navy-200 mt-2">Employment risk analysis for Global Solutions Corp acquisition</p>
+            </div>
+            <div class="mt-4 lg:mt-0">
+                <div class="flex flex-col xs:flex-row gap-2">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full bg-white bg-opacity-20 text-white text-sm">
+                        <i class="fas fa-dollar-sign mr-1"></i>
+                        Deal Value: $245M
+                    </span>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full bg-white bg-opacity-20 text-white text-sm">
+                        <i class="far fa-calendar mr-1"></i>
+                        Closing: Dec 15, 2023
+                    </span>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full bg-yellow-400 text-legal-navy-900 text-sm font-medium">
+                        <i class="fas fa-users mr-1"></i>
+                        127 Employees
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Overview Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
+        <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-legal-navy-700">Employment Risk Score</h3>
+                <span class="text-xs font-medium px-2 py-1 rounded-full bg-red-100 text-red-800">High Risk</span>
+            </div>
+            <div class="mt-4">
+                <div class="text-3xl font-bold text-red-600">68/100</div>
+                <div class="mt-2">
+                    <div class="risk-meter">
+                        <div class="risk-indicator" style="left: 68%;"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-legal-navy-500 mt-1">
+                        <span>Low</span>
+                        <span>Medium</span>
+                        <span>High</span>
+                        <span>Critical</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-legal-navy-700">Deal Value at Risk</h3>
+                <span class="text-xs font-medium px-2 py-1 rounded-full bg-red-100 text-red-800">$14.2M</span>
+            </div>
+            <div class="mt-4">
+                <div class="text-3xl font-bold text-red-700">5.8%</div>
+                <p class="text-sm text-legal-navy-600 mt-2">Of total acquisition value</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-legal-navy-700">Critical Employment Issues</h3>
+                <span class="text-xs font-medium px-2 py-1 rounded-full bg-red-100 text-red-800">3 Issues</span>
+            </div>
+            <div class="mt-4">
+                <div class="text-3xl font-bold text-red-700">3</div>
+                <p class="text-sm text-legal-navy-600 mt-2">Require immediate resolution</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-legal-navy-700">Compliance Violations</h3>
+                <span class="text-xs font-medium px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">8 Findings</span>
+            </div>
+            <div class="mt-4">
+                <div class="text-3xl font-bold text-yellow-600">8</div>
+                <p class="text-sm text-legal-navy-600 mt-2">Regulatory compliance issues</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Analysis Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 mb-6 lg:mb-8">
+        <!-- Risk Distribution Chart -->
+        <div class="lg:col-span-2 bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400">
+            <h3 class="text-lg font-bold text-primary font-serif mb-4">Employment Risk Impact on Deal Value</h3>
+            <div class="chart-container">
+                <canvas id="riskImpactChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Deal Impact Timeline -->
+        <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400">
+            <h3 class="text-lg font-bold text-primary font-serif mb-4">Due Diligence Timeline</h3>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="text-sm font-medium text-legal-navy-900">Initial employment audit completed</div>
+                    <div class="text-xs text-legal-navy-500 mt-1">Oct 18, 2023 • Phase 1</div>
+                </div>
+                <div class="timeline-item critical">
+                    <div class="text-sm font-medium text-legal-navy-900">Contractor misclassification identified</div>
+                    <div class="text-xs text-legal-navy-500 mt-1">Oct 25, 2023 • Critical finding</div>
+                </div>
+                <div class="timeline-item high">
+                    <div class="text-sm font-medium text-legal-navy-900">Executive compensation liabilities</div>
+                    <div class="text-xs text-legal-navy-500 mt-1">Nov 2, 2023 • High severity</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="text-sm font-medium text-legal-navy-900">Final due diligence report due</div>
+                    <div class="text-xs text-legal-navy-500 mt-1">Nov 15, 2023 • Next milestone</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deal Value Impact Visualization -->
+    <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400 mb-6 lg:mb-8">
+        <h3 class="text-lg font-bold text-primary font-serif mb-4">Potential Deal Value Impact</h3>
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div class="text-center">
+                <div class="value-impact">
+                    <div class="value-bar bg-green-500" style="height: 100%;"></div>
+                </div>
+                <div class="mt-2">
+                    <div class="text-sm font-medium text-legal-navy-900">Original Value</div>
+                    <div class="text-lg font-bold text-legal-navy-700">$245M</div>
+                </div>
+            </div>
+            <div class="text-center">
+                <div class="value-impact">
+                    <div class="value-bar bg-yellow-500" style="height: 88%;"></div>
+                </div>
+                <div class="mt-2">
+                    <div class="text-sm font-medium text-legal-navy-900">After Employment Risks</div>
+                    <div class="text-lg font-bold text-legal-navy-700">$230.8M</div>
+                    <div class="text-xs text-red-600">-$14.2M</div>
+                </div>
+            </div>
+            <div class="text-center">
+                <div class="value-impact">
+                    <div class="value-bar bg-red-500" style="height: 75%;"></div>
+                </div>
+                <div class="mt-2">
+                    <div class="text-sm font-medium text-legal-navy-900">Worst Case</div>
+                    <div class="text-lg font-bold text-legal-navy-700">$183.8M</div>
+                    <div class="text-xs text-red-600">-$61.2M</div>
+                </div>
+            </div>
+            <div class="text-center">
+                <div class="value-impact">
+                    <div class="value-bar bg-blue-500" style="height: 94%;"></div>
+                </div>
+                <div class="mt-2">
+                    <div class="text-sm font-medium text-legal-navy-900">With Mitigation</div>
+                    <div class="text-lg font-bold text-legal-navy-700">$238.7M</div>
+                    <div class="text-xs text-green-600">+$7.9M</div>
+                </div>
+            </div>
+            <div class="text-center">
+                <div class="value-impact">
+                    <div class="value-bar bg-purple-500" style="height: 97%;"></div>
+                </div>
+                <div class="mt-2">
+                    <div class="text-sm font-medium text-legal-navy-900">Optimal Outcome</div>
+                    <div class="text-lg font-bold text-legal-navy-700">$252.4M</div>
+                    <div class="text-xs text-green-600">+$7.4M</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Risk Breakdown -->
+    <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400 mb-6 lg:mb-8">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">
+            <h3 class="text-lg font-bold text-primary font-serif">Acquisition-Specific Employment Risks</h3>
+            <div class="mt-2 lg:mt-0">
+                <select class="block w-full lg:w-auto pl-3 pr-10 py-2 text-base border border-legal-ivory-400 focus:outline-none focus:ring-2 focus:ring-legal-burgundy-500 focus:border-transparent sm:text-sm rounded-lg">
+                    <option>All Risk Categories</option>
+                    <option>Compensation & Benefits</option>
+                    <option>Compliance Issues</option>
+                    <option>Contractor Classification</option>
+                    <option>Retention Risks</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-legal-ivory-300">
+                <thead>
+                <tr>
+                    <th class="px-4 py-3 bg-legal-navy-50 text-left text-xs font-medium text-legal-navy-700 uppercase tracking-wider">Risk Area</th>
+                    <th class="px-4 py-3 bg-legal-navy-50 text-left text-xs font-medium text-legal-navy-700 uppercase tracking-wider">Category</th>
+                    <th class="px-4 py-3 bg-legal-navy-50 text-left text-xs font-medium text-legal-navy-700 uppercase tracking-wider">Severity</th>
+                    <th class="px-4 py-3 bg-legal-navy-50 text-left text-xs font-medium text-legal-navy-700 uppercase tracking-wider">Value Impact</th>
+                    <th class="px-4 py-3 bg-legal-navy-50 text-left text-xs font-medium text-legal-navy-700 uppercase tracking-wider">Acquisition Impact</th>
+                    <th class="px-4 py-3 bg-legal-navy-50 text-left text-xs font-medium text-legal-navy-700 uppercase tracking-wider">Actions</th>
+                </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-legal-ivory-200">
+                <tr>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-legal-navy-900">Contractor Misclassification</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-legal-navy-700">Compliance</td>
+                    <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="severity-indicator severity-critical">Critical</span>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-red-700">-$8.5M</td>
+                    <td class="px-4 py-4 text-sm text-legal-navy-700">Potential back pay, penalties, and benefits liability</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-legal-navy-700">
+                        <button class="text-legal-burgundy-600 hover:text-legal-burgundy-800">Reclassify</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-legal-navy-900">Executive Change-in-Control</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-legal-navy-700">Compensation</td>
+                    <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="severity-indicator severity-critical">Critical</span>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-red-700">-$4.2M</td>
+                    <td class="px-4 py-4 text-sm text-legal-navy-700">Accelerated payouts for 8 executives upon acquisition</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-legal-navy-700">
+                        <button class="text-legal-burgundy-600 hover:text-legal-burgundy-800">Renegotiate</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-legal-navy-900">Overtime Compliance</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-legal-navy-700">Compliance</td>
+                    <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="severity-indicator severity-high">High</span>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-orange-700">-$1.8M</td>
+                    <td class="px-4 py-4 text-sm text-legal-navy-700">Potential wage & hour violations across departments</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-legal-navy-700">
+                        <button class="text-legal-burgundy-600 hover:text-legal-burgundy-800">Audit</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-legal-navy-900">Key Employee Retention</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-legal-navy-700">Retention</td>
+                    <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="severity-indicator severity-high">High</span>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-orange-700">-$3.5M</td>
+                    <td class="px-4 py-4 text-sm text-legal-navy-700">15 key engineers at high risk of departure post-acquisition</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-legal-navy-700">
+                        <button class="text-legal-burgundy-600 hover:text-legal-burgundy-800">Retain</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-legal-navy-900">Benefits Compliance</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-legal-navy-700">Compliance</td>
+                    <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="severity-indicator severity-medium">Medium</span>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-yellow-700">-$0.8M</td>
+                    <td class="px-4 py-4 text-sm text-legal-navy-700">ACA reporting deficiencies and plan document gaps</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-legal-navy-700">
+                        <button class="text-legal-burgundy-600 hover:text-legal-burgundy-800">Remediate</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Department-Specific Risk Analysis -->
+    <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400 mb-6 lg:mb-8">
+        <h3 class="text-lg font-bold text-primary font-serif mb-4">Department-Specific Risk Analysis</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+            <div class="risk-card high p-4 bg-white rounded-lg border border-legal-ivory-400">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="text-base font-semibold text-legal-navy-900">Engineering</h4>
+                    <span class="employee-count-badge">45 employees</span>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-legal-navy-600">Retention Risk:</span>
+                        <span class="font-medium text-red-600">High</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-legal-navy-600">Overtime Compliance:</span>
+                        <span class="font-medium text-yellow-600">Medium</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-legal-navy-600">Contractor Issues:</span>
+                        <span class="font-medium text-red-600">Critical</span>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t border-gray-200">
+                    <div class="text-xs text-legal-navy-500">Key engineers require retention bonuses estimated at $2.1M</div>
+                </div>
+            </div>
+
+            <div class="risk-card medium p-4 bg-white rounded-lg border border-legal-ivory-400">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="text-base font-semibold text-legal-navy-900">Sales & Marketing</h4>
+                    <span class="employee-count-badge">28 employees</span>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-legal-navy-600">Commission Disputes:</span>
+                        <span class="font-medium text-yellow-600">Medium</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-legal-navy-600">Non-Compete Enforcement:</span>
+                        <span class="font-medium text-green-600">Low</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-legal-navy-600">Retention Risk:</span>
+                        <span class="font-medium text-yellow-600">Medium</span>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t border-gray-200">
+                    <div class="text-xs text-legal-navy-500">Two pending commission disputes totaling $350K</div>
+                </div>
+            </div>
+
+            <div class="risk-card low p-4 bg-white rounded-lg border border-legal-ivory-400">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="text-base font-semibold text-legal-navy-900">Executive Team</h4>
+                    <span class="employee-count-badge">8 employees</span>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-legal-navy-600">Change-in-Control:</span>
+                        <span class="font-medium text-red-600">Critical</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-legal-navy-600">Equity Acceleration:</span>
+                        <span class="font-medium text-red-600">High</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-legal-navy-600">Retention Risk:</span>
+                        <span class="font-medium text-green-600">Low</span>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t border-gray-200">
+                    <div class="text-xs text-legal-navy-500">$4.2M in accelerated payouts triggered by acquisition</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acquisition Risk Mitigation -->
+    <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400">
+        <h3 class="text-lg font-bold text-primary font-serif mb-4">Employment Risk Mitigation Strategies</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
+            <div class="risk-card critical p-4 bg-white rounded-lg border border-legal-ivory-400">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+                            <i class="fas fa-user-check text-red-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <h4 class="text-base font-medium text-legal-navy-900">Reclassify Contractors</h4>
+                        <p class="text-sm text-legal-navy-600 mt-1">Convert 17 misclassified contractors to employee status with proper benefits and back pay calculation.</p>
+                        <div class="mt-3 flex items-center text-xs text-legal-navy-500">
+                            <span class="flex items-center">
+                                <i class="far fa-clock mr-1"></i>
+                                Due: Before closing
+                            </span>
+                            <span class="mx-2">•</span>
+                            <span class="flex items-center">
+                                <i class="fas fa-user mr-1"></i>
+                                Lead: HR Director
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="risk-card critical p-4 bg-white rounded-lg border border-legal-ivory-400">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+                            <i class="fas fa-file-contract text-red-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <h4 class="text-base font-medium text-legal-navy-900">Renegotiate Executive Agreements</h4>
+                        <p class="text-sm text-legal-navy-600 mt-1">Modify change-in-control provisions to reduce $4.2M liability and align with acquisition timeline.</p>
+                        <div class="mt-3 flex items-center text-xs text-legal-navy-500">
+                            <span class="flex items-center">
+                                <i class="far fa-clock mr-1"></i>
+                                Due: 10 days
+                            </span>
+                            <span class="mx-2">•</span>
+                            <span class="flex items-center">
+                                <i class="fas fa-user mr-1"></i>
+                                Lead: Legal Team
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="risk-card high p-4 bg-white rounded-lg border border-legal-ivory-400">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center">
+                            <i class="fas fa-hand-holding-usd text-yellow-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <h4 class="text-base font-medium text-legal-navy-900">Implement Retention Program</h4>
+                        <p class="text-sm text-legal-navy-600 mt-1">Design retention bonuses for 15 key engineers to ensure continuity post-acquisition.</p>
+                        <div class="mt-3 flex items-center text-xs text-legal-navy-500">
+                            <span class="flex items-center">
+                                <i class="far fa-clock mr-1"></i>
+                                Due: 15 days
+                            </span>
+                            <span class="mx-2">•</span>
+                            <span class="flex items-center">
+                                <i class="fas fa-user mr-1"></i>
+                                Lead: Compensation Team
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="risk-card high p-4 bg-white rounded-lg border border-legal-ivory-400">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center">
+                            <i class="fas fa-balance-scale text-yellow-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <h4 class="text-base font-medium text-legal-navy-900">Compliance Remediation</h4>
+                        <p class="text-sm text-legal-navy-600 mt-1">Address overtime classification issues and benefits compliance gaps across all departments.</p>
+                        <div class="mt-3 flex items-center text-xs text-legal-navy-500">
+                            <span class="flex items-center">
+                                <i class="far fa-clock mr-1"></i>
+                                Due: 30 days
+                            </span>
+                            <span class="mx-2">•</span>
+                            <span class="flex items-center">
+                                <i class="fas fa-user mr-1"></i>
+                                Lead: Compliance Officer
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 p-4 bg-legal-navy-50 rounded-lg border border-legal-navy-200">
+            <div class="flex items-start">
+                <i class="fas fa-lightbulb text-legal-gold-600 mt-1 mr-3"></i>
+                <div>
+                    <h4 class="font-medium text-legal-navy-900">Acquisition Strategy Recommendation</h4>
+                    <p class="text-sm text-legal-navy-700 mt-1">Based on employment risks, recommend reducing offer price by $14.2M or establishing an escrow of $8M to cover potential employment liabilities. Critical contractor classification issues must be resolved before acquisition close. Retention program for key engineers is essential to preserve acquisition value.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize risk impact chart
+        document.addEventListener('DOMContentLoaded', function() {
+            const riskImpactCtx = document.getElementById('riskImpactChart').getContext('2d');
+            const riskImpactChart = new Chart(riskImpactCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Low Risk Employees', 'Medium Risk Areas', 'High Risk Issues', 'Critical Liabilities'],
+                    datasets: [{
+                        data: [82, 28, 12, 5],
+                        backgroundColor: [
+                            '#10b981',
+                            '#f59e0b',
+                            '#ef4444',
+                            '#7c2d12'
+                        ],
+                        borderColor: [
+                            '#10b981',
+                            '#f59e0b',
+                            '#ef4444',
+                            '#7c2d12'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    return `${label}: ${value} employees`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</main>
+</body>
+</html>

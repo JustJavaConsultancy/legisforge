@@ -74,4 +74,40 @@ public class ProjectController {
         String referer = request.getHeader("Referer");
         return "redirect:" + (referer != null ? referer : "/");
     }
+    @GetMapping("/ipUpload")
+    public String ipUpload() {
+        return "tasks/ipUpload";
+    }
+    @GetMapping("/combined-ip")
+    public String combinedIp() {
+        return "tasks/combinedIp";
+    }
+    @GetMapping("/ip-risk")
+    public String ipRisk() {
+        return "tasks/ipRisk";
+    }
+    @GetMapping("/employment-upload")
+    public String employmentUpload() {
+        return "tasks/employmentUpload";
+    }
+    @GetMapping("/combined-employment")
+    public String combinedEmployment() {
+        return "tasks/combinedEmployment";
+    }
+    @GetMapping("/employment-risk")
+    public String employmentRisk() {
+        return "tasks/employmentRisk";
+    }
+    @GetMapping("/corporate-upload")
+    public String corporateUpload() {
+        return "tasks/corporateUpload";
+    }
+    @GetMapping("/combined-corporate")
+    public String combinedCorporate() {
+        return "tasks/combinedCorporate";
+    }
+    @GetMapping("/corporate-risk")
+    public String corporateRisk() {
+        return "tasks/corporateRisk";
+    }
 }

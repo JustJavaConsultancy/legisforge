@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        /* Document Viewer Styles */
+        .document-viewer {
+            height: calc(100vh - 200px);
+            min-height: 500px;
+        }
+
+        .document-container {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            border: 1px solid #e8e8e8;
+            padding: 1.25rem;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .document-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #e8e8e8;
+            padding-bottom: 1rem;
+        }
+
+        .document-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2c3b4e;
+            font-family: 'Georgia', 'Times New Roman', serif;
+        }
+
+        .document-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .meta-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+
+        .meta-value {
+            font-weight: 500;
+            color: #2c3b4e;
+        }
+
+        .document-content {
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .document-section {
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .document-section.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2c3b4e;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .document-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e8e8e8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .document-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .source-documents {
+            margin-top: 2rem;
+        }
+
+        .source-doc-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid #e8e8e8;
+            border-radius: 0.375rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .source-doc-item:hover {
+            background-color: #f5f7fa;
+        }
+
+        .source-doc-icon {
+            margin-right: 0.75rem;
+            color: #6b7280;
+        }
+
+        .source-doc-info {
+            flex: 1;
+        }
+
+        .source-doc-name {
+            font-weight: 500;
+            color: #2c3b4e;
+        }
+
+        .source-doc-size {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .document-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: white;
+            border: 1px solid #e8e8e8;
+            border-radius: 0.375rem;
+            color: #2c3b4e;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .nav-button:hover {
+            background: #f5f7fa;
+            border-color: #9b2f2f;
+        }
+
+        .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .nav-button:disabled:hover {
+            background: white;
+            border-color: #e8e8e8;
+        }
+
+        .document-pagination {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .page-info {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .page-input {
+            width: 60px;
+            padding: 0.25rem 0.5rem;
+            border: 1px solid #e8e8e8;
+            border-radius: 0.25rem;
+            text-align: center;
+        }
+
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .zoom-button {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: 1px solid #e8e8e8;
+            border-radius: 0.25rem;
+            color: #2c3b4e;
+        }
+
+        .zoom-button:hover {
+            background: #f5f7fa;
+        }
+
+        .zoom-level {
+            font-size: 0.875rem;
+            color: #6b7280;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .ai-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .confidence-meter {
+            height: 6px;
+            background-color: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #3b82f6 100%);
+            transition: width 0.3s ease;
+        }
+
+        .ai-process-step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .ai-step-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #f5f7fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .ai-step-content {
+            flex: 1;
+        }
+
+        .ai-step-title {
+            font-weight: 600;
+            color: #2c3b4e;
+            margin-bottom: 0.25rem;
+        }
+
+        .ai-step-description {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0 !important;
+                width: 100%;
+            }
+
+            .header {
+                left: 0 !important;
+                width: 100%;
+            }
+
+            .document-viewer {
+                height: auto;
+                min-height: 400px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .user-info {
+                display: none;
+            }
+
+            .document-navigation {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .document-pagination {
+                order: 1;
+                justify-content: center;
+            }
+
+            .zoom-controls {
+                order: 2;
+                justify-content: center;
+            }
+
+            .nav-button {
+                order: 3;
+                justify-content: center;
+            }
+
+            .document-actions {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .document-meta {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .ai-process-step {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .ai-step-icon {
+                margin-right: 0;
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .document-title {
+                font-size: 1.25rem;
+            }
+
+            .section-title {
+                font-size: 1.1rem;
+            }
+
+            .document-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .document-actions button {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .document-footer {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .document-pagination {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+
+        /* FIXED: Equal height containers */
+        .equal-height-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .equal-height-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* NEW: Fixed grid layout for equal heights */
+        .document-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            height: 100%;
+        }
+
+        @media (min-width: 1024px) {
+            .document-grid {
+                grid-template-columns: 3fr 1fr;
+                grid-template-rows: 1fr;
+            }
+        }
+
+        /* NEW: Container wrappers with fixed height */
+        .document-wrapper {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .sidebar-wrapper {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        /* NEW: Fixed document viewer height */
+        .document-viewer-fixed {
+            height: 100%;
+            min-height: 500px;
+        }
+
+
+    </style>
+</head>
+<body>
+<main layout:fragment="content">
+    <!-- Page Header -->
+    <div class="mb-6 lg:mb-8 animate-fade-in">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+            <div>
+                <h1 class="text-2xl lg:text-3xl font-bold text-primary font-serif">AI-Combined IP Document</h1>
+                <p class="text-legal-navy-600 mt-2">Review the AI-generated consolidated intellectual property documentation</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Processing Information -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6 border border-legal-ivory-400">
+        <div class="flex flex-col xs:flex-row xs:items-center mb-4 gap-2">
+                        <span class="ai-badge mr-3">
+                            <i class="fas fa-robot"></i>
+                            AI-Generated Document
+                        </span>
+            <span class="text-sm text-legal-navy-600">Confidence Score: 94%</span>
+            <div class="confidence-meter ml-0 xs:ml-3 w-32">
+                <div class="confidence-fill" style="width: 94%"></div>
+            </div>
+        </div>
+
+        <h3 class="text-lg font-bold text-primary font-serif mb-3">AI Processing Summary</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="ai-process-step">
+                <div class="ai-step-icon">
+                    <i class="fas fa-file-import text-legal-burgundy-600"></i>
+                </div>
+                <div class="ai-step-content">
+                    <h4 class="ai-step-title">Document Ingestion</h4>
+                    <p class="ai-step-description">Processed 7 source documents with 100% accuracy</p>
+                </div>
+            </div>
+
+            <div class="ai-process-step">
+                <div class="ai-step-icon">
+                    <i class="fas fa-cogs text-legal-burgundy-600"></i>
+                </div>
+                <div class="ai-step-content">
+                    <h4 class="ai-step-title">Content Analysis</h4>
+                    <p class="ai-step-description">Identified key IP assets and relationships</p>
+                </div>
+            </div>
+
+            <div class="ai-process-step">
+                <div class="ai-step-icon">
+                    <i class="fas fa-sitemap text-legal-burgundy-600"></i>
+                </div>
+                <div class="ai-step-content">
+                    <h4 class="ai-step-title">Structure Generation</h4>
+                    <p class="ai-step-description">Created logical document structure with 6 sections</p>
+                </div>
+            </div>
+
+            <div class="ai-process-step">
+                <div class="ai-step-icon">
+                    <i class="fas fa-check-circle text-legal-burgundy-600"></i>
+                </div>
+                <div class="ai-step-content">
+                    <h4 class="ai-step-title">Quality Assurance</h4>
+                    <p class="ai-step-description">Verified consistency and completeness</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document Navigation -->
+    <div class="document-navigation mb-4">
+        <button class="nav-button" id="prevPage">
+            <i class="fas fa-chevron-left"></i>
+            Previous Page
+        </button>
+
+        <div class="document-pagination">
+            <span class="page-info">Page <span id="currentPage">1</span> of <span id="totalPages">6</span></span>
+            <input type="number" id="pageInput" class="page-input" min="1" max="6" value="1">
+            <button id="goToPage" class="nav-button">
+                Go
+            </button>
+        </div>
+
+        <div class="zoom-controls">
+            <button class="zoom-button" id="zoomOut">
+                <i class="fas fa-search-minus"></i>
+            </button>
+            <span class="zoom-level" id="zoomLevel">100%</span>
+            <button class="zoom-button" id="zoomIn">
+                <i class="fas fa-search-plus"></i>
+            </button>
+        </div>
+
+        <button class="nav-button" id="nextPage">
+            Next Page
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+
+    <!-- Document Viewer - FIXED FOR EQUAL HEIGHT -->
+    <div class="document-grid">
+        <!-- Document Content -->
+        <div class="document-wrapper">
+            <div class="document-viewer-fixed">
+                <div class="document-container equal-height-container" id="documentContainer">
+                    <div class="document-header">
+                        <h2 class="document-title">Consolidated IP Portfolio: Tech Innovations Inc.</h2>
+                    </div>
+
+                    <div class="document-meta">
+                        <div class="meta-item">
+                            <span class="meta-label">AI Generated</span>
+                            <span class="meta-value">November 5, 2023</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Last Modified</span>
+                            <span class="meta-value">November 5, 2023</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">AI Model</span>
+                            <span class="meta-value">LegisForge IP Analyzer v2.1</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">File Size</span>
+                            <span class="meta-value">4.7 MB</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Pages</span>
+                            <span class="meta-value">6</span>
+                        </div>
+                    </div>
+
+                    <div class="document-content equal-height-content" id="documentContent">
+                        <!-- Page 1: Executive Summary -->
+                        <div class="document-section active" id="page1">
+                            <h3 class="section-title">Executive Summary</h3>
+                            <p>This AI-generated document consolidates all intellectual property assets for Tech Innovations Inc. as part of the due diligence process for the upcoming merger with Global Solutions Corp. The portfolio includes patents, trademarks, copyrights, and trade secrets that form the core of the company's competitive advantage.</p>
+                            <p>The IP portfolio has been automatically analyzed and organized to provide a comprehensive overview of all registered and pending intellectual property rights, along with relevant documentation and correspondence with regulatory bodies.</p>
+                            <div class="mt-4 p-3 bg-legal-navy-50 rounded-lg border-l-4 border-legal-navy-500">
+                                <div class="flex items-start">
+                                    <i class="fas fa-lightbulb text-legal-gold-600 mt-1 mr-2"></i>
+                                    <p class="text-sm text-legal-navy-700"><strong>AI Insight:</strong> The patent portfolio represents approximately 65% of the company's valuation in the proposed merger, with the "System and Method for Advanced Data Encryption" patent identified as the most valuable asset.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Page 2: Patent Portfolio -->
+                        <div class="document-section" id="page2">
+                            <h3 class="section-title">Patent Portfolio</h3>
+                            <p>The company holds 12 utility patents and 3 design patents across various jurisdictions. Key patents include:</p>
+                            <ul class="list-disc pl-6 mt-2 space-y-1">
+                                <li>US Patent 10,123,456: "System and Method for Advanced Data Encryption"</li>
+                                <li>US Patent 10,234,567: "Machine Learning Algorithm for Predictive Analytics"</li>
+                                <li>EU Patent EP3456789: "User Interface for Mobile Applications"</li>
+                                <li>JP Patent JP2020123456: "Cloud Storage Optimization Method"</li>
+                            </ul>
+                            <p class="mt-3">All patents are currently in good standing with maintenance fees paid through 2025.</p>
+                            <div class="mt-4 p-3 bg-legal-navy-50 rounded-lg border-l-4 border-legal-navy-500">
+                                <div class="flex items-start">
+                                    <i class="fas fa-lightbulb text-legal-gold-600 mt-1 mr-2"></i>
+                                    <p class="text-sm text-legal-navy-700"><strong>AI Analysis:</strong> The patent portfolio shows strong international coverage with no identified gaps in key markets. All maintenance deadlines have been properly tracked with no upcoming renewals in the next 12 months.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Page 3: Trademark Registrations -->
+                        <div class="document-section" id="page3">
+                            <h3 class="section-title">Trademark Registrations</h3>
+                            <p>Tech Innovations Inc. maintains registered trademarks for its key product lines and corporate identity:</p>
+                            <ul class="list-disc pl-6 mt-2 space-y-1">
+                                <li>"TechInnovate" - Registered in US, EU, and Japan for software services</li>
+                                <li>"DataSecure Pro" - Registered in US and Canada for security software</li>
+                                <li>"CloudSync" - Registered in US, EU, Australia, and Singapore</li>
+                                <li>Company logo - Registered in all major markets</li>
+                            </ul>
+                            <p class="mt-3">All trademarks are current and properly maintained with no pending oppositions or challenges.</p>
+                        </div>
+
+                        <!-- Page 4: Copyrights -->
+                        <div class="document-section" id="page4">
+                            <h3 class="section-title">Copyrights</h3>
+                            <p>The company holds copyrights for its proprietary software code, documentation, and marketing materials:</p>
+                            <ul class="list-disc pl-6 mt-2 space-y-1">
+                                <li>Source code for all proprietary software products</li>
+                                <li>User manuals and technical documentation</li>
+                                <li>Marketing materials and website content</li>
+                                <li>Training materials and internal documentation</li>
+                            </ul>
+                            <p class="mt-3">All copyrightable works have been properly registered with the appropriate authorities where beneficial.</p>
+                        </div>
+
+                        <!-- Page 5: Trade Secrets -->
+                        <div class="document-section" id="page5">
+                            <h3 class="section-title">Trade Secrets</h3>
+                            <p>Tech Innovations Inc. maintains several valuable trade secrets, including:</p>
+                            <ul class="list-disc pl-6 mt-2 space-y-1">
+                                <li>Proprietary algorithms for data processing</li>
+                                <li>Customer lists and purchasing patterns</li>
+                                <li>Manufacturing processes for hardware components</li>
+                                <li>Business development strategies</li>
+                            </ul>
+                            <p class="mt-3">All trade secrets are protected through appropriate confidentiality agreements and security measures.</p>
+                            <div class="mt-4 p-3 bg-legal-navy-50 rounded-lg border-l-4 border-legal-navy-500">
+                                <div class="flex items-start">
+                                    <i class="fas fa-lightbulb text-legal-gold-600 mt-1 mr-2"></i>
+                                    <p class="text-sm text-legal-navy-700"><strong>AI Recommendation:</strong> Consider registering the proprietary algorithms as patents to strengthen IP protection while maintaining trade secret status for customer data and business strategies.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Page 6: Licensing Agreements -->
+                        <div class="document-section" id="page6">
+                            <h3 class="section-title">Licensing Agreements</h3>
+                            <p>The company has entered into several licensing agreements:</p>
+                            <ul class="list-disc pl-6 mt-2 space-y-1">
+                                <li>Exclusive license of "DataSecure Pro" to Financial Services Corp (2022-2027)</li>
+                                <li>Non-exclusive license of cloud storage patents to Tech Partners LLC</li>
+                                <li>Cross-licensing agreement with Secure Systems Inc. for encryption technology</li>
+                            </ul>
+                            <p class="mt-3">All licensing agreements are current and in compliance with terms.</p>
+                        </div>
+                    </div>
+
+                    <div class="document-footer">
+                        <div class="document-actions">
+                            <button class="flex items-center px-4 py-2 bg-secondary hover:bg-legal-burgundy-800 text-white rounded-lg transition-colors duration-200 mr-2">
+                                <i class="fas fa-download mr-2"></i>
+                                Download PDF
+                            </button>
+                            <button class="flex items-center px-4 py-2 bg-legal-navy-600 hover:bg-legal-navy-700 text-white rounded-lg transition-colors duration-200 mr-2">
+                                <i class="fas fa-print mr-2"></i>
+                                Print
+                            </button>
+                            <button class="flex items-center px-4 py-2 bg-legal-gold-600 hover:bg-legal-gold-700 text-white rounded-lg transition-colors duration-200">
+                                <i class="fas fa-share-alt mr-2"></i>
+                                Share
+                            </button>
+                        </div>
+                        <div class="text-sm text-legal-navy-500">
+                            Document ID: IP-AI-CONSOL-2023-078
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Document Sidebar - FIXED FOR EQUAL HEIGHT -->
+        <div class="sidebar-wrapper">
+            <div class="sidebar-fixed">
+                <div class="bg-white rounded-lg shadow-sm p-6 border border-legal-ivory-400 h-full">
+                    <div class="equal-height-container">
+                        <h3 class="text-lg font-bold text-primary font-serif mb-4">Source Documents</h3>
+
+                        <div class="source-documents equal-height-content">
+                            <div class="source-doc-item">
+                                <div class="source-doc-icon">
+                                    <i class="fas fa-file-pdf"></i>
+                                </div>
+                                <div class="source-doc-info">
+                                    <div class="source-doc-name">Patent Portfolio Summary</div>
+                                    <div class="source-doc-size">1.2 MB</div>
+                                </div>
+                            </div>
+
+                            <div class="source-doc-item">
+                                <div class="source-doc-icon">
+                                    <i class="fas fa-file-pdf"></i>
+                                </div>
+                                <div class="source-doc-info">
+                                    <div class="source-doc-name">Trademark Registrations</div>
+                                    <div class="source-doc-size">0.8 MB</div>
+                                </div>
+                            </div>
+
+                            <div class="source-doc-item">
+                                <div class="source-doc-icon">
+                                    <i class="fas fa-file-word"></i>
+                                </div>
+                                <div class="source-doc-info">
+                                    <div class="source-doc-name">Copyright Documentation</div>
+                                    <div class="source-doc-size">0.5 MB</div>
+                                </div>
+                            </div>
+
+                            <div class="source-doc-item">
+                                <div class="source-doc-icon">
+                                    <i class="fas fa-file-pdf"></i>
+                                </div>
+                                <div class="source-doc-info">
+                                    <div class="source-doc-name">Trade Secret Protocols</div>
+                                    <div class="source-doc-size">1.1 MB</div>
+                                </div>
+                            </div>
+
+                            <div class="source-doc-item">
+                                <div class="source-doc-icon">
+                                    <i class="fas fa-file-contract"></i>
+                                </div>
+                                <div class="source-doc-info">
+                                    <div class="source-doc-name">Licensing Agreements</div>
+                                    <div class="source-doc-size">0.9 MB</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

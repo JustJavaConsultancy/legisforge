@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Employment Document Viewer</title>
+    <style>
+        /* Enhanced Document Viewer Styles */
+        .document-viewer {
+            height: calc(100vh - 200px);
+            min-height: 500px;
+        }
+
+        .document-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e8e8e8;
+            padding: 1.5rem;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .document-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #f0f4f8;
+            padding-bottom: 1.5rem;
+        }
+
+        .document-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1e293b;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            line-height: 1.3;
+        }
+
+        .document-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            min-width: 120px;
+        }
+
+        .meta-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .meta-value {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 0.95rem;
+        }
+
+        .document-content {
+            line-height: 1.7;
+            font-size: 1rem;
+            color: #334155;
+        }
+
+        .document-section {
+            margin-bottom: 3rem;
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .document-section.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e2e8f0;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: #9b2f2f;
+        }
+
+        .document-footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid #f0f4f8;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;            /* FIX: prevents overflow on smaller screens */
+    gap: 1rem;                  /* spacing when wrapping */
+}
+
+/* Action buttons container */
+.document-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;            /* FIX: prevents buttons from squeezing */
+}
+
+/* Button base style */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.25rem;   /* FIX: balanced padding for all sizes */
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    white-space: nowrap;        /* FIX: prevents awkward text wrapping */
+}
+
+/* Primary button */
+.btn-primary {
+    background: linear-gradient(135deg, #9b2f2f 0%, #7c2525 100%);
+    color: white;
+    box-shadow: 0 2px 4px rgba(155, 47, 47, 0.2);
+}
+.btn-primary:hover {
+    background: linear-gradient(135deg, #8a2a2a 0%, #6c2020 100%);
+    box-shadow: 0 4px 8px rgba(155, 47, 47, 0.3);
+    transform: translateY(-1px);
+}
+
+/* Secondary button */
+.btn-secondary {
+    background: #475569;
+    color: white;
+    box-shadow: 0 2px 4px rgba(71, 85, 105, 0.2);
+}
+.btn-secondary:hover {
+    background: #374151;
+    box-shadow: 0 4px 8px rgba(71, 85, 105, 0.3);
+    transform: translateY(-1px);
+}
+
+/* Outline button */
+.btn-outline {
+    background: transparent;
+    color: #475569;
+    border: 1.5px solid #cbd5e1;
+}
+.btn-outline:hover {
+    background: #f8fafc;
+    border-color: #9b2f2f;
+    color: #9b2f2f;
+}
+
+/* Optional: improves spacing on small screens */
+@media (max-width: 576px) {
+    .document-footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .document-actions {
+        width: 100%;
+    }
+
+    .btn {
+        width: 100%;  /* makes buttons full width for clean mobile layout */
+    }
+}
+
+        .source-doc-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .source-doc-item:hover {
+            background-color: #f8fafc;
+            border-color: #9b2f2f;
+            transform: translateX(4px);
+        }
+
+        .source-doc-icon {
+            margin-right: 1rem;
+            color: #9b2f2f;
+            font-size: 1.25rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fef2f2;
+            border-radius: 8px;
+        }
+
+        .source-doc-info {
+            flex: 1;
+        }
+
+        .source-doc-name {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+
+        .source-doc-size {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .document-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1.5rem;
+            background: white;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            color: #475569;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-button:hover {
+            background: #9b2f2f;
+            border-color: #9b2f2f;
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(155, 47, 47, 0.2);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f1f5f9;
+            border-color: #e2e8f0;
+            color: #94a3b8;
+        }
+
+        .nav-button:disabled:hover {
+            background: #f1f5f9;
+            border-color: #e2e8f0;
+            color: #94a3b8;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .document-pagination {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .page-info {
+            font-size: 0.875rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .page-input {
+            width: 70px;
+            padding: 0.5rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .page-input:focus {
+            outline: none;
+            border-color: #9b2f2f;
+            box-shadow: 0 0 0 3px rgba(155, 47, 47, 0.1);
+        }
+
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: white;
+            padding: 0.5rem;
+            border-radius: 8px;
+            border: 1.5px solid #e2e8f0;
+        }
+
+        .zoom-button {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 6px;
+            color: #475569;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .zoom-button:hover {
+            background: #9b2f2f;
+            border-color: #9b2f2f;
+            color: white;
+        }
+
+        .zoom-level {
+            font-size: 0.875rem;
+            color: #475569;
+            min-width: 50px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .ai-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+        }
+
+        .confidence-meter {
+            height: 8px;
+            background-color: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #3b82f6 100%);
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .ai-process-step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            border-left: 4px solid #9b2f2f;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .ai-step-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1.5rem;
+            flex-shrink: 0;
+            color: #9b2f2f;
+            font-size: 1.25rem;
+        }
+
+        .ai-step-content {
+            flex: 1;
+        }
+
+        .ai-step-title {
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .ai-step-description {
+            font-size: 0.95rem;
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        /* Employment-specific styles */
+        .employee-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .employee-table th,
+        .employee-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .employee-table th {
+            background-color: #f8fafc;
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .employee-table tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .employee-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .risk-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .risk-low {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .risk-medium {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .risk-high {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .compliance-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .compliant {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .non-compliant {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .review-needed {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .insight-box {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 12px;
+            border-left: 4px solid #0ea5e9;
+        }
+
+        .insight-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .insight-icon {
+            width: 32px;
+            height: 32px;
+            background: #0ea5e9;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: white;
+        }
+
+        .insight-title {
+            font-weight: 700;
+            color: #0369a1;
+            font-size: 1.1rem;
+        }
+
+        .insight-content {
+            color: #0c4a6e;
+            line-height: 1.6;
+        }
+
+        /* Enhanced responsive design */
+        @media (max-width: 1024px) {
+            .document-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar-wrapper {
+                margin-top: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .document-navigation {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .document-pagination {
+                order: 1;
+                justify-content: center;
+            }
+
+            .zoom-controls {
+                order: 2;
+                justify-content: center;
+            }
+
+            .nav-button {
+                order: 3;
+                justify-content: center;
+            }
+
+            .document-actions {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .document-meta {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .ai-process-step {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .ai-step-icon {
+                margin-right: 0;
+                margin-bottom: 1rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .document-title {
+                font-size: 1.5rem;
+            }
+
+            .section-title {
+                font-size: 1.25rem;
+            }
+
+            .document-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .document-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .document-footer {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .document-pagination {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* FIXED: Equal height containers */
+        .equal-height-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .equal-height-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* NEW: Fixed grid layout for equal heights */
+        .document-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            height: 100%;
+        }
+
+        @media (min-width: 1024px) {
+            .document-grid {
+                grid-template-columns: 3fr 1fr;
+                grid-template-rows: 1fr;
+            }
+        }
+
+        /* NEW: Container wrappers with fixed height */
+        .document-wrapper {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .sidebar-wrapper {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        /* NEW: Fixed document viewer height */
+        .document-viewer-fixed {
+            height: 100%;
+            min-height: 500px;
+        }
+
+        /* NEW: Enhanced sidebar */
+        .sidebar-fixed {
+            height: 100%;
+        }
+
+        .sidebar-content {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            padding: 1.5rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* NEW: Status indicators */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-complete {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body>
+<main layout:fragment="content">
+    <!-- Page Header -->
+    <div class="mb-8 animate-fade-in">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+            <div>
+                <h1 class="text-2xl lg:text-3xl font-bold text-primary font-serif">AI-Combined Employment Document</h1>
+                <p class="text-legal-navy-600 mt-2">Review the AI-generated consolidated employment documentation for acquisition due diligence</p>
+            </div>
+            <div class="mt-4 lg:mt-0">
+                <span class="status-badge status-complete">
+                    <i class="fas fa-check-circle"></i>
+                    Analysis Complete
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Processing Information -->
+    <div class="bg-white rounded-xl shadow-sm p-6 mb-8 border border-legal-ivory-400">
+        <div class="flex flex-col xs:flex-row xs:items-center mb-6 gap-4">
+            <span class="ai-badge mr-3">
+                <i class="fas fa-robot"></i>
+                AI-Generated Document
+            </span>
+            <div class="flex items-center gap-4">
+                <span class="text-sm text-legal-navy-600 font-semibold">Confidence Score: 92%</span>
+                <div class="confidence-meter w-32">
+                    <div class="confidence-fill" style="width: 92%"></div>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="text-xl font-bold text-primary font-serif mb-6">AI Processing Summary</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="ai-process-step">
+                <div class="ai-step-icon">
+                    <i class="fas fa-file-import"></i>
+                </div>
+                <div class="ai-step-content">
+                    <h4 class="ai-step-title">Document Ingestion</h4>
+                    <p class="ai-step-description">Processed 48 employment documents with 98% accuracy, including contracts, agreements, and compensation details.</p>
+                </div>
+            </div>
+
+            <div class="ai-process-step">
+                <div class="ai-step-icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <div class="ai-step-content">
+                    <h4 class="ai-step-title">Content Analysis</h4>
+                    <p class="ai-step-description">Identified key employment terms, obligations, compliance issues, and potential risks across all documents.</p>
+                </div>
+            </div>
+
+            <div class="ai-process-step">
+                <div class="ai-step-icon">
+                    <i class="fas fa-sitemap"></i>
+                </div>
+                <div class="ai-step-content">
+                    <h4 class="ai-step-title">Structure Generation</h4>
+                    <p class="ai-step-description">Created logical document structure with 7 comprehensive sections for easy navigation and review.</p>
+                </div>
+            </div>
+
+            <div class="ai-process-step">
+                <div class="ai-step-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="ai-step-content">
+                    <h4 class="ai-step-title">Compliance Check</h4>
+                    <p class="ai-step-description">Verified employment law compliance across multiple jurisdictions and identified areas requiring attention.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document Navigation -->
+    <div class="document-navigation">
+        <button class="nav-button" id="prevPage">
+            <i class="fas fa-chevron-left"></i>
+            Previous Page
+        </button>
+
+        <div class="document-pagination">
+            <span class="page-info">Page <span id="currentPage">1</span> of <span id="totalPages">7</span></span>
+            <input type="number" id="pageInput" class="page-input" min="1" max="7" value="1">
+            <button id="goToPage" class="btn btn-outline">
+                Go
+            </button>
+        </div>
+
+        <div class="zoom-controls">
+            <button class="zoom-button" id="zoomOut">
+                <i class="fas fa-search-minus"></i>
+            </button>
+            <span class="zoom-level" id="zoomLevel">100%</span>
+            <button class="zoom-button" id="zoomIn">
+                <i class="fas fa-search-plus"></i>
+            </button>
+        </div>
+
+        <button class="nav-button" id="nextPage">
+            Next Page
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+
+    <!-- Document Viewer - FIXED FOR EQUAL HEIGHT -->
+    <div class="document-grid">
+        <!-- Document Content -->
+        <div class="document-wrapper">
+            <div class="document-viewer-fixed">
+                <div class="document-container equal-height-container" id="documentContainer">
+                    <div class="document-header">
+                        <h2 class="document-title">Consolidated Employment Documentation: Tech Innovations Inc.</h2>
+                    </div>
+
+                    <div class="document-meta">
+                        <div class="meta-item">
+                            <span class="meta-label">AI Generated</span>
+                            <span class="meta-value">November 5, 2023</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Last Modified</span>
+                            <span class="meta-value">November 5, 2023</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">AI Model</span>
+                            <span class="meta-value">LegisForge Employment Analyzer v2.1</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">File Size</span>
+                            <span class="meta-value">3.8 MB</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Pages</span>
+                            <span class="meta-value">7</span>
+                        </div>
+                    </div>
+
+                    <div class="document-content equal-height-content" id="documentContent">
+                        <!-- Page 1: Executive Summary -->
+                        <div class="document-section active" id="page1">
+                            <h3 class="section-title">Executive Summary</h3>
+                            <p>This AI-generated document consolidates all employment documentation for Tech Innovations Inc. as part of the due diligence process for the upcoming acquisition by Global Solutions Corp. The analysis covers 127 employees across all departments and locations.</p>
+                            <p>The employment portfolio has been automatically analyzed to identify key terms, obligations, compliance issues, and potential risks that may impact the acquisition.</p>
+
+                            <div class="insight-box">
+                                <div class="insight-header">
+                                    <div class="insight-icon">
+                                        <i class="fas fa-lightbulb"></i>
+                                    </div>
+                                    <h4 class="insight-title">AI Insight</h4>
+                                </div>
+                                <div class="insight-content">
+                                    The employment structure shows strong retention with average tenure of 4.2 years. Key risk areas identified in executive compensation packages and contractor classification. The engineering team represents the most valuable asset with specialized skills critical to ongoing operations.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Page 2: Employee Overview -->
+                        <div class="document-section" id="page2">
+                            <h3 class="section-title">Employee Overview</h3>
+                            <p>Tech Innovations Inc. employs 127 individuals across various departments and locations, with the following distribution:</p>
+
+                            <h4 class="font-semibold mt-6 mb-4 text-lg">Department Distribution</h4>
+                            <table class="employee-table">
+                                <thead>
+                                <tr>
+                                    <th>Department</th>
+                                    <th>Employees</th>
+                                    <th>Avg. Tenure</th>
+                                    <th>Turnover Rate</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>Engineering</td>
+                                    <td>45</td>
+                                    <td>3.8 years</td>
+                                    <td>8%</td>
+                                </tr>
+                                <tr>
+                                    <td>Sales & Marketing</td>
+                                    <td>28</td>
+                                    <td>2.9 years</td>
+                                    <td>15%</td>
+                                </tr>
+                                <tr>
+                                    <td>Operations</td>
+                                    <td>22</td>
+                                    <td>4.5 years</td>
+                                    <td>6%</td>
+                                </tr>
+                                <tr>
+                                    <td>Administration</td>
+                                    <td>15</td>
+                                    <td>5.2 years</td>
+                                    <td>4%</td>
+                                </tr>
+                                <tr>
+                                    <td>Executive</td>
+                                    <td>8</td>
+                                    <td>6.1 years</td>
+                                    <td>0%</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Page 3: Compensation Analysis -->
+                        <div class="document-section" id="page3">
+                            <h3 class="section-title">Compensation Analysis</h3>
+                            <p>The company maintains competitive compensation packages with the following structure across employee categories:</p>
+
+                            <h4 class="font-semibold mt-6 mb-4 text-lg">Compensation Overview</h4>
+                            <table class="employee-table">
+                                <thead>
+                                <tr>
+                                    <th>Employee Category</th>
+                                    <th>Avg. Base Salary</th>
+                                    <th>Avg. Bonus</th>
+                                    <th>Equity</th>
+                                    <th>Market Position</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>Executive</td>
+                                    <td>$245,000</td>
+                                    <td>45% of base</td>
+                                    <td>Yes</td>
+                                    <td>+5% above market</td>
+                                </tr>
+                                <tr>
+                                    <td>Engineering</td>
+                                    <td>$132,000</td>
+                                    <td>15% of base</td>
+                                    <td>Limited</td>
+                                    <td>+12% above market</td>
+                                </tr>
+                                <tr>
+                                    <td>Sales</td>
+                                    <td>$98,000</td>
+                                    <td>35% of base</td>
+                                    <td>No</td>
+                                    <td>At market</td>
+                                </tr>
+                                <tr>
+                                    <td>Operations</td>
+                                    <td>$75,000</td>
+                                    <td>10% of base</td>
+                                    <td>No</td>
+                                    <td>-3% below market</td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="insight-box mt-6">
+                                <div class="insight-header">
+                                    <div class="insight-icon">
+                                        <i class="fas fa-chart-line"></i>
+                                    </div>
+                                    <h4 class="insight-title">AI Analysis</h4>
+                                </div>
+                                <div class="insight-content">
+                                    Executive compensation packages include significant change-of-control provisions that may trigger additional costs upon acquisition. Engineering salaries are 12% above market average, indicating strong retention strategy. Operations team compensation is slightly below market, presenting potential retention risk post-acquisition.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional sections would continue here... -->
+                    </div>
+
+                    <div class="document-footer d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mt-4 p-3 border-top">
+                        <div class="document-actions d-flex flex-wrap gap-2">
+                            <button class="btn btn-primary d-flex align-items-center gap-2">
+                                <i class="fas fa-download"></i>
+                                Download PDF
+                            </button>
+                            <button class="btn btn-secondary d-flex align-items-center gap-2">
+                                <i class="fas fa-print"></i>
+                                Print Document
+                            </button>
+                        </div>
+
+                        <div class="text-sm text-legal-navy-500 fw-semibold">
+                            Document ID: EMP-AI-CONSOL-2023-129
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Document Sidebar - FIXED FOR EQUAL HEIGHT -->
+        <div class="sidebar-wrapper">
+            <div class="sidebar-fixed">
+                <div class="sidebar-content">
+                    <h3 class="text-xl font-bold text-primary font-serif mb-6">Source Documents</h3>
+
+                    <div class="source-documents equal-height-content">
+                        <div class="source-doc-item">
+                            <div class="source-doc-icon">
+                                <i class="fas fa-file-contract"></i>
+                            </div>
+                            <div class="source-doc-info">
+                                <div class="source-doc-name">Employment Contracts (27 files)</div>
+                                <div class="source-doc-size">4.2 MB • Processed</div>
+                            </div>
+                        </div>
+
+                        <div class="source-doc-item">
+                            <div class="source-doc-icon">
+                                <i class="fas fa-file-signature"></i>
+                            </div>
+                            <div class="source-doc-info">
+                                <div class="source-doc-name">NDA Agreements</div>
+                                <div class="source-doc-size">1.8 MB • Processed</div>
+                            </div>
+                        </div>
+
+                        <div class="source-doc-item">
+                            <div class="source-doc-icon">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div class="source-doc-info">
+                                <div class="source-doc-name">Executive Compensation</div>
+                                <div class="source-doc-size">2.1 MB • Processed</div>
+                            </div>
+                        </div>
+
+                        <div class="source-doc-item">
+                            <div class="source-doc-icon">
+                                <i class="fas fa-handshake"></i>
+                            </div>
+                            <div class="source-doc-info">
+                                <div class="source-doc-name">Non-Compete Agreements</div>
+                                <div class="source-doc-size">1.5 MB • Processed</div>
+                            </div>
+                        </div>
+
+                        <div class="source-doc-item">
+                            <div class="source-doc-icon">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                            </div>
+                            <div class="source-doc-info">
+                                <div class="source-doc-name">Compensation Details</div>
+                                <div class="source-doc-size">3.2 MB • Processed</div>
+                            </div>
+                        </div>
+
+                        <div class="source-doc-item">
+                            <div class="source-doc-icon">
+                                <i class="fas fa-heartbeat"></i>
+                            </div>
+                            <div class="source-doc-info">
+                                <div class="source-doc-name">Benefits Information</div>
+                                <div class="source-doc-size">2.7 MB • Processed</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <h4 class="font-semibold text-gray-700 mb-3">Document Statistics</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Total Documents:</span>
+                                <span class="font-semibold">48</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Total Pages:</span>
+                                <span class="font-semibold">327</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Processing Time:</span>
+                                <span class="font-semibold">2.4 min</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Page navigation functionality
+            const totalPages = 7;
+            let currentPage = 1;
+
+            const currentPageElement = document.getElementById('currentPage');
+            const totalPagesElement = document.getElementById('totalPages');
+            const pageInput = document.getElementById('pageInput');
+            const prevPageButton = document.getElementById('prevPage');
+            const nextPageButton = document.getElementById('nextPage');
+            const goToPageButton = document.getElementById('goToPage');
+
+            // Initialize page display
+            totalPagesElement.textContent = totalPages;
+            updatePageDisplay();
+
+            // Previous page button
+            prevPageButton.addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    updatePageDisplay();
+                }
+            });
+
+            // Next page button
+            nextPageButton.addEventListener('click', function() {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    updatePageDisplay();
+                }
+            });
+
+            // Go to page button
+            goToPageButton.addEventListener('click', function() {
+                const pageNum = parseInt(pageInput.value);
+                if (pageNum >= 1 && pageNum <= totalPages) {
+                    currentPage = pageNum;
+                    updatePageDisplay();
+                }
+            });
+
+            // Page input validation
+            pageInput.addEventListener('change', function() {
+                let value = parseInt(this.value);
+                if (value < 1) value = 1;
+                if (value > totalPages) value = totalPages;
+                this.value = value;
+            });
+
+            // Update page display
+            function updatePageDisplay() {
+                // Hide all pages
+                for (let i = 1; i <= totalPages; i++) {
+                    const pageElement = document.getElementById(`page${i}`);
+                    if (pageElement) {
+                        pageElement.classList.remove('active');
+                    }
+                }
+
+                // Show current page
+                const currentPageElement = document.getElementById(`page${currentPage}`);
+                if (currentPageElement) {
+                    currentPageElement.classList.add('active');
+                }
+
+                // Update UI elements
+                document.getElementById('currentPage').textContent = currentPage;
+                pageInput.value = currentPage;
+
+                // Update button states
+                prevPageButton.disabled = currentPage === 1;
+                nextPageButton.disabled = currentPage === totalPages;
+            }
+
+            // Zoom functionality
+            const zoomInButton = document.getElementById('zoomIn');
+            const zoomOutButton = document.getElementById('zoomOut');
+            const zoomLevelElement = document.getElementById('zoomLevel');
+            let zoomLevel = 100;
+
+            zoomInButton.addEventListener('click', function() {
+                if (zoomLevel < 200) {
+                    zoomLevel += 10;
+                    updateZoom();
+                }
+            });
+
+            zoomOutButton.addEventListener('click', function() {
+                if (zoomLevel > 50) {
+                    zoomLevel -= 10;
+                    updateZoom();
+                }
+            });
+
+            function updateZoom() {
+                zoomLevelElement.textContent = `${zoomLevel}%`;
+                document.getElementById('documentContent').style.fontSize = `${zoomLevel / 100}rem`;
+            }
+        });
+    </script>
+</main>
+</body>
+</html>
