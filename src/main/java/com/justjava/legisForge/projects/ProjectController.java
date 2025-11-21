@@ -118,4 +118,8 @@ public class ProjectController {
     public String redDocument() {
         return "tasks/redDocument";
     }
+    @GetMapping("/upload-company-documents")
+    public String uploadCompanyDocuments() {
+        return "tasks/uploadCompanyDocuments";
+    }
 }

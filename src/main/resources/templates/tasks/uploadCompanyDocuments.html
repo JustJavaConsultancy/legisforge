@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .legal-border {
+            border-left: 4px solid #9b2f2f;
+        }
+
+        /* Lawyer-themed enhancements */
+        .legal-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%239b2f2f' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
+        .legal-header {
+            background: linear-gradient(135deg, #2c3b4e 0%, #37516d 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .legal-header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .legal-card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e8e8e8;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .legal-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #9b2f2f 0%, #ca8a04 100%);
+        }
+
+        .legal-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .legal-icon.secondary {
+            background-color: #9b2f2f;
+            color: white;
+        }
+
+        .legal-icon.accent {
+            background-color: #ca8a04;
+            color: white;
+        }
+
+        .legal-button {
+            background: #9b2f2f;
+            color: white;
+            border: none;
+            border-radius: 0.375rem;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+        }
+
+        .legal-button:hover {
+            background: #802929;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .legal-button:active {
+            transform: translateY(0);
+        }
+
+        .legal-button.secondary {
+            background: #2c3b4e;
+        }
+
+        .legal-button.secondary:hover {
+            background: #30455c;
+        }
+
+        .legal-button.outline {
+            background: transparent;
+            border: 1px solid #9b2f2f;
+            color: #9b2f2f;
+        }
+
+        .legal-button.outline:hover {
+            background: #9b2f2f;
+            color: white;
+        }
+
+        .upload-dropzone {
+            border: 2px dashed #cbd5e0;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            background-color: #f9fafb;
+        }
+
+        .upload-dropzone.active {
+            border-color: #9b2f2f;
+            background-color: #fdf5f5;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #9b2f2f;
+        }
+
+        .file-preview {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            background-color: white;
+            transition: all 0.2s ease;
+        }
+
+        .file-preview:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .file-icon {
+            font-size: 2rem;
+            color: #6b7280;
+        }
+
+        .file-icon.pdf {
+            color: #dc2626;
+        }
+
+        .file-icon.doc {
+            color: #2563eb;
+        }
+
+        .file-icon.img {
+            color: #059669;
+        }
+
+        .file-icon.zip {
+            color: #7c3aed;
+        }
+
+        .bulk-upload-info {
+            background-color: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .document-section {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .document-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .category-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .category-checkbox:hover {
+            border-color: #9b2f2f;
+        }
+
+        .category-checkbox input[type="checkbox"] {
+            margin-right: 0.75rem;
+        }
+
+        .upload-summary {
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .jurisdiction-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .document-type-tabs {
+            display: flex;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 1.5rem;
+        }
+
+        .document-tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .document-tab.active {
+            border-bottom-color: #9b2f2f;
+            color: #9b2f2f;
+            font-weight: 600;
+        }
+
+        .document-tab:hover {
+            background-color: #f9fafb;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background-color: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #9b2f2f;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+<main style="overflow-x:hidden" layout:fragment="content">
+    <!-- Page Header -->
+    <div class="legal-header">
+        <div class="container mx-auto px-4 lg:px-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <div class="legal-icon secondary mr-4">
+                        <i class="fas fa-upload"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl lg:text-3xl font-bold font-serif">Company Document Upload</h1>
+                        <p class="text-legal-navy-200 mt-2">Upload intellectual property, employment, and corporate documents for M&A due diligence</p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-2 mt-4">
+                <span class="px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm">Intellectual Property</span>
+                <span class="px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm">Employment Documents</span>
+                <span class="px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm">Corporate Records</span>
+                <span class="px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm">Financial Statements</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Section -->
+    <div class="container mx-auto px-4 lg:px-6 pb-8">
+        <!-- Bulk Upload Information -->
+        <div class="bulk-upload-info animate-fade-in">
+            <div class="flex items-start">
+                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-1">
+                    <i class="fas fa-info-circle text-blue-600"></i>
+                </div>
+                <div class="ml-3">
+                    <h3 class="font-bold text-blue-900">Complete Document Upload Portal</h3>
+                    <p class="text-blue-800 mt-1">Upload all company documents required for M&A due diligence. Organize by document type and upload multiple files at once. The system will automatically categorize and secure your documents.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Document Type Tabs -->
+        <div class="legal-card p-6 mb-6 animate-fade-in">
+            <div class="document-type-tabs">
+                <div class="document-tab active" data-tab="intellectual-property">
+                    <i class="fas fa-copyright mr-2"></i>
+                    Intellectual Property
+                </div>
+                <div class="document-tab" data-tab="employment">
+                    <i class="fas fa-users mr-2"></i>
+                    Employment Documents
+                </div>
+                <div class="document-tab" data-tab="corporate">
+                    <i class="fas fa-building mr-2"></i>
+                    Corporate Documents
+                </div>
+            </div>
+
+            <!-- Intellectual Property Tab -->
+            <div id="intellectual-property" class="tab-content active">
+                <h2 class="text-xl font-bold text-primary font-serif mb-6">Upload Intellectual Property Documents</h2>
+
+                <!-- IP Upload Form -->
+                <form id="ipUploadForm" class="space-y-6">
+                    <!-- IP Categories -->
+                    <div>
+                        <label class="block text-sm font-medium text-legal-navy-700 mb-3">Select IP Types You're Uploading</label>
+                        <div class="document-categories">
+                            <label class="category-checkbox">
+                                <input type="checkbox" name="ipTypes" value="patents" checked>
+                                <span>Patents</span>
+                            </label>
+                            <label class="category-checkbox">
+                                <input type="checkbox" name="ipTypes" value="trademarks" checked>
+                                <span>Trademarks</span>
+                            </label>
+                            <label class="category-checkbox">
+                                <input type="checkbox" name="ipTypes" value="copyrights" checked>
+                                <span>Copyrights</span>
+                            </label>
+                            <label class="category-checkbox">
+                                <input type="checkbox" name="ipTypes" value="trade-secrets">
+                                <span>Trade Secrets</span>
+                            </label>
+                            <label class="category-checkbox">
+                                <input type="checkbox" name="ipTypes" value="designs">
+                                <span>Design Patents</span>
+                            </label>
+                            <label class="category-checkbox">
+                                <input type="checkbox" name="ipTypes" value="domain-names">
+                                <span>Domain Names</span>
+                            </label>
+                            <label class="category-checkbox">
+                                <input type="checkbox" name="ipTypes" value="licenses">
+                                <span>Licensing Agreements</span>
+                            </label>
+                            <label class="category-checkbox">
+                                <input type="checkbox" name="ipTypes" value="assignments">
+                                <span>Assignment Documents</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- IP Batch Information -->
+                    <div class="document-section">
+                        <h3 class="font-medium text-legal-navy-700 mb-3">IP Portfolio Information</h3>
+                        <p class="text-sm text-legal-navy-600 mb-4">You're uploading documents for the entire IP portfolio. Please ensure files are named clearly (e.g., "US_Patent_1234567.pdf") to help with automatic categorization.</p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="totalAssets" class="block text-sm font-medium text-legal-navy-700 mb-1">Total IP Assets</label>
+                                <input type="number" id="totalAssets" name="totalAssets" class="w-full px-4 py-2 border border-legal-ivory-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-legal-burgundy-500 focus:border-transparent" placeholder="Estimated number of IP assets">
+                            </div>
+                            <div>
+                                <label for="ipPortfolio" class="block text-sm font-medium text-legal-navy-700 mb-1">IP Portfolio Name</label>
+                                <input type="text" id="ipPortfolio" name="ipPortfolio" class="w-full px-4 py-2 border border-legal-ivory-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-legal-burgundy-500 focus:border-transparent" placeholder="Portfolio or company name">
+                            </div>
+                        </div>
+
+                        <!-- Jurisdictions -->
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-legal-navy-700 mb-2">Jurisdictions Covered</label>
+                            <div class="jurisdiction-grid">
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="jurisdictions" value="us" class="mr-2" checked>
+                                    <span>United States</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="jurisdictions" value="eu" class="mr-2">
+                                    <span>European Union</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="jurisdictions" value="uk" class="mr-2">
+                                    <span>United Kingdom</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="jurisdictions" value="ca" class="mr-2">
+                                    <span>Canada</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="jurisdictions" value="au" class="mr-2">
+                                    <span>Australia</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="jurisdictions" value="jp" class="mr-2">
+                                    <span>Japan</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="jurisdictions" value="other" class="mr-2">
+                                    <span>Other</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- File Upload Section -->
+                    <div>
+                        <label class="block text-sm font-medium text-legal-navy-700 mb-3">Upload IP Documents</label>
+
+                        <!-- Dropzone -->
+                        <div id="ipUploadDropzone" class="upload-dropzone p-8 text-center cursor-pointer">
+                            <div class="upload-icon mb-4">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <h3 class="text-lg font-medium text-legal-navy-700 mb-2">Drag & Drop IP Files Here</h3>
+                            <p class="text-legal-navy-500 mb-4">or click to browse and select multiple files</p>
+                            <p class="text-xs text-legal-navy-400">Supports PDF, DOC, DOCX, JPG, PNG, ZIP (Max 50MB each)</p>
+                            <input type="file" id="ipFileInput" class="hidden" multiple>
+                        </div>
+
+                        <!-- File Preview Area -->
+                        <div id="ipFilePreviewArea" class="mt-4 space-y-3 hidden">
+                            <div class="flex justify-between items-center">
+                                <h4 class="text-sm font-medium text-legal-navy-700">Selected Files (<span id="ipFileCount">0</span>)</h4>
+                                <button type="button" id="clearIpFiles" class="text-sm text-legal-burgundy-600 hover:text-legal-burgundy-800">Clear All</button>
+                            </div>
+                            <div id="ipFileList" class="space-y-3 max-h-60 overflow-y-auto">
+                                <!-- File previews will be added here dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upload Summary -->
+                    <div id="ipUploadSummary" class="upload-summary hidden">
+                        <h4 class="font-medium text-green-900 mb-2">Ready to Upload IP Documents</h4>
+                        <p class="text-sm text-green-800">You've selected <span id="ipSummaryFileCount">0</span> IP documents for upload. These will be processed and organized automatically after submission.</p>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="pt-4">
+                        <button type="submit" class="legal-button w-full py-3">
+                            <i class="fas fa-upload mr-2"></i>
+                            Upload Intellectual Property Documents
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Employment Documents Tab -->
+            <div id="employment" class="tab-content">
+                <h2 class="text-xl font-bold text-primary font-serif mb-6">Upload Employment Documents</h2>
+
+                <!-- Employment Upload Form -->
+                <form id="employmentUploadForm" class="space-y-6">
+                    <!-- Employment Categories -->
+                    <div>
+                        <label class="block text-sm font-medium text-legal-navy-700 mb-3">Select Employment Document Types</label>
+                        <div class="document-categories">
+                            <label class="category-checkbox">
+                                <input type="checkbox" name="employmentTypes" value="contracts" checked>
+                                <span>Employment Contracts</span>
+                            </label>
+                            <label class="category-checkbox">
+                                <input type="checkbox" name="employmentTypes" value="handbooks">
+                                <span>Employee Handbooks</span>
+                            </label>
+                            <label class="category-checkbox">
+                                <input type="checkbox" name="employmentTypes" value="policies">
+                                <span>Company Policies</span>
+                            </label>
+                            <label class="category-checkbox">
+                                <input type="checkbox" name="employmentTypes" value="benefits">
+                                <span>Benefits Documents</span>
+                            </label>
+                            <label class="category-checkbox">
+                                <input type="checkbox" name="employmentTypes" value="payroll">
+                                <span>Payroll Records</span>
+                            </label>
+                            <label class="category-checkbox">
+                                <input type="checkbox" name="employmentTypes" value="stock">
+                                <span>Stock Option Plans</span>
+                            </label>
+                            <label class="category-checkbox">
+                                <input type="checkbox" name="employmentTypes" value="complaints">
+                                <span>Complaint Records</span>
+                            </label>
+                            <label class="category-checkbox">
+                                <input type="checkbox" name="employmentTypes" value="terminations">
+                                <span>Termination Documents</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Employment Information -->
+                    <div class="document-section">
+                        <h3 class="font-medium text-legal-navy-700 mb-3">Employment Information</h3>
+                        <p class="text-sm text-legal-navy-600 mb-4">Upload all employment-related documents for due diligence. Include current employee records, policies, and historical employment data.</p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="employeeCount" class="block text-sm font-medium text-legal-navy-700 mb-1">Total Employees</label>
+                                <input type="number" id="employeeCount" name="employeeCount" class="w-full px-4 py-2 border border-legal-ivory-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-legal-burgundy-500 focus:border-transparent" placeholder="Number of employees">
+                            </div>
+                            <div>
+                                <label for="employmentPeriod" class="block text-sm font-medium text-legal-navy-700 mb-1">Coverage Period</label>
+                                <input type="text" id="employmentPeriod" name="employmentPeriod" class="w-full px-4 py-2 border border-legal-ivory-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-legal-burgundy-500 focus:border-transparent" placeholder="e.g., 2020-2023">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- File Upload Section -->
+                    <div>
+                        <label class="block text-sm font-medium text-legal-navy-700 mb-3">Upload Employment Documents</label>
+
+                        <!-- Dropzone -->
+                        <div id="employmentUploadDropzone" class="upload-dropzone p-8 text-center cursor-pointer">
+                            <div class="upload-icon mb-4">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <h3 class="text-lg font-medium text-legal-navy-700 mb-2">Drag & Drop Employment Files Here</h3>
+                            <p class="text-legal-navy-500 mb-4">or click to browse and select multiple files</p>
+                            <p class="text-xs text-legal-navy-400">Supports PDF, DOC, DOCX, XLS, XLSX (Max 50MB each)</p>
+                            <input type="file" id="employmentFileInput" class="hidden" multiple>
+                        </div>
+
+                        <!-- File Preview Area -->
+                        <div id="employmentFilePreviewArea" class="mt-4 space-y-3 hidden">
+                            <div class="flex justify-between items-center">
+                                <h4 class="text-sm font-medium text-legal-navy-700">Selected Files (<span id="employmentFileCount">0</span>)</h4>
+                                <button type="button" id="clearEmploymentFiles" class="text-sm text-legal-burgundy-600 hover:text-legal-burgundy-800">Clear All</button>
+                            </div>
+                            <div id="employmentFileList" class="space-y-3 max-h-60 overflow-y-auto">
+                                <!-- File previews will be added here dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upload Summary -->
+                    <div id="employmentUploadSummary" class="upload-summary hidden">
+                        <h4 class="font-medium text-green-900 mb-2">Ready to Upload Employment Documents</h4>
+                        <p class="text-sm text-green-800">You've selected <span id="employmentSummaryFileCount">0</span> employment documents for upload.</p>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="pt-4">
+                        <button type="submit" class="legal-button w-full py-3">
+                            <i class="fas fa-upload mr-2"></i>
+                            Upload Employment Documents
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Corporate Documents Tab -->
+            <div id="corporate" class="tab-content">
+                <h2 class="text-xl font-bold text-primary font-serif mb-6">Upload Corporate Documents</h2>
+
+                <!-- Corporate Upload Form -->
+                <form id="corporateUploadForm" class="space-y-6">
+                    <!-- Corporate Categories -->
+                    <div>
+                        <label class="block text-sm font-medium text-legal-navy-700 mb-3">Select Corporate Document Types</label>
+                        <div class="document-categories">
+                            <label class="category-checkbox">
+                                <input type="checkbox" name="corporateTypes" value="formation" checked>
+                                <span>Formation Documents</span>
+                            </label>
+                            <label class="category-checkbox">
+                                <input type="checkbox" name="corporateTypes" value="bylaws">
+                                <span>Bylaws & Governance</span>
+                            </label>
+                            <label class="category-checkbox">
+                                <input type="checkbox" name="corporateTypes" value="minutes">
+                                <span>Board Minutes</span>
+                            </label>
+                            <label class="category-checkbox">
+                                <input type="checkbox" name="corporateTypes" value="financial">
+                                <span>Financial Statements</span>
+                            </label>
+                            <label class="category-checkbox">
+                                <input type="checkbox" name="corporateTypes" value="tax">
+                                <span>Tax Returns</span>
+                            </label>
+                            <label class="category-checkbox">
+                                <input type="checkbox" name="corporateTypes" value="contracts">
+                                <span>Major Contracts</span>
+                            </label>
+                            <label class="category-checkbox">
+                                <input type="checkbox" name="corporateTypes" value="compliance">
+                                <span>Compliance Documents</span>
+                            </label>
+                            <label class="category-checkbox">
+                                <input type="checkbox" name="corporateTypes" value="insurance">
+                                <span>Insurance Policies</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Corporate Information -->
+                    <div class="document-section">
+                        <h3 class="font-medium text-legal-navy-700 mb-3">Corporate Information</h3>
+                        <p class="text-sm text-legal-navy-600 mb-4">Upload all corporate records, financial documents, and governance materials required for due diligence.</p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="companyName" class="block text-sm font-medium text-legal-navy-700 mb-1">Company Name</label>
+                                <input type="text" id="companyName" name="companyName" class="w-full px-4 py-2 border border-legal-ivory-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-legal-burgundy-500 focus:border-transparent" placeholder="Legal company name">
+                            </div>
+                            <div>
+                                <label for="fiscalYear" class="block text-sm font-medium text-legal-navy-700 mb-1">Fiscal Years Covered</label>
+                                <input type="text" id="fiscalYear" name="fiscalYear" class="w-full px-4 py-2 border border-legal-ivory-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-legal-burgundy-500 focus:border-transparent" placeholder="e.g., 2020-2023">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- File Upload Section -->
+                    <div>
+                        <label class="block text-sm font-medium text-legal-navy-700 mb-3">Upload Corporate Documents</label>
+
+                        <!-- Dropzone -->
+                        <div id="corporateUploadDropzone" class="upload-dropzone p-8 text-center cursor-pointer">
+                            <div class="upload-icon mb-4">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <h3 class="text-lg font-medium text-legal-navy-700 mb-2">Drag & Drop Corporate Files Here</h3>
+                            <p class="text-legal-navy-500 mb-4">or click to browse and select multiple files</p>
+                            <p class="text-xs text-legal-navy-400">Supports PDF, DOC, DOCX, XLS, XLSX (Max 50MB each)</p>
+                            <input type="file" id="corporateFileInput" class="hidden" multiple>
+                        </div>
+
+                        <!-- File Preview Area -->
+                        <div id="corporateFilePreviewArea" class="mt-4 space-y-3 hidden">
+                            <div class="flex justify-between items-center">
+                                <h4 class="text-sm font-medium text-legal-navy-700">Selected Files (<span id="corporateFileCount">0</span>)</h4>
+                                <button type="button" id="clearCorporateFiles" class="text-sm text-legal-burgundy-600 hover:text-legal-burgundy-800">Clear All</button>
+                            </div>
+                            <div id="corporateFileList" class="space-y-3 max-h-60 overflow-y-auto">
+                                <!-- File previews will be added here dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upload Summary -->
+                    <div id="corporateUploadSummary" class="upload-summary hidden">
+                        <h4 class="font-medium text-green-900 mb-2">Ready to Upload Corporate Documents</h4>
+                        <p class="text-sm text-green-800">You've selected <span id="corporateSummaryFileCount">0</span> corporate documents for upload.</p>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="pt-4">
+                        <button type="submit" class="legal-button w-full py-3">
+                            <i class="fas fa-upload mr-2"></i>
+                            Upload Corporate Documents
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+        // Tab functionality
+            const tabs = document.querySelectorAll('.document-tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs and contents
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+
+                    // Add active class to clicked tab and corresponding content
+                    tab.classList.add('active');
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+
+            // File Upload Functionality - Generic function to handle all upload types
+            function initializeFileUpload(uploadConfig) {
+                const {
+                    dropzoneId,
+                    fileInputId,
+                    filePreviewAreaId,
+                    fileListId,
+                    fileCountId,
+                    summaryFileCountId,
+                    uploadSummaryId,
+                    clearFilesId,
+                    formId
+                } = uploadConfig;
+
+                const dropzone = document.getElementById(dropzoneId);
+                const fileInput = document.getElementById(fileInputId);
+                const filePreviewArea = document.getElementById(filePreviewAreaId);
+                const fileList = document.getElementById(fileListId);
+                const fileCount = document.getElementById(fileCountId);
+                const summaryFileCount = document.getElementById(summaryFileCountId);
+                const uploadSummary = document.getElementById(uploadSummaryId);
+                const clearFiles = document.getElementById(clearFilesId);
+                const form = document.getElementById(formId);
+
+                let uploadedFiles = [];
+
+                // Click on dropzone to trigger file input
+                dropzone.addEventListener('click', () => {
+                    fileInput.click();
+                });
+
+                // Handle file selection
+                fileInput.addEventListener('change', (e) => {
+                    handleFiles(e.target.files);
+                });
+
+                // Drag and drop functionality
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    dropzone.addEventListener(eventName, preventDefaults, false);
+                });
+
+                function preventDefaults(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    dropzone.addEventListener(eventName, highlight, false);
+                });
+
+                ['dragleave', 'drop'].forEach(eventName => {
+                    dropzone.addEventListener(eventName, unhighlight, false);
+                });
+
+                function highlight() {
+                    dropzone.classList.add('active');
+                }
+
+                function unhighlight() {
+                    dropzone.classList.remove('active');
+                }
+
+                dropzone.addEventListener('drop', handleDrop, false);
+
+                function handleDrop(e) {
+                    const dt = e.dataTransfer;
+                    const files = dt.files;
+                    handleFiles(files);
+                }
+
+                function handleFiles(files) {
+                    if (files.length > 0) {
+                        filePreviewArea.classList.remove('hidden');
+                        uploadSummary.classList.remove('hidden');
+
+                        for (let i = 0; i < files.length; i++) {
+                            const file = files[i];
+                            // Avoid duplicates
+                            if (!uploadedFiles.some(f => f.name === file.name && f.size === file.size)) {
+                                uploadedFiles.push(file);
+                                addFilePreview(file);
+                            }
+                        }
+
+                        updateFileCount();
+                    }
+                }
+
+                function addFilePreview(file) {
+                    const fileElement = document.createElement('div');
+                    fileElement.className = 'file-preview p-4 flex items-center justify-between';
+
+                    const fileType = getFileType(file.name);
+                    const fileSize = formatFileSize(file.size);
+
+                    fileElement.innerHTML = `
+                        <div class="flex items-center">
+                            <div class="file-icon ${fileType} mr-4">
+                                <i class="fas ${getFileIcon(fileType)}"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium text-legal-navy-700 truncate max-w-xs">${file.name}</div>
+                                <div class="text-xs text-legal-navy-500">${fileSize}</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button type="button" class="text-legal-navy-400 hover:text-legal-burgundy-600 transition-colors duration-200 remove-file">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+
+                    fileList.appendChild(fileElement);
+
+                    // Add remove functionality
+                    const removeButton = fileElement.querySelector('.remove-file');
+                    removeButton.addEventListener('click', () => {
+                        fileElement.remove();
+                        uploadedFiles = uploadedFiles.filter(f => f !== file);
+                        updateFileCount();
+
+                        if (uploadedFiles.length === 0) {
+                            filePreviewArea.classList.add('hidden');
+                            uploadSummary.classList.add('hidden');
+                        }
+                    });
+                }
+
+                // Clear all files
+                clearFiles.addEventListener('click', () => {
+                    fileList.innerHTML = '';
+                    uploadedFiles = [];
+                    filePreviewArea.classList.add('hidden');
+                    uploadSummary.classList.add('hidden');
+                    updateFileCount();
+                });
+
+                function updateFileCount() {
+                    fileCount.textContent = uploadedFiles.length;
+                    summaryFileCount.textContent = uploadedFiles.length;
+                }
+
+                // Form submission
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+
+                    if (uploadedFiles.length === 0) {
+                        alert('Please select at least one file to upload.');
+                        return;
+                    }
+
+                    // Show loading state
+                    const submitButton = form.querySelector('button[type="submit"]');
+                    const originalText = submitButton.textContent;
+                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Uploading...';
+                    submitButton.disabled = true;
+
+                    // Simulate upload process
+                    setTimeout(() => {
+                        submitButton.innerHTML = '<i class="fas fa-check mr-2"></i> Upload Successful!';
+                        submitButton.classList.remove('bg-secondary', 'hover:bg-legal-burgundy-800');
+                        submitButton.classList.add('bg-green-600');
+
+                        // Reset form after a delay
+                        setTimeout(() => {
+                            form.reset();
+                            fileList.innerHTML = '';
+                            filePreviewArea.classList.add('hidden');
+                            uploadSummary.classList.add('hidden');
+                            uploadedFiles = [];
+                            updateFileCount();
+
+                            submitButton.textContent = originalText;
+                            submitButton.disabled = false;
+                            submitButton.classList.remove('bg-green-600');
+                            submitButton.classList.add('bg-secondary', 'hover:bg-legal-burgundy-800');
+
+                            // Show success notification
+                            alert(`Successfully uploaded ${uploadedFiles.length} documents! They are now being processed and organized.`);
+                        }, 2000);
+                    }, 3000);
+                });
+            }
+
+            // Initialize file upload for each document type
+            initializeFileUpload({
+                dropzoneId: 'ipUploadDropzone',
+                fileInputId: 'ipFileInput',
+                filePreviewAreaId: 'ipFilePreviewArea',
+                fileListId: 'ipFileList',
+                fileCountId: 'ipFileCount',
+                summaryFileCountId: 'ipSummaryFileCount',
+                uploadSummaryId: 'ipUploadSummary',
+                clearFilesId: 'clearIpFiles',
+                formId: 'ipUploadForm'
+            });
+
+            initializeFileUpload({
+                dropzoneId: 'employmentUploadDropzone',
+                fileInputId: 'employmentFileInput',
+                filePreviewAreaId: 'employmentFilePreviewArea',
+                fileListId: 'employmentFileList',
+                fileCountId: 'employmentFileCount',
+                summaryFileCountId: 'employmentSummaryFileCount',
+                uploadSummaryId: 'employmentUploadSummary',
+                clearFilesId: 'clearEmploymentFiles',
+                formId: 'employmentUploadForm'
+            });
+
+            initializeFileUpload({
+                dropzoneId: 'corporateUploadDropzone',
+                fileInputId: 'corporateFileInput',
+                filePreviewAreaId: 'corporateFilePreviewArea',
+                fileListId: 'corporateFileList',
+                fileCountId: 'corporateFileCount',
+                summaryFileCountId: 'corporateSummaryFileCount',
+                uploadSummaryId: 'corporateUploadSummary',
+                clearFilesId: 'clearCorporateFiles',
+                formId: 'corporateUploadForm'
+            });
+
+            function getFileType(filename) {
+                const ext = filename.split('.').pop().toLowerCase();
+                if (['pdf'].includes(ext)) return 'pdf';
+                if (['doc', 'docx'].includes(ext)) return 'doc';
+                if (['xls', 'xlsx'].includes(ext)) return 'xls';
+                if (['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(ext)) return 'img';
+                if (['zip', 'rar', '7z'].includes(ext)) return 'zip';
+                return 'other';
+            }
+
+            function getFileIcon(fileType) {
+                switch(fileType) {
+                    case 'pdf': return 'fa-file-pdf';
+                    case 'doc': return 'fa-file-word';
+                    case 'xls': return 'fa-file-excel';
+                    case 'img': return 'fa-file-image';
+                    case 'zip': return 'fa-file-archive';
+                    default: return 'fa-file';
+                }
+            }
+
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+        });
+    </script>
+</main>
+</body>
+</html>
