@@ -135,8 +135,8 @@
             <i class="fas fa-arrow-left"></i>
           </button>
           <div>
-            <h1 class="text-2xl lg:text-3xl font-bold text-primary font-serif">TechCorp Strategic Merger</h1>
-            <p class="text-legal-navy-600 mt-2">Matter #MC-2023-0876 • Global Ventures LLC</p>
+            <h1 th:text="${project.processVariables['targetCompany'] + ' Acquisition'}" class="text-2xl lg:text-3xl font-bold text-primary font-serif">TechCorp Strategic Merger</h1>
+            <p  class="text-legal-navy-600 mt-2">Matter #MC-2023-0876 • Global Ventures LLC</p>
           </div>
         </div>
       </div>
@@ -157,15 +157,15 @@
             <div class="space-y-3">
               <div class="flex justify-between">
                 <span class="text-legal-navy-600">Transaction Type:</span>
-                <span class="font-medium text-legal-navy-900">Merger</span>
+                <span class="font-medium text-legal-navy-900">Acquisition</span>
               </div>
               <div class="flex justify-between">
                 <span class="text-legal-navy-600">Acquiring Company:</span>
-                <span class="font-medium text-legal-navy-900">TechCorp Inc.</span>
+                <span th:text="${project.processVariables['acquiringCompany']}" class="font-medium text-legal-navy-900">TechCorp Inc.</span>
               </div>
               <div class="flex justify-between">
                 <span class="text-legal-navy-600">Target Company:</span>
-                <span class="font-medium text-legal-navy-900">Innovate Solutions Ltd.</span>
+                <span th:text="${project.processVariables['targetCompany']}" class="font-medium text-legal-navy-900">Innovate Solutions Ltd.</span>
               </div>
               <div class="flex justify-between">
                 <span class="text-legal-navy-600">Industry:</span>
@@ -202,7 +202,7 @@
 
         <div class="mt-6">
           <h3 class="font-medium text-legal-navy-700 mb-3">Transaction Description</h3>
-          <p class="text-legal-navy-700">
+          <p th:text="${project.processVariables['transactionDescription']}" class="text-legal-navy-700">
             This strategic merger combines TechCorp's enterprise software solutions with Innovate Solutions' cutting-edge AI technology to create a comprehensive digital transformation platform. The combined entity will operate under the TechCorp brand and will be positioned as a market leader in the enterprise technology space.
           </p>
         </div>
@@ -324,22 +324,64 @@
       <span class="status-badge bg-amber-100 text-amber-800">In Progress</span>
     </div>
     <div class="p-4 lg:p-6">
-      <div class="task-item p-4 border border-legal-ivory-400 rounded-lg task-in-progress">
+      <div th:each="task : ${tasks}" th:if="${task.state == 'created'}" class="task-item p-4 border border-legal-ivory-400 rounded-lg task-in-progress">
         <div class="flex justify-between items-start mb-3">
-          <h3 class="font-bold text-legal-navy-900">Finalize Merger Agreement</h3>
-          <span class="status-badge bg-blue-100 text-blue-800">High Priority</span>
+          <h3 th:text="${task.name}" class="font-bold text-legal-navy-900"></h3>
         </div>
+
         <p class="text-legal-navy-600 text-sm mb-4">
-          Draft and finalize the merger agreement document with all necessary clauses and provisions. Ensure compliance with regulatory requirements and client specifications.
+
+          <!-- File all the information -->
+          <span th:if="${task.name == 'File all the information of the target company and upload documents'}">
+        Collect and file all statutory, financial, and operational information relating to the target company.
+        Ensure all supporting documents are uploaded accurately and in compliance with due-diligence requirements.
+    </span>
+
+          <!-- Corporate Review Categorised Documents -->
+          <span th:if="${task.name == 'Corporate Review Categorised Documents'}">
+        Conduct a structured legal review of all categorised corporate documents.
+        Identify compliance gaps, governance risks, and documentation inconsistencies relevant to the transaction.
+    </span>
+
+          <!-- Review and edit IP documents risk Summary -->
+          <span th:if="${task.name == 'Review and edit IP documents risk Summary'}">
+        Analyse all Intellectual Property documentation and refine the risk summary.
+        Highlight ownership issues, licensing constraints, and potential infringement exposure.
+    </span>
+
+          <!-- Review and edit employment documents risk summary -->
+          <span th:if="${task.name == 'Review and edit employment documents risk summary'}">
+        Review the employment-related documents and update the risk summary.
+        Assess labour law exposure, contractual inconsistencies, and potential liabilities involving personnel.
+    </span>
+
+          <!-- Review and edit corporate documents summary -->
+          <span th:if="${task.name == 'Review and edit corporate documents summary'}">
+        Evaluate the corporate documents and refine the legal summary.
+        Address structural irregularities, statutory breaches, and any matters affecting the company’s compliance posture.
+    </span>
+
+          <!-- View the combined risk -->
+          <span th:if="${task.name == 'View the combined risk'}">
+        Review the consolidated risk assessment across all document categories.
+        Ensure accuracy, completeness, and readiness for inclusion in the final due-diligence report.
+    </span>
+
+          <!-- View/Edit red document -->
+          <span th:if="${task.name == 'View/Edit red document'}">
+        Access and, where necessary, revise the red-flag document.
+        Confirm that all critical legal issues are clearly articulated for client decision-making.
+    </span>
+
         </p>
         <div class="flex justify-between items-center">
           <div>
-            <span class="text-xs text-legal-navy-500">Due: Dec 15, 2023</span>
+            <span class="text-xs text-legal-navy-500">Started: <span th:text="${#dates.format(task.createTime, 'MMM dd, yyyy')}">Dec 15, 2023</span></span>
             <span class="text-xs text-legal-navy-500 ml-4">Claimed by: Robert Kensington</span>
           </div>
-          <button id="completeTask" class="px-3 py-1 bg-legal-navy-600 text-white text-sm rounded hover:bg-legal-navy-700 transition-colors duration-200 claim-task">
+          <a th:href="@{/tasks/view/{taskId}(taskId=${task.id})}" id="completeTask" class="px-3 py-1 bg-legal-navy-600 text-white text-sm rounded hover:bg-legal-navy-700 transition-colors duration-200 claim-task">
             Claim Task
-          </button>
+          </a>
         </div>
       </div>
     </div>
@@ -350,61 +392,17 @@
     <div class="bg-white rounded-lg shadow-sm border border-legal-ivory-400 overflow-hidden">
       <div class="px-4 lg:px-6 py-4 border-b border-legal-ivory-400 flex justify-between items-center">
         <h2 class="text-lg font-bold text-primary font-serif">Completed Tasks</h2>
-        <span class="status-badge bg-green-100 text-green-800">5 Tasks Completed</span>
+        <span th:text="${completedSize + ' Tasks Completed'}" class="status-badge bg-green-100 text-green-800">5 Tasks Completed</span>
       </div>
       <div class="p-4 lg:p-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Completed Task 1 -->
-          <div class="task-item p-3 border border-legal-ivory-400 rounded-lg task-completed bg-green-50">
+          <div th:each="task : ${completedTasks}" class="task-item p-3 border border-legal-ivory-400 rounded-lg task-completed bg-green-50">
             <div class="flex items-start space-x-3">
               <i class="fas fa-check-circle text-green-500 mt-1"></i>
               <div class="flex-1">
-                <label class="font-medium text-legal-navy-900 block">Initial Client Consultation</label>
-                <p class="text-sm text-legal-navy-500 mt-1">Completed: Oct 20, 2023 • By: Robert Kensington</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Completed Task 2 -->
-          <div class="task-item p-3 border border-legal-ivory-400 rounded-lg task-completed bg-green-50">
-            <div class="flex items-start space-x-3">
-              <i class="fas fa-check-circle text-green-500 mt-1"></i>
-              <div class="flex-1">
-                <label class="font-medium text-legal-navy-900 block">Confidentiality Agreements</label>
-                <p class="text-sm text-legal-navy-500 mt-1">Completed: Oct 25, 2023 • By: Amanda Sterling</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Completed Task 3 -->
-          <div class="task-item p-3 border border-legal-ivory-400 rounded-lg task-completed bg-green-50">
-            <div class="flex items-start space-x-3">
-              <i class="fas fa-check-circle text-green-500 mt-1"></i>
-              <div class="flex-1">
-                <label class="font-medium text-legal-navy-900 block">Due Diligence Checklist</label>
-                <p class="text-sm text-legal-navy-500 mt-1">Completed: Nov 5, 2023 • By: Michael Johnson</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Completed Task 4 -->
-          <div class="task-item p-3 border border-legal-ivory-400 rounded-lg task-completed bg-green-50">
-            <div class="flex items-start space-x-3">
-              <i class="fas fa-check-circle text-green-500 mt-1"></i>
-              <div class="flex-1">
-                <label class="font-medium text-legal-navy-900 block">Letter of Intent</label>
-                <p class="text-sm text-legal-navy-500 mt-1">Completed: Nov 15, 2023 • By: Robert Kensington</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Completed Task 5 -->
-          <div class="task-item p-3 border border-legal-ivory-400 rounded-lg task-completed bg-green-50">
-            <div class="flex items-start space-x-3">
-              <i class="fas fa-check-circle text-green-500 mt-1"></i>
-              <div class="flex-1">
-                <label class="font-medium text-legal-navy-900 block">Financial Records Review</label>
-                <p class="text-sm text-legal-navy-500 mt-1">Completed: Nov 25, 2023 • By: Amanda Sterling</p>
+                <label th:text="${task.name}" class="font-medium text-legal-navy-900 block">Initial Client Consultation</label>
+                <p class="text-sm text-legal-navy-500 mt-1">Completed: <span th:text="${#dates.format(task.createTime, 'MMM dd, yyyy')}"> Oct 20, 2023</span></p>
               </div>
             </div>
           </div>

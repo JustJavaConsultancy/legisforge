@@ -4,8 +4,19 @@
       layout:decorate="~{layout}">
 <head>
     <meta charset="UTF-8">
-    <title>Corporate Risk Analysis</title>
+    <title>Corporate Risk Review Report</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <style>
+        :root {
+            --legal-navy: #1e2a3a;
+            --legal-burgundy: #8b2635;
+            --legal-gold: #c8a951;
+            --legal-ivory: #f8f5f0;
+            --corporate-teal: #0f766e;
+            --corporate-amber: #d97706;
+        }
         /* Risk Meter Styles */
         .risk-meter {
             height: 12px;
@@ -46,227 +57,575 @@
         .risk-card.high { border-left-color: #ef4444; }
         .risk-card.critical { border-left-color: #7c2d12; }
 
-        /* Deal Value Impact */
-        .value-impact {
-            position: relative;
-            height: 120px;
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-        }
-
-        .value-bar {
-            width: 40px;
-            border-radius: 4px 4px 0 0;
-            transition: all 0.3s ease;
-        }
-
-        /* Risk timeline */
-        .timeline {
-            position: relative;
-            padding-left: 2rem;
-        }
-
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 0.75rem;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background-color: #e5e7eb;
-        }
-
-        .timeline-item {
-            position: relative;
-            margin-bottom: 1.5rem;
-        }
-
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -2rem;
-            top: 0.25rem;
-            width: 1rem;
-            height: 1rem;
-            border-radius: 50%;
-            background-color: #3b82f6;
-            border: 2px solid white;
-            box-shadow: 0 0 0 2px #3b82f6;
-        }
-
-        .timeline-item.critical::before {
-            background-color: #ef4444;
-            box-shadow: 0 0 0 2px #ef4444;
-        }
-
-        .timeline-item.high::before {
-            background-color: #f59e0b;
-            box-shadow: 0 0 0 2px #f59e0b;
-        }
-
-        .timeline-item.medium::before {
-            background-color: #10b981;
-            box-shadow: 0 0 0 2px #10b981;
-        }
-
         /* Deal info header */
         .deal-header {
-            background: linear-gradient(135deg, #2c3b4e 0%, #37516d 100%);
+            background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
             color: white;
             border-radius: 0.5rem;
             padding: 1.5rem;
         }
+        .legal-border {
+            border-left: 4px solid var(--corporate-teal);
+        }
 
-        /* Corporate specific styles */
-        .financial-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.25rem 0.75rem;
-            background-color: #f0f9ff;
-            color: #0369a1;
-            border-radius: 1rem;
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 600;
         }
 
-        .compliance-status {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.5rem 1rem;
-            border-radius: 1rem;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .compliant {
-            background-color: #d1fae5;
-            color: #065f46;
-        }
-
-        .non-compliant {
-            background-color: #fee2e2;
-            color: #991b1b;
-        }
-
-        .review-needed {
-            background-color: #fef3c7;
-            color: #92400e;
-        }
-
-        .severity-indicator {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.5rem 1rem;
-            border-radius: 1rem;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .severity-low {
-            background-color: #d1fae5;
-            color: #065f46;
-        }
-
-        .severity-medium {
-            background-color: #fef3c7;
-            color: #92400e;
-        }
-
-        .severity-high {
-            background-color: #fed7aa;
-            color: #9a3412;
-        }
-
-        .severity-critical {
-            background-color: #fee2e2;
-            color: #991b1b;
-        }
-
-        .department-tag {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.25rem 0.75rem;
-            background-color: #f8fafc;
-            color: #475569;
-            border-radius: 0.5rem;
-            font-size: 0.75rem;
-            font-weight: 500;
+        /* Document Editor Styles */
+        .document-container {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             border: 1px solid #e2e8f0;
+            overflow: hidden;
+            transition: all 0.3s ease;
         }
 
-        .financial-impact {
-            display: inline-flex;
+        .document-container:hover {
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .document-header {
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 20px 24px;
+        }
+
+        .document-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            display: flex;
             align-items: center;
-            padding: 0.5rem 1rem;
-            border-radius: 1rem;
-            font-size: 0.75rem;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .action-btn.primary {
+            background: var(--corporate-teal);
+            color: white;
+            border: none;
+        }
+
+        .action-btn.primary:hover {
+            background: #0d5c56;
+            transform: translateY(-1px);
+        }
+
+        .action-btn.secondary {
+            background: white;
+            color: var(--legal-navy);
+            border: 1px solid #cbd5e1;
+        }
+
+        .action-btn.secondary:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+        }
+
+        .action-btn.tertiary {
+            background: transparent;
+            color: var(--legal-navy);
+            border: 1px solid transparent;
+        }
+
+        .action-btn.tertiary:hover {
+            background: #f1f5f9;
+        }
+
+        /* Quill Editor Customization */
+        #editor-container {
+            height: 500px;
+            background: white;
+        }
+
+        .ql-toolbar.ql-snow {
+            border: none;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 16px 24px;
+            background: #f8fafc;
+        }
+
+        .ql-container.ql-snow {
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .ql-editor {
+            padding: 32px 48px;
+            color: #334155;
+        }
+
+        .ql-editor.ql-blank::before {
+            font-style: normal;
+            color: #94a3b8;
+            left: 48px;
+        }
+
+        .ql-editor h1, .ql-editor h2, .ql-editor h3 {
+            font-family: 'Playfair Display', serif;
+            color: var(--legal-navy);
+            margin-top: 24px;
+            margin-bottom: 16px;
+        }
+
+        .ql-editor h1 {
+            font-size: 28px;
             font-weight: 700;
+            border-bottom: 2px solid var(--corporate-amber);
+            padding-bottom: 8px;
         }
 
-        .impact-positive {
-            background-color: #d1fae5;
-            color: #065f46;
+        .ql-editor h2 {
+            font-size: 22px;
+            font-weight: 600;
         }
 
-        .impact-negative {
-            background-color: #fee2e2;
-            color: #991b1b;
+        .ql-editor h3 {
+            font-size: 18px;
+            font-weight: 500;
         }
 
-        .impact-neutral {
-            background-color: #fef3c7;
-            color: #92400e;
+        .ql-editor p {
+            margin-bottom: 16px;
         }
+
+        .ql-editor blockquote {
+            border-left: 4px solid var(--corporate-teal);
+            padding-left: 20px;
+            margin-left: 0;
+            font-style: italic;
+            color: #475569;
+        }
+
+        .ql-editor ul, .ql-editor ol {
+            padding-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        .ql-editor .ql-indent-1 {
+            padding-left: 48px;
+        }
+
+        /* Risk Indicators */
+        .risk-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .risk-high {
+            background-color: #ef4444;
+        }
+
+        .risk-medium {
+            background-color: #f59e0b;
+        }
+
+        .risk-low {
+            background-color: #10b981;
+        }
+
+        .risk-critical {
+            background-color: #7c2d12;
+        }
+
+        /* Legal Seal */
+        .legal-seal {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 3px solid var(--corporate-teal);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 32px;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .legal-seal-text {
+            font-size: 13px;
+            font-weight: bold;
+            text-align: center;
+            color: var(--legal-navy);
+            line-height: 1.3;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .legal-seal-icon {
+            font-size: 28px;
+            color: var(--corporate-teal);
+            margin-bottom: 10px;
+        }
+
+        /* Document Properties */
+        .property-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .property-card:hover {
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .property-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--legal-navy);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        /* Risk Summary Cards */
+        .risk-summary-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .risk-summary-card:hover {
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .risk-meter {
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #ef4444 100%);
+            margin-top: 8px;
+            position: relative;
+        }
+
+        .risk-indicator-marker {
+            position: absolute;
+            top: -2px;
+            width: 4px;
+            height: 12px;
+            background-color: #1f2937;
+            border-radius: 2px;
+            transform: translateX(-50%);
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            height: 6px;
+            background-color: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--corporate-teal);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        @media (max-width: 768px) {
+            .document-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .ql-editor {
+                padding: 24px;
+            }
+
+            .ql-toolbar.ql-snow {
+                padding: 12px 16px;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Save and Continue Button */
+        .save-continue-btn {
+            background: var(--corporate-teal);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .save-continue-btn:hover {
+            background: #0d5c56;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+        }
+
+        /* Upload Section Styles */
+        .upload-dropzone {
+            border: 2px dashed #cbd5e0;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            background-color: #f9fafb;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .upload-dropzone.active {
+            border-color: var(--corporate-teal);
+            background-color: #f0fdfa;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--corporate-teal);
+            margin-bottom: 1rem;
+        }
+
+        .bulk-upload-info {
+            background-color: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-summary {
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .document-types-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .document-type-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .document-type-card:hover {
+            border-color: var(--corporate-teal);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .document-type-icon {
+            font-size: 2rem;
+            color: var(--corporate-teal);
+            margin-bottom: 0.5rem;
+        }
+
+        /* File Preview Styles */
+        .file-preview {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            background-color: white;
+            transition: all 0.2s ease;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .file-preview:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .file-icon {
+            font-size: 2rem;
+            color: #6b7280;
+        }
+
+        .file-icon.pdf {
+            color: #dc2626;
+        }
+
+        .file-icon.doc {
+            color: #2563eb;
+        }
+
+        .file-icon.img {
+            color: #059669;
+        }
+
+        .file-icon.zip {
+            color: #7c3aed;
+        }
+
+        /* Utility classes */
+        .bg-white { background-color: white; }
+        .rounded-xl { border-radius: 0.75rem; }
+        .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+        .border { border-width: 1px; }
+        .border-gray-200 { border-color: #e5e7eb; }
+        .p-6 { padding: 1.5rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .grid { display: grid; }
+        .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+        .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .gap-4 { gap: 1rem; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .sm\:flex-row { flex-direction: row; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-4 { gap: 1rem; }
+        .text-2xl { font-size: 1.5rem; }
+        .lg\:text-3xl { font-size: 1.875rem; }
+        .font-bold { font-weight: 700; }
+        .text-\[\#1e2a3a\] { color: #1e2a3a; }
+        .text-gray-600 { color: #4b5563; }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-3 { margin-top: 0.75rem; }
+        .text-sm { font-size: 0.875rem; }
+        .text-gray-500 { color: #6b7280; }
+        .inline-flex { display: inline-flex; }
+        .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+        .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+        .rounded-full { border-radius: 9999px; }
+        .bg-teal-100 { background-color: #ccfbf1; }
+        .text-teal-800 { color: #115e59; }
+        .bg-amber-100 { background-color: #fef3c7; }
+        .text-amber-800 { color: #92400e; }
+        .bg-purple-100 { background-color: #e9d5ff; }
+        .text-purple-800 { color: #5b21b6; }
+        .text-lg { font-size: 1.125rem; }
+        .font-semibold { font-weight: 600; }
+        .text-red-600 { color: #dc2626; }
+        .text-red-700 { color: #b91c1c; }
+        .text-blue-700 { color: #1d4ed8; }
+        .text-green-700 { color: #15803d; }
+        .bg-red-100 { background-color: #fee2e2; }
+        .text-red-800 { color: #991b1b; }
+        .space-y-4 > * + * { margin-top: 1rem; }
+        .p-4 { padding: 1rem; }
+        .border-red-200 { border-color: #fecaca; }
+        .bg-red-50 { background-color: #fef2f2; }
+        .text-gray-900 { color: #111827; }
+        .text-xs { font-size: 0.75rem; }
+        .mx-2 { margin-left: 0.5rem; margin-right: 0.5rem; }
+        .border-amber-200 { border-color: #fde68a; }
+        .bg-amber-50 { background-color: #fffbeb; }
+        .w-full { width: 100%; }
+        .border-gray-300 { border-color: #d1d5db; }
+        .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+        .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        .focus\:outline-none:focus { outline: 2px solid transparent; outline-offset: 2px; }
+        .focus\:ring-2:focus { box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.5); }
+        .focus\:ring-\[\#0f766e\]:focus { --tw-ring-color: #0f766e; }
+        .hidden { display: none; }
+        .max-h-60 { max-height: 15rem; }
+        .overflow-y-auto { overflow-y: auto; }
+        .space-y-3 > * + * { margin-top: 0.75rem; }
+        .cursor-pointer { cursor: pointer; }
+        .transition-colors { transition-property: color, background-color, border-color; transition-duration: 150ms; }
+        .duration-200 { transition-duration: 200ms; }
     </style>
 </head>
 <body>
 <!-- Main Content Area -->
 <main layout:fragment="content">
-    <!-- Deal Information Header -->
-    <div class="deal-header mb-6 lg:mb-8 animate-fade-in">
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-            <div>
-                <h1 class="text-2xl lg:text-3xl font-bold text-white font-serif">Corporate Due Diligence: Tech Innovations Inc.</h1>
-                <p class="text-legal-navy-200 mt-2">Corporate risk analysis for Global Solutions Corp acquisition</p>
-            </div>
-            <div class="mt-4 lg:mt-0">
-                <div class="flex flex-col xs:flex-row gap-2">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full bg-white bg-opacity-20 text-white text-sm">
-                        <i class="fas fa-dollar-sign mr-1"></i>
-                        Deal Value: $245M
-                    </span>
-                    <span class="inline-flex items-center px-3 py-1 rounded-full bg-white bg-opacity-20 text-white text-sm">
-                        <i class="far fa-calendar mr-1"></i>
-                        Closing: Dec 15, 2023
-                    </span>
-                    <span class="inline-flex items-center px-3 py-1 rounded-full bg-yellow-400 text-legal-navy-900 text-sm font-medium">
-                        <i class="fas fa-chart-line mr-1"></i>
-                        Revenue: $68.9M
-                    </span>
+    <!-- Document Upload Form -->
+    <form th:action="@{/tasks/complete/{taskId}(taskId=${taskId})}" method="post"
+          id="requirementForm" enctype="multipart/form-data">
+        <!-- Document Header -->
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200 mb-6 animate-fade-in">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                    <h1 class="text-2xl lg:text-3xl font-bold text-[#1e2a3a] legal-font">Corporate Governance Risk Review Report</h1>
+                    <p class="text-gray-600 mt-2">Client: Tech Innovations Inc. | Matter ID: CORP-2023-0095</p>
+                    <div class="flex items-center mt-3">
+                        <div class="flex items-center text-sm text-gray-500">
+                            <i class="fas fa-robot mr-1 text-[#0f766e]"></i>
+                            <span>AI-Generated Risk Analysis based on corporate governance documents</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 lg:mt-0">
+                    <div class="flex flex-col xs:flex-row gap-2">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full bg-teal-100 text-teal-800 text-sm">
+                            <i class="fas fa-building mr-1"></i>
+                            Corporate Governance
+                        </span>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-sm">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                            Compliance Review
+                        </span>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full bg-purple-100 text-purple-800 text-sm">
+                            <i class="fas fa-clock mr-1"></i>
+                            In Progress
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Risk Overview Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
-        <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400">
-            <div class="flex items-center justify-between">
-                <h3 class="text-lg font-semibold text-legal-navy-700">Corporate Risk Score</h3>
-                <span class="text-xs font-medium px-2 py-1 rounded-full bg-red-100 text-red-800">High Risk</span>
-            </div>
-            <div class="mt-4">
-                <div class="text-3xl font-bold text-red-600">71/100</div>
-                <div class="mt-2">
+        <!-- Risk Summary -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="risk-summary-card">
+                <div class="flex justify-between items-start">
+                    <h3 class="text-lg font-semibold text-[#1e2a3a]">Overall Risk Score</h3>
+                    <span class="text-xs font-medium px-2 py-1 rounded-full bg-red-100 text-red-800">Medium Risk</span>
+                </div>
+                <div class="mt-4">
+                    <div class="text-3xl font-bold text-amber-600">54/100</div>
                     <div class="risk-meter">
-                        <div class="risk-indicator" style="left: 71%;"></div>
+                        <div class="risk-indicator-marker" style="left: 54%;"></div>
                     </div>
-                    <div class="flex justify-between text-xs text-legal-navy-500 mt-1">
+                    <div class="flex justify-between text-xs text-gray-500 mt-1">
                         <span>Low</span>
                         <span>Medium</span>
                         <span>High</span>
@@ -274,465 +633,571 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400">
-            <div class="flex items-center justify-between">
-                <h3 class="text-lg font-semibold text-legal-navy-700">Deal Value at Risk</h3>
-                <span class="text-xs font-medium px-2 py-1 rounded-full bg-red-100 text-red-800">$22.8M</span>
+            <div class="risk-summary-card">
+                <div class="flex justify-between items-start">
+                    <h3 class="text-lg font-semibold text-[#1e2a3a]">Governance Issues</h3>
+                    <span class="text-xs font-medium px-2 py-1 rounded-full bg-amber-100 text-amber-800">5 Issues</span>
+                </div>
+                <div class="mt-4">
+                    <div class="text-3xl font-bold text-amber-700">5</div>
+                    <p class="text-sm text-gray-600 mt-2">Require board attention</p>
+                </div>
             </div>
-            <div class="mt-4">
-                <div class="text-3xl font-bold text-red-700">9.3%</div>
-                <p class="text-sm text-legal-navy-600 mt-2">Of total acquisition value</p>
-            </div>
-        </div>
 
-        <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400">
-            <div class="flex items-center justify-between">
-                <h3 class="text-lg font-semibold text-legal-navy-700">Critical Corporate Issues</h3>
-                <span class="text-xs font-medium px-2 py-1 rounded-full bg-red-100 text-red-800">4 Issues</span>
+            <div class="risk-summary-card">
+                <div class="flex justify-between items-start">
+                    <h3 class="text-lg font-semibold text-[#1e2a3a]">Documents Analyzed</h3>
+                    <span class="text-xs font-medium px-2 py-1 rounded-full bg-teal-100 text-teal-800">18 Files</span>
+                </div>
+                <div class="mt-4">
+                    <div class="text-3xl font-bold text-teal-700">18</div>
+                    <p class="text-sm text-gray-600 mt-2">Charters, minutes & policies</p>
+                </div>
             </div>
-            <div class="mt-4">
-                <div class="text-3xl font-bold text-red-700">4</div>
-                <p class="text-sm text-legal-navy-600 mt-2">Require immediate resolution</p>
-            </div>
-        </div>
 
-        <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400">
-            <div class="flex items-center justify-between">
-                <h3 class="text-lg font-semibold text-legal-navy-700">Compliance Violations</h3>
-                <span class="text-xs font-medium px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">12 Findings</span>
-            </div>
-            <div class="mt-4">
-                <div class="text-3xl font-bold text-yellow-600">12</div>
-                <p class="text-sm text-legal-navy-600 mt-2">Regulatory compliance issues</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Risk Analysis Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 mb-6 lg:mb-8">
-        <!-- Risk Distribution Chart -->
-        <div class="lg:col-span-2 bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400">
-            <h3 class="text-lg font-bold text-primary font-serif mb-4">Corporate Risk Impact on Deal Value</h3>
-            <div class="chart-container">
-                <canvas id="riskImpactChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Deal Impact Timeline -->
-        <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400">
-            <h3 class="text-lg font-bold text-primary font-serif mb-4">Due Diligence Timeline</h3>
-            <div class="timeline">
-                <div class="timeline-item">
-                    <div class="text-sm font-medium text-legal-navy-900">Initial corporate audit completed</div>
-                    <div class="text-xs text-legal-navy-500 mt-1">Oct 15, 2023 • Phase 1</div>
+            <div class="risk-summary-card">
+                <div class="flex justify-between items-start">
+                    <h3 class="text-lg font-semibold text-[#1e2a3a]">Review Progress</h3>
+                    <span class="text-xs font-medium px-2 py-1 rounded-full bg-green-100 text-green-800">72%</span>
                 </div>
-                <div class="timeline-item critical">
-                    <div class="text-sm font-medium text-legal-navy-900">Tax compliance issues identified</div>
-                    <div class="text-xs text-legal-navy-500 mt-1">Oct 22, 2023 • Critical finding</div>
-                </div>
-                <div class="timeline-item high">
-                    <div class="text-sm font-medium text-legal-navy-900">Pending litigation exposure</div>
-                    <div class="text-xs text-legal-navy-500 mt-1">Oct 28, 2023 • High severity</div>
-                </div>
-                <div class="timeline-item">
-                    <div class="text-sm font-medium text-legal-navy-900">Final due diligence report due</div>
-                    <div class="text-xs text-legal-navy-500 mt-1">Nov 15, 2023 • Next milestone</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Deal Value Impact Visualization -->
-    <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400 mb-6 lg:mb-8">
-        <h3 class="text-lg font-bold text-primary font-serif mb-4">Potential Deal Value Impact</h3>
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <div class="text-center">
-                <div class="value-impact">
-                    <div class="value-bar bg-green-500" style="height: 100%;"></div>
-                </div>
-                <div class="mt-2">
-                    <div class="text-sm font-medium text-legal-navy-900">Original Value</div>
-                    <div class="text-lg font-bold text-legal-navy-700">$245M</div>
-                </div>
-            </div>
-            <div class="text-center">
-                <div class="value-impact">
-                    <div class="value-bar bg-yellow-500" style="height: 83%;"></div>
-                </div>
-                <div class="mt-2">
-                    <div class="text-sm font-medium text-legal-navy-900">After Corporate Risks</div>
-                    <div class="text-lg font-bold text-legal-navy-700">$222.2M</div>
-                    <div class="text-xs text-red-600">-$22.8M</div>
-                </div>
-            </div>
-            <div class="text-center">
-                <div class="value-impact">
-                    <div class="value-bar bg-red-500" style="height: 65%;"></div>
-                </div>
-                <div class="mt-2">
-                    <div class="text-sm font-medium text-legal-navy-900">Worst Case</div>
-                    <div class="text-lg font-bold text-legal-navy-700">$159.3M</div>
-                    <div class="text-xs text-red-600">-$85.7M</div>
-                </div>
-            </div>
-            <div class="text-center">
-                <div class="value-impact">
-                    <div class="value-bar bg-blue-500" style="height: 91%;"></div>
-                </div>
-                <div class="mt-2">
-                    <div class="text-sm font-medium text-legal-navy-900">With Mitigation</div>
-                    <div class="text-lg font-bold text-legal-navy-700">$235.2M</div>
-                    <div class="text-xs text-green-600">+$13.0M</div>
-                </div>
-            </div>
-            <div class="text-center">
-                <div class="value-impact">
-                    <div class="value-bar bg-purple-500" style="height: 96%;"></div>
-                </div>
-                <div class="mt-2">
-                    <div class="text-sm font-medium text-legal-navy-900">Optimal Outcome</div>
-                    <div class="text-lg font-bold text-legal-navy-700">$259.7M</div>
-                    <div class="text-xs text-green-600">+$14.7M</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Detailed Risk Breakdown -->
-    <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400 mb-6 lg:mb-8">
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">
-            <h3 class="text-lg font-bold text-primary font-serif">Acquisition-Specific Corporate Risks</h3>
-            <div class="mt-2 lg:mt-0">
-                <select class="block w-full lg:w-auto pl-3 pr-10 py-2 text-base border border-legal-ivory-400 focus:outline-none focus:ring-2 focus:ring-legal-burgundy-500 focus:border-transparent sm:text-sm rounded-lg">
-                    <option>All Risk Categories</option>
-                    <option>Financial Risks</option>
-                    <option>Legal & Compliance</option>
-                    <option>Tax Issues</option>
-                    <option>Governance Risks</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-legal-ivory-300">
-                <thead>
-                <tr>
-                    <th class="px-4 py-3 bg-legal-navy-50 text-left text-xs font-medium text-legal-navy-700 uppercase tracking-wider">Risk Area</th>
-                    <th class="px-4 py-3 bg-legal-navy-50 text-left text-xs font-medium text-legal-navy-700 uppercase tracking-wider">Category</th>
-                    <th class="px-4 py-3 bg-legal-navy-50 text-left text-xs font-medium text-legal-navy-700 uppercase tracking-wider">Severity</th>
-                    <th class="px-4 py-3 bg-legal-navy-50 text-left text-xs font-medium text-legal-navy-700 uppercase tracking-wider">Value Impact</th>
-                    <th class="px-4 py-3 bg-legal-navy-50 text-left text-xs font-medium text-legal-navy-700 uppercase tracking-wider">Acquisition Impact</th>
-                    <th class="px-4 py-3 bg-legal-navy-50 text-left text-xs font-medium text-legal-navy-700 uppercase tracking-wider">Actions</th>
-                </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-legal-ivory-200">
-                <tr>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-legal-navy-900">International Tax Compliance</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-legal-navy-700">Tax</td>
-                    <td class="px-4 py-4 whitespace-nowrap">
-                        <span class="severity-indicator severity-critical">Critical</span>
-                    </td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-red-700">-$12.5M</td>
-                    <td class="px-4 py-4 text-sm text-legal-navy-700">Potential penalties and back taxes across 3 jurisdictions</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-legal-navy-700">
-                        <button class="text-legal-burgundy-600 hover:text-legal-burgundy-800">Remediate</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-legal-navy-900">Pending Litigation Exposure</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-legal-navy-700">Legal</td>
-                    <td class="px-4 py-4 whitespace-nowrap">
-                        <span class="severity-indicator severity-critical">Critical</span>
-                    </td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-red-700">-$8.2M</td>
-                    <td class="px-4 py-4 text-sm text-legal-navy-700">3 active lawsuits with estimated settlement costs</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-legal-navy-700">
-                        <button class="text-legal-burgundy-600 hover:text-legal-burgundy-800">Settle</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-legal-navy-900">Revenue Recognition Issues</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-legal-navy-700">Financial</td>
-                    <td class="px-4 py-4 whitespace-nowrap">
-                        <span class="severity-indicator severity-high">High</span>
-                    </td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-orange-700">-$4.8M</td>
-                    <td class="px-4 py-4 text-sm text-legal-navy-700">Potential restatement of 2022-2023 financials</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-legal-navy-700">
-                        <button class="text-legal-burgundy-600 hover:text-legal-burgundy-800">Audit</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-legal-navy-900">Regulatory Compliance Gaps</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-legal-navy-700">Compliance</td>
-                    <td class="px-4 py-4 whitespace-nowrap">
-                        <span class="severity-indicator severity-high">High</span>
-                    </td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-orange-700">-$3.2M</td>
-                    <td class="px-4 py-4 text-sm text-legal-navy-700">Multiple regulatory filing deficiencies identified</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-legal-navy-700">
-                        <button class="text-legal-burgundy-600 hover:text-legal-burgundy-800">Comply</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-legal-navy-900">Contract Enforcement Risks</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-legal-navy-700">Legal</td>
-                    <td class="px-4 py-4 whitespace-nowrap">
-                        <span class="severity-indicator severity-medium">Medium</span>
-                    </td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-yellow-700">-$1.8M</td>
-                    <td class="px-4 py-4 text-sm text-legal-navy-700">Unenforceable clauses in key customer contracts</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-legal-navy-700">
-                        <button class="text-legal-burgundy-600 hover:text-legal-burgundy-800">Review</button>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Business Unit Risk Analysis -->
-    <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400 mb-6 lg:mb-8">
-        <h3 class="text-lg font-bold text-primary font-serif mb-4">Business Unit Risk Analysis</h3>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-            <div class="risk-card high p-4 bg-white rounded-lg border border-legal-ivory-400">
-                <div class="flex items-center justify-between mb-3">
-                    <h4 class="text-base font-semibold text-legal-navy-900">Software Division</h4>
-                    <span class="financial-badge">$42.3M Revenue</span>
-                </div>
-                <div class="space-y-2">
-                    <div class="flex justify-between text-sm">
-                        <span class="text-legal-navy-600">Revenue Risk:</span>
-                        <span class="font-medium text-red-600">High</span>
+                <div class="mt-4">
+                    <div class="text-3xl font-bold text-green-700">72%</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 72%;"></div>
                     </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-legal-navy-600">Contract Compliance:</span>
-                        <span class="font-medium text-yellow-600">Medium</span>
+                    <p class="text-sm text-gray-600 mt-2">Completion status</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Document Upload Section -->
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200 mb-6">
+            <h2 class="text-xl font-bold text-[#1e2a3a] mb-4">Upload Additional Corporate Documents</h2>
+
+            <!-- Document Types Overview -->
+            <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                <h3 class="font-medium text-[#1e2a3a] mb-3">Corporate Governance Document Types</h3>
+                <p class="text-sm text-gray-600 mb-4">Our system will scan and categorize your corporate documents:</p>
+
+                <div class="document-types-grid">
+                    <div class="document-type-card">
+                        <div class="document-type-icon">
+                            <i class="fas fa-file-contract"></i>
+                        </div>
+                        <div class="text-sm font-medium">Corporate Charters</div>
                     </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-legal-navy-600">IP Protection:</span>
-                        <span class="font-medium text-red-600">Critical</span>
+                    <div class="document-type-card">
+                        <div class="document-type-icon">
+                            <i class="fas fa-gavel"></i>
+                        </div>
+                        <div class="text-sm font-medium">Bylaws & Policies</div>
+                    </div>
+                    <div class="document-type-card">
+                        <div class="document-type-icon">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                        <div class="text-sm font-medium">Board Minutes</div>
+                    </div>
+                    <div class="document-type-card">
+                        <div class="document-type-icon">
+                            <i class="fas fa-handshake"></i>
+                        </div>
+                        <div class="text-sm font-medium">Shareholder Agreements</div>
                     </div>
                 </div>
-                <div class="mt-3 pt-3 border-t border-gray-200">
-                    <div class="text-xs text-legal-navy-500">Pending patent litigation with $8.2M exposure</div>
+            </div>
+
+            <!-- File Upload Section -->
+            <div>
+                <label class="block text-sm font-medium text-[#1e2a3a] mb-3">Upload Corporate Governance Documents</label>
+
+                <!-- Dropzone -->
+                <div id="uploadDropzone" class="upload-dropzone">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-[#1e2a3a] mb-2">Drag & Drop Corporate Files Here</h3>
+                    <p class="text-gray-500 mb-4">or click to browse and select multiple files</p>
+                    <p class="text-xs text-gray-400">Supports PDF, DOC, DOCX, XLS, XLSX, JPG, PNG, ZIP (Max 50MB each)</p>
+                    <input type="file" id="fileInput" class="hidden" multiple>
+                </div>
+
+                <!-- File Preview Area -->
+                <div id="filePreviewArea" class="mt-4 space-y-3 hidden">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-sm font-medium text-[#1e2a3a]">Selected Files (<span id="fileCount">0</span>)</h4>
+                        <button type="button" id="clearFiles" class="text-sm text-[#0f766e] hover:text-[#0d5c56]">Clear All</button>
+                    </div>
+                    <div id="fileList" class="space-y-3 max-h-60 overflow-y-auto">
+                        <!-- File previews will be added here dynamically -->
+                    </div>
                 </div>
             </div>
 
-            <div class="risk-card medium p-4 bg-white rounded-lg border border-legal-ivory-400">
-                <div class="flex items-center justify-between mb-3">
-                    <h4 class="text-base font-semibold text-legal-navy-900">Cloud Services</h4>
-                    <span class="financial-badge">$18.7M Revenue</span>
-                </div>
-                <div class="space-y-2">
-                    <div class="flex justify-between text-sm">
-                        <span class="text-legal-navy-600">Regulatory Compliance:</span>
-                        <span class="font-medium text-yellow-600">Medium</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-legal-navy-600">Data Security:</span>
-                        <span class="font-medium text-green-600">Low</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-legal-navy-600">Contract Risks:</span>
-                        <span class="font-medium text-yellow-600">Medium</span>
-                    </div>
-                </div>
-                <div class="mt-3 pt-3 border-t border-gray-200">
-                    <div class="text-xs text-legal-navy-500">GDPR compliance review required for EU operations</div>
-                </div>
-            </div>
-
-            <div class="risk-card critical p-4 bg-white rounded-lg border border-legal-ivory-400">
-                <div class="flex items-center justify-between mb-3">
-                    <h4 class="text-base font-semibold text-legal-navy-900">International Operations</h4>
-                    <span class="financial-badge">$7.9M Revenue</span>
-                </div>
-                <div class="space-y-2">
-                    <div class="flex justify-between text-sm">
-                        <span class="text-legal-navy-600">Tax Compliance:</span>
-                        <span class="font-medium text-red-600">Critical</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-legal-navy-600">Transfer Pricing:</span>
-                        <span class="font-medium text-red-600">High</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-legal-navy-600">Regulatory Risk:</span>
-                        <span class="font-medium text-yellow-600">Medium</span>
-                    </div>
-                </div>
-                <div class="mt-3 pt-3 border-t border-gray-200">
-                    <div class="text-xs text-legal-navy-500">$12.5M potential tax liability across 3 jurisdictions</div>
-                </div>
+            <!-- Upload Summary -->
+            <div id="uploadSummary" class="upload-summary hidden">
+                <h4 class="font-medium text-green-900 mb-2">Ready to Upload Documents</h4>
+                <p class="text-sm text-green-800">You've selected <span id="summaryFileCount">0</span> documents for upload. These will be automatically categorized and organized after submission.</p>
             </div>
         </div>
-    </div>
 
-    <!-- Acquisition Risk Mitigation -->
-    <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6 border border-legal-ivory-400">
-        <h3 class="text-lg font-bold text-primary font-serif mb-4">Corporate Risk Mitigation Strategies</h3>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
-            <div class="risk-card critical p-4 bg-white rounded-lg border border-legal-ivory-400">
-                <div class="flex items-start">
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
-                            <i class="fas fa-balance-scale text-red-600"></i>
+        <!-- Document Editor -->
+        <div class="document-container mb-6">
+            <div class="document-header">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <h3 class="text-lg font-semibold text-[#1e2a3a] legal-font">AI Corporate Governance Risk Analysis Report</h3>
+                        <div class="flex items-center text-gray-500 text-sm">
+                            <i class="fas fa-circle text-green-500 mr-1 text-xs"></i>
+                            <span>Auto-saved: <span id="lastSaved">Just now</span></span>
                         </div>
                     </div>
-                    <div class="ml-4">
-                        <h4 class="text-base font-medium text-legal-navy-900">Resolve Tax Compliance Issues</h4>
-                        <p class="text-sm text-legal-navy-600 mt-1">Address international tax compliance gaps and transfer pricing documentation before acquisition close.</p>
-                        <div class="mt-3 flex items-center text-xs text-legal-navy-500">
-                            <span class="flex items-center">
-                                <i class="far fa-clock mr-1"></i>
-                                Due: Before closing
-                            </span>
-                            <span class="mx-2">•</span>
-                            <span class="flex items-center">
-                                <i class="fas fa-user mr-1"></i>
-                                Lead: Tax Director
-                            </span>
+
+                    <div class="document-actions">
+                        <button class="action-btn primary" id="downloadBtn">
+                            <i class="fas fa-download"></i>
+                            Download PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quill Editor -->
+            <div id="editor-container">
+                <!-- Quill toolbar and editor will be inserted here -->
+            </div>
+        </div>
+
+        <!-- Risk Details and Actions -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <!-- Critical Risks -->
+            <div class="lg:col-span-2 property-card">
+                <h3>Critical Corporate Governance Risks Identified</h3>
+                <div class="space-y-4">
+                    <div class="p-4 border border-red-200 rounded-lg bg-red-50">
+                        <div class="flex items-start">
+                            <span class="risk-indicator risk-critical mt-1"></span>
+                            <div>
+                                <h4 class="font-semibold text-gray-900">Inadequate Board Independence</h4>
+                                <p class="text-sm text-gray-700 mt-1">Only 40% of board members qualify as independent under SEC and exchange listing standards.</p>
+                                <div class="flex items-center mt-2 text-xs text-gray-600">
+                                    <i class="fas fa-dollar-sign mr-1"></i>
+                                    <span>Compliance risk: $8M</span>
+                                    <span class="mx-2">•</span>
+                                    <i class="fas fa-clock mr-1"></i>
+                                    <span>Resolution: 90 days</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 border border-red-200 rounded-lg bg-red-50">
+                        <div class="flex items-start">
+                            <span class="risk-indicator risk-critical mt-1"></span>
+                            <div>
+                                <h4 class="font-semibold text-gray-900">Related Party Transactions</h4>
+                                <p class="text-sm text-gray-700 mt-1">Undisclosed transactions with entities controlled by board members totaling $4.2M.</p>
+                                <div class="flex items-center mt-2 text-xs text-gray-600">
+                                    <i class="fas fa-dollar-sign mr-1"></i>
+                                    <span>SEC exposure: $6.5M</span>
+                                    <span class="mx-2">•</span>
+                                    <i class="fas fa-clock mr-1"></i>
+                                    <span>Resolution: 60 days</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 border border-amber-200 rounded-lg bg-amber-50">
+                        <div class="flex items-start">
+                            <span class="risk-indicator risk-high mt-1"></span>
+                            <div>
+                                <h4 class="font-semibold text-gray-900">Insufficient Audit Committee Oversight</h4>
+                                <p class="text-sm text-gray-700 mt-1">Audit committee lacks financial expertise and meeting frequency below best practices.</p>
+                                <div class="flex items-center mt-2 text-xs text-gray-600">
+                                    <i class="fas fa-dollar-sign mr-1"></i>
+                                    <span>Governance risk: $3.2M</span>
+                                    <span class="mx-2">•</span>
+                                    <i class="fas fa-clock mr-1"></i>
+                                    <span>Resolution: 45 days</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 border border-amber-200 rounded-lg bg-amber-50">
+                        <div class="flex items-start">
+                            <span class="risk-indicator risk-high mt-1"></span>
+                            <div>
+                                <h4 class="font-semibold text-gray-900">Stock Option Grant Practices</h4>
+                                <p class="text-sm text-gray-700 mt-1">Backdating concerns in 15% of executive stock option grants from 2020-2022.</p>
+                                <div class="flex items-center mt-2 text-xs text-gray-600">
+                                    <i class="fas fa-dollar-sign mr-1"></i>
+                                    <span>Financial risk: $2.8M</span>
+                                    <span class="mx-2">•</span>
+                                    <i class="fas fa-clock mr-1"></i>
+                                    <span>Resolution: 75 days</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="risk-card critical p-4 bg-white rounded-lg border border-legal-ivory-400">
-                <div class="flex items-start">
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
-                            <i class="fas fa-gavel text-red-600"></i>
-                        </div>
+            <!-- Document Properties -->
+            <div class="property-card">
+                <h3>Review Properties</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Reviewer</label>
+                        <input type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0f766e] bg-white" value="Michael Chen">
                     </div>
-                    <div class="ml-4">
-                        <h4 class="text-base font-medium text-legal-navy-900">Settle Pending Litigation</h4>
-                        <p class="text-sm text-legal-navy-600 mt-1">Negotiate settlements for 3 active lawsuits to reduce $8.2M potential liability.</p>
-                        <div class="mt-3 flex items-center text-xs text-legal-navy-500">
-                            <span class="flex items-center">
-                                <i class="far fa-clock mr-1"></i>
-                                Due: 15 days
-                            </span>
-                            <span class="mx-2">•</span>
-                            <span class="flex items-center">
-                                <i class="fas fa-user mr-1"></i>
-                                Lead: Legal Team
-                            </span>
-                        </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Review Date</label>
+                        <input type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0f766e] bg-white" value="2023-10-20">
                     </div>
-                </div>
-            </div>
-
-            <div class="risk-card high p-4 bg-white rounded-lg border border-legal-ivory-400">
-                <div class="flex items-start">
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center">
-                            <i class="fas fa-chart-bar text-yellow-600"></i>
-                        </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Next Review</label>
+                        <input type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0f766e] bg-white" value="2023-11-20">
                     </div>
-                    <div class="ml-4">
-                        <h4 class="text-base font-medium text-legal-navy-900">Financial Statement Review</h4>
-                        <p class="text-sm text-legal-navy-600 mt-1">Conduct detailed review of revenue recognition practices and potential restatement requirements.</p>
-                        <div class="mt-3 flex items-center text-xs text-legal-navy-500">
-                            <span class="flex items-center">
-                                <i class="far fa-clock mr-1"></i>
-                                Due: 20 days
-                            </span>
-                            <span class="mx-2">•</span>
-                            <span class="flex items-center">
-                                <i class="fas fa-user mr-1"></i>
-                                Lead: CFO
-                            </span>
-                        </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        <select class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0f766e] bg-white">
+                            <option>In Review</option>
+                            <option>Pending Board Response</option>
+                            <option>Escalated</option>
+                            <option>Completed</option>
+                        </select>
                     </div>
-                </div>
-            </div>
-
-            <div class="risk-card high p-4 bg-white rounded-lg border border-legal-ivory-400">
-                <div class="flex items-start">
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center">
-                            <i class="fas fa-file-contract text-yellow-600"></i>
-                        </div>
-                    </div>
-                    <div class="ml-4">
-                        <h4 class="text-base font-medium text-legal-navy-900">Regulatory Compliance Remediation</h4>
-                        <p class="text-sm text-legal-navy-600 mt-1">Address all regulatory filing deficiencies and implement compliance monitoring system.</p>
-                        <div class="mt-3 flex items-center text-xs text-legal-navy-500">
-                            <span class="flex items-center">
-                                <i class="far fa-clock mr-1"></i>
-                                Due: 30 days
-                            </span>
-                            <span class="mx-2">•</span>
-                            <span class="flex items-center">
-                                <i class="fas fa-user mr-1"></i>
-                                Lead: Compliance Officer
-                            </span>
-                        </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Governance Framework</label>
+                        <input type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0f766e] bg-white" value="NASDAQ, SEC, Delaware Law">
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="mt-6 p-4 bg-legal-navy-50 rounded-lg border border-legal-navy-200">
-            <div class="flex items-start">
-                <i class="fas fa-lightbulb text-legal-gold-600 mt-1 mr-3"></i>
+        <!-- Save and Continue Section -->
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h4 class="font-medium text-legal-navy-900">Acquisition Strategy Recommendation</h4>
-                    <p class="text-sm text-legal-navy-700 mt-1">Based on corporate risks, recommend reducing offer price by $22.8M or establishing an escrow of $15M to cover potential tax and litigation liabilities. Critical tax compliance issues must be resolved before acquisition close. Consider structuring acquisition with specific indemnification for international tax exposure.</p>
+                    <h3 class="text-lg font-semibold text-[#1e2a3a] legal-font">Complete Corporate Governance Review</h3>
+                    <p class="text-gray-600 mt-1">Save your analysis and proceed to the next task</p>
+                </div>
+                <div class="flex gap-3">
+                    <button type="submit" class="save-continue-btn" id="saveContinueBtn">
+                        <i class="fas fa-save"></i>
+                        Save & Continue
+                    </button>
                 </div>
             </div>
         </div>
-    </div>
+    </form>
 
     <script>
-        // Initialize risk impact chart
+        // Initialize Quill editor
+        const quill = new Quill('#editor-container', {
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    [{ 'indent': '-1'}, { 'indent': '+1' }],
+                    ['blockquote'],
+                    ['link'],
+                    [{ 'align': [] }],
+                    ['clean']
+                ]
+            },
+            placeholder: 'Compose your corporate governance risk analysis report...',
+            theme: 'snow'
+        });
+
+        // Set initial content
+        const initialContent = `
+            <div class="legal-seal">
+                <div class="legal-seal-icon">
+                    <i class="fas fa-scale-balanced"></i>
+                </div>
+                <div class="legal-seal-text">
+                    KENSINGTON & PARTNERS<br>
+                    CORPORATE GOVERNANCE
+                </div>
+            </div>
+
+            <h1>CORPORATE GOVERNANCE RISK ANALYSIS REPORT</h1>
+
+            <p><strong>Client:</strong> Tech Innovations Inc.</p>
+            <p><strong>Matter ID:</strong> CORP-2023-0095</p>
+            <p><strong>Review Date:</strong> October 20, 2023</p>
+            <p><strong>Prepared By:</strong> LegisForge AI Corporate Risk Analysis System</p>
+
+            <h2>EXECUTIVE SUMMARY</h2>
+
+            <p>This report presents a comprehensive risk analysis of the corporate governance framework and practices of Tech Innovations Inc. Our AI-powered analysis has identified several material weaknesses in governance that require board-level attention.</p>
+
+            <p>The overall risk score for corporate governance is <strong>54/100</strong>, indicating a <strong>Medium Risk</strong> classification. Five significant governance issues have been identified that could impact regulatory compliance and shareholder confidence.</p>
+
+            <h2>CRITICAL GOVERNANCE RISK FINDINGS</h2>
+
+            <h3>1. Board Independence Deficiencies</h3>
+
+            <p><span class="risk-indicator risk-critical" style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; background-color: #7c2d12;"></span> <strong>Severity: Critical</strong></p>
+
+            <p>The current board composition fails to meet NASDAQ independence requirements, with only 40% of directors qualifying as independent. This creates significant regulatory compliance risk and governance concerns.</p>
+
+            <blockquote>
+                <strong>Recommendation:</strong> Immediate board restructuring to achieve majority independence. Consider adding independent directors with relevant industry expertise.
+            </blockquote>
+
+            <h3>2. Related Party Transaction Oversight</h3>
+
+            <p><span class="risk-indicator risk-critical" style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; background-color: #7c2d12;"></span> <strong>Severity: Critical</strong></p>
+
+            <p>Undisclosed transactions totaling $4.2M with entities controlled by board members represent a material breach of fiduciary duty and SEC disclosure requirements.</p>
+
+            <blockquote>
+                <strong>Recommendation:</strong> Implement enhanced related party transaction review procedures and consider voluntary disclosure to regulatory authorities.
+            </blockquote>
+
+            <h3>3. Audit Committee Composition</h3>
+
+            <p><span class="risk-indicator risk-high" style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; background-color: #ef4444;"></span> <strong>Severity: High</strong></p>
+
+            <p>The audit committee lacks the required financial expertise and meets less frequently than recommended by governance best practices, creating oversight deficiencies.</p>
+
+            <blockquote>
+                <strong>Recommendation:</strong> Appoint at least one financial expert to the audit committee and increase meeting frequency to quarterly.
+            </blockquote>
+
+            <h3>4. Stock Option Grant Practices</h3>
+
+            <p><span class="risk-indicator risk-high" style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; background-color: #ef4444;"></span> <strong>Severity: High</strong></p>
+
+            <p>Patterns suggesting potential backdating in 15% of executive stock option grants create significant accounting and securities law compliance risks.</p>
+
+            <blockquote>
+                <strong>Recommendation:</strong> Conduct independent investigation of stock option granting practices and implement enhanced grant approval procedures.
+            </blockquote>
+
+            <h2>GOVERNANCE IMPROVEMENT TIMELINE</h2>
+
+            <p>Based on the severity of identified governance risks, we recommend the following remediation plan:</p>
+
+            <ol>
+                <li><strong>Immediate (0-30 days):</strong> Disclose and address related party transactions</li>
+                <li><strong>Short-term (30-60 days):</strong> Restructure audit committee composition</li>
+                <li><strong>Medium-term (60-90 days):</strong> Achieve board independence compliance</li>
+                <li><strong>Long-term (90-120 days):</strong> Implement enhanced governance policies</li>
+            </ol>
+
+            <h2>ESTIMATED FINANCIAL AND REPUTATIONAL IMPACT</h2>
+
+            <p>The total estimated financial exposure from identified governance risks is approximately <strong>$20.5 million</strong>, including:</p>
+
+            <ul>
+                <li>Regulatory penalties: $8M</li>
+                <li>SEC enforcement: $6.5M</li>
+                <li>Shareholder litigation: $3.2M</li>
+                <li>Restatement costs: $2.8M</li>
+            </ul>
+
+            <h2>CONCLUSION</h2>
+
+            <p>Tech Innovations Inc. faces material corporate governance risks that require immediate board attention and comprehensive remediation. The company should prioritize governance improvements before considering any significant corporate transactions.</p>
+
+            <p>This analysis was generated by LegisForge AI based on the corporate governance documents provided. Legal professionals should verify all findings before taking action.</p>
+        `;
+
+        quill.root.innerHTML = initialContent;
+
+        // File Upload Functionality
         document.addEventListener('DOMContentLoaded', function() {
-            const riskImpactCtx = document.getElementById('riskImpactChart').getContext('2d');
-            const riskImpactChart = new Chart(riskImpactCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Low Risk Assets', 'Medium Risk Areas', 'High Risk Issues', 'Critical Liabilities'],
-                    datasets: [{
-                        data: [145, 68, 32, 18],
-                        backgroundColor: [
-                            '#10b981',
-                            '#f59e0b',
-                            '#ef4444',
-                            '#7c2d12'
-                        ],
-                        borderColor: [
-                            '#10b981',
-                            '#f59e0b',
-                            '#ef4444',
-                            '#7c2d12'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.raw || 0;
-                                    return `${label}: ${value} items`;
-                                }
-                            }
+            const submitBtn = document.getElementById('saveContinueBtn');
+            const dropzone = document.getElementById('uploadDropzone');
+            const fileInput = document.getElementById('fileInput');
+            const filePreviewArea = document.getElementById('filePreviewArea');
+            const fileList = document.getElementById('fileList');
+            const fileCount = document.getElementById('fileCount');
+            const summaryFileCount = document.getElementById('summaryFileCount');
+            const uploadSummary = document.getElementById('uploadSummary');
+            const clearFiles = document.getElementById('clearFiles');
+            const form = document.getElementById('requirementForm');
+
+            let uploadedFiles = [];
+
+            // Click on dropzone to trigger file input
+            dropzone.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            // Handle file selection
+            fileInput.addEventListener('change', (e) => {
+                handleFiles(e.target.files);
+            });
+
+            // Drag and drop functionality
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropzone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropzone.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropzone.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight() {
+                dropzone.classList.add('active');
+            }
+
+            function unhighlight() {
+                dropzone.classList.remove('active');
+            }
+
+            dropzone.addEventListener('drop', handleDrop, false);
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleFiles(files);
+            }
+
+            function handleFiles(files) {
+                if (files.length > 0) {
+                    filePreviewArea.classList.remove('hidden');
+                    uploadSummary.classList.remove('hidden');
+
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        // Avoid duplicates
+                        if (!uploadedFiles.some(f => f.name === file.name && f.size === file.size)) {
+                            uploadedFiles.push(file);
+                            addFilePreview(file);
                         }
                     }
+
+                    updateFileCount();
                 }
+            }
+
+            function addFilePreview(file) {
+                const fileElement = document.createElement('div');
+                fileElement.className = 'file-preview';
+
+                const fileType = getFileType(file.name);
+                const fileSize = formatFileSize(file.size);
+
+                fileElement.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="file-icon ${fileType} mr-4">
+                            <i class="fas ${getFileIcon(fileType)}"></i>
+                        </div>
+                        <div>
+                            <div class="font-medium text-[#1e2a3a] truncate max-w-xs">${file.name}</div>
+                            <div class="text-xs text-gray-500">${fileSize}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button type="button" class="text-gray-400 hover:text-[#0f766e] transition-colors duration-200 remove-file">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+
+                fileList.appendChild(fileElement);
+
+                // Add remove functionality
+                const removeButton = fileElement.querySelector('.remove-file');
+                removeButton.addEventListener('click', () => {
+                    fileElement.remove();
+                    uploadedFiles = uploadedFiles.filter(f => f !== file);
+                    updateFileCount();
+
+                    if (uploadedFiles.length === 0) {
+                        filePreviewArea.classList.add('hidden');
+                        uploadSummary.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Clear all files
+            clearFiles.addEventListener('click', () => {
+                fileList.innerHTML = '';
+                uploadedFiles = [];
+                filePreviewArea.classList.add('hidden');
+                uploadSummary.classList.add('hidden');
+                updateFileCount();
             });
+
+            function updateFileCount() {
+                fileCount.textContent = uploadedFiles.length;
+                summaryFileCount.textContent = uploadedFiles.length;
+            }
+
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                // Disable submit button and show loading state
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
+
+                // Note: The form will now submit normally to your Thymeleaf endpoint
+                // The button will stay disabled until the page reloads
+            });
+
+            function getFileType(filename) {
+                const ext = filename.split('.').pop().toLowerCase();
+                if (['pdf'].includes(ext)) return 'pdf';
+                if (['doc', 'docx'].includes(ext)) return 'doc';
+                if (['xls', 'xlsx'].includes(ext)) return 'xls';
+                if (['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(ext)) return 'img';
+                if (['zip', 'rar', '7z'].includes(ext)) return 'zip';
+                return 'other';
+            }
+
+            function getFileIcon(fileType) {
+                switch(fileType) {
+                    case 'pdf': return 'fa-file-pdf';
+                    case 'doc': return 'fa-file-word';
+                    case 'xls': return 'fa-file-excel';
+                    case 'img': return 'fa-file-image';
+                    case 'zip': return 'fa-file-archive';
+                    default: return 'fa-file';
+                }
+            }
+
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            // Download functionality
+            const downloadBtn = document.getElementById('downloadBtn');
+            downloadBtn.addEventListener('click', function() {
+                alert('Corporate Governance Risk Analysis Report downloaded successfully as PDF!');
+
+                // Update last saved time
+                const now = new Date();
+                document.getElementById('lastSaved').textContent = now.toLocaleTimeString();
+            });
+
+            // Auto-save simulation
+            setInterval(function() {
+                // In a real application, this would save to a database
+                const now = new Date();
+                document.getElementById('lastSaved').textContent = now.toLocaleTimeString();
+            }, 30000); // Auto-save every 30 seconds
         });
     </script>
 </main>

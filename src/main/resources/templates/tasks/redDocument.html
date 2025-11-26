@@ -4,22 +4,157 @@
       layout:decorate="~{layout}">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Final Legal Risk Assessment - Document Review</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <style>
+        :root {
+            --legal-navy: #1e2a3a;
+            --legal-burgundy: #8b2635;
+            --legal-gold: #c8a951;
+            --legal-ivory: #f8f5f0;
+            --legal-dark: #2d3748;
+            --document-red: #8b2635;
+        }
+
+        /* Professional Legal Layout */
+        .legal-layout {
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
+
         .document-container {
             background: white;
-            border-radius: 0.75rem;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e2e8f0;
+            position: relative;
+        }
+
+        .document-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--legal-burgundy) 0%, var(--legal-gold) 100%);
+        }
+
+        /* Red Document Styling */
+        .red-document {
+            background: white;
+            border: 2px solid var(--document-red);
+            border-radius: 8px;
+            position: relative;
+            box-shadow: 0 8px 25px rgba(139, 38, 53, 0.15);
+        }
+
+        .red-document-header {
+            background: var(--document-red);
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .red-document-content {
+            padding: 2.5rem 3rem;
+            background: white;
+            min-height: 600px;
+        }
+
+        /* Legal Document Typography */
+        .legal-document {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            line-height: 1.7;
+            color: #2d3748;
+            font-size: 15px;
+        }
+
+        .legal-document h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--legal-navy);
+            margin-bottom: 2rem;
+            border-bottom: 3px solid var(--document-red);
+            padding-bottom: 1rem;
+            text-align: center;
+        }
+
+        .legal-document h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--legal-navy);
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--legal-gold);
+            padding-left: 1rem;
+        }
+
+        .legal-document h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 500;
+            color: var(--legal-navy);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .legal-document p {
+            margin-bottom: 1.25rem;
+            text-align: justify;
+        }
+
+        .legal-document blockquote {
+            border-left: 4px solid var(--document-red);
+            padding-left: 1.5rem;
+            margin: 1.5rem 0;
+            font-style: italic;
+            color: #4a5568;
+            background: #f8f9fa;
+            padding: 1.25rem;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .legal-document table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: white;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             border: 1px solid #e2e8f0;
         }
 
-        .risk-flag {
+        .legal-document th {
+            background: var(--legal-navy);
+            color: white;
+            padding: 1rem 1.25rem;
+            text-align: left;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            border-bottom: 2px solid var(--legal-gold);
+        }
+
+        .legal-document td {
+            padding: 0.875rem 1.25rem;
+            border-bottom: 1px solid #e2e8f0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Risk Indicators */
+        .risk-indicator {
             display: inline-flex;
             align-items: center;
-            padding: 4px 10px;
+            padding: 4px 12px;
             border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 600;
+            margin-right: 8px;
         }
 
         .risk-high {
@@ -34,26 +169,158 @@
             border: 1px solid #fed7aa;
         }
 
-        .risk-low {
-            background-color: #f0fdf4;
-            color: #16a34a;
-            border: 1px solid #bbf7d0;
+        .risk-critical {
+            background-color: #7c2d12;
+            color: white;
+            border: 1px solid #9a3412;
+        }
+
+        /* Legal Sections */
+        .critical-issue {
+            background-color: #fef2f2;
+            border-left: 4px solid #dc2626;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
         }
 
         .recommendation-box {
             background-color: #f8fafc;
             border-left: 4px solid #3b82f6;
-            padding: 1.25rem;
+            padding: 1.5rem;
             margin: 1.5rem 0;
             border-radius: 0 8px 8px 0;
         }
 
-        .critical-issue {
-            background-color: #fef2f2;
-            border-left: 4px solid #dc2626;
-            padding: 1.25rem;
-            margin: 1.5rem 0;
-            border-radius: 0 8px 8px 0;
+        /* Action Buttons */
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .action-btn.primary {
+            background: var(--legal-burgundy);
+            color: white;
+        }
+
+        .action-btn.primary:hover {
+            background: #702021;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(139, 38, 53, 0.3);
+        }
+
+        .action-btn.secondary {
+            background: white;
+            color: var(--legal-navy);
+            border: 1px solid #cbd5e1;
+        }
+
+        .action-btn.secondary:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+        }
+
+        .action-btn.success {
+            background: #065f46;
+            color: white;
+        }
+
+        .action-btn.success:hover {
+            background: #064e3b;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(6, 95, 70, 0.3);
+        }
+
+        /* Editor Styles */
+        .edit-mode .legal-document-content {
+            display: none;
+        }
+
+        .edit-mode #editor-container {
+            display: block;
+        }
+
+        #editor-container {
+            display: none;
+            height: 700px;
+            background: white;
+            border: 2px solid var(--document-red);
+            border-radius: 8px;
+        }
+
+        .ql-toolbar.ql-snow {
+            border: none;
+            border-bottom: 2px solid var(--legal-navy);
+            padding: 1rem 2rem;
+            background: #f8f9fa;
+        }
+
+        .ql-container.ql-snow {
+            border: none;
+            font-family: 'Georgia', serif;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .ql-editor {
+            padding: 2.5rem 3rem;
+            color: #2d3748;
+        }
+
+        /* Completion Section */
+        .completion-section {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 2px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-top: 3rem;
+            text-align: center;
+        }
+
+        .complete-btn {
+            background: linear-gradient(135deg, #065f46 0%, #047857 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0 auto;
+            box-shadow: 0 8px 20px rgba(6, 95, 70, 0.3);
+        }
+
+        .complete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(6, 95, 70, 0.4);
+            background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+        }
+
+        /* Legal Badges */
+        .legal-badge {
+            background: var(--legal-navy);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid var(--legal-gold);
         }
 
         .ai-badge {
@@ -68,28 +335,36 @@
             gap: 6px;
         }
 
-        .section-nav-btn.active {
-            background-color: #f1f5f9;
-            border-color: #cbd5e1;
-            font-weight: 600;
+        /* Utility Classes */
+        .mb-8 { margin-bottom: 2rem; }
+        .p-8 { padding: 2rem; }
+        .space-y-6 > * + * { margin-top: 1.5rem; }
+        .hidden { display: none; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .text-primary { color: var(--legal-navy); }
+        .text-center { text-align: center; }
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .grid { display: grid; }
+        .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+        .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .gap-6 { gap: 1.5rem; }
+
+        /* New styles for the external complete button */
+        .external-complete-section {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-top: 4px solid #065f46;
         }
 
-        .value-impact {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
-            color: white;
-            border-radius: 0.75rem;
-        }
-
-        .confidence-meter {
-            height: 8px;
-            background-color: #e5e7eb;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .confidence-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #10b981 0%, #3b82f6 100%);
+        .external-complete-section h3 {
+            color: #065f46;
+            margin-bottom: 1rem;
+            font-family: 'Playfair Display', serif;
         }
     </style>
 </head>
@@ -99,311 +374,337 @@
     <div class="mb-8">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
             <div>
-                <h1 class="text-2xl lg:text-3xl font-bold text-primary font-serif">AI Due Diligence Report</h1>
-                <p class="text-gray-600 mt-2">AI-generated comprehensive due diligence report for acquisition analysis</p>
+                <h1 class="text-2xl lg:text-3xl font-bold text-primary font-serif">Final Legal Risk Assessment</h1>
+                <p class="text-gray-600 mt-2">Review and finalize the AI-generated legal risk assessment document</p>
+            </div>
+            <div class="mt-4 lg:mt-0 flex gap-3">
+                <button class="action-btn secondary" id="editToggleBtn">
+                    <i class="fas fa-edit"></i>
+                    Edit Document
+                </button>
+                <button class="action-btn primary" id="downloadBtn">
+                    <i class="fas fa-download"></i>
+                    Download PDF
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Deal Overview Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-        <div class="document-container p-5">
-            <div class="flex items-center justify-between mb-3">
-                <h3 class="text-lg font-semibold text-gray-800">Deal Value</h3>
-                <i class="fas fa-dollar-sign text-gray-400 text-xl"></i>
-            </div>
-            <div class="text-2xl font-bold text-gray-900">$245M</div>
-            <p class="text-sm text-gray-600 mt-1">Tech Innovations Inc.</p>
-        </div>
-
-        <div class="document-container p-5">
-            <div class="flex items-center justify-between mb-3">
-                <h3 class="text-lg font-semibold text-gray-800">Risk Score</h3>
-                <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
-            </div>
-            <div class="text-2xl font-bold text-red-600">72/100</div>
-            <p class="text-sm text-gray-600 mt-1">High Risk</p>
-        </div>
-
-        <div class="document-container p-5">
-            <div class="flex items-center justify-between mb-3">
-                <h3 class="text-lg font-semibold text-gray-800">Value at Risk</h3>
-                <i class="fas fa-chart-line text-amber-500 text-xl"></i>
-            </div>
-            <div class="text-2xl font-bold text-amber-600">$18.5M</div>
-            <p class="text-sm text-gray-600 mt-1">7.5% of deal value</p>
-        </div>
-
-        <div class="document-container p-5">
-            <div class="flex items-center justify-between mb-3">
-                <h3 class="text-lg font-semibold text-gray-800">AI Confidence</h3>
-                <i class="fas fa-robot text-blue-500 text-xl"></i>
-            </div>
-            <div class="text-2xl font-bold text-blue-600">94%</div>
-            <p class="text-sm text-gray-600 mt-1">Based on 127 documents</p>
-        </div>
-    </div>
-
-    <!-- Main Content Grid -->
+    <!-- Main Content -->
     <div class="grid grid-cols-1 xl:grid-cols-4 gap-8">
-        <!-- Report Navigation -->
-        <div class="xl:col-span-1">
-            <div class="document-container p-6 mb-6">
-                <h3 class="text-lg font-bold text-primary font-serif mb-4">Report Sections</h3>
-                <div class="space-y-2">
-                    <button class="w-full text-left p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors duration-200 section-nav-btn active" data-section="1">
-                        <div class="font-medium text-gray-900">1. Executive Summary</div>
-                        <div class="text-xs text-gray-500 mt-1">Critical findings and recommendations</div>
-                    </button>
-
-                    <button class="w-full text-left p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors duration-200 section-nav-btn" data-section="2">
-                        <div class="font-medium text-gray-900">2. IP Portfolio Analysis</div>
-                        <div class="text-xs text-gray-500 mt-1">Asset inventory and valuation</div>
-                    </button>
-
-                    <button class="w-full text-left p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors duration-200 section-nav-btn" data-section="3">
-                        <div class="font-medium text-gray-900">3. Critical Risks</div>
-                        <div class="text-xs text-gray-500 mt-1">Patent and ownership issues</div>
-                    </button>
-
-                    <button class="w-full text-left p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors duration-200 section-nav-btn" data-section="4">
-                        <div class="font-medium text-gray-900">4. Acquisition Strategy</div>
-                        <div class="text-xs text-gray-500 mt-1">Deal structure recommendations</div>
-                    </button>
+        <!-- Document Metadata -->
+        <div class="xl:col-span-1 space-y-6">
+            <div class="document-container p-6">
+                <h3 class="text-lg font-bold text-primary font-serif mb-4">Document Details</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Matter Number</label>
+                        <div class="font-mono text-sm text-gray-900">L-2023-4286</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Client</label>
+                        <div class="text-sm text-gray-900">Global Solutions Corp.</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Target</label>
+                        <div class="text-sm text-gray-900">Tech Innovations Inc.</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Deal Value</label>
+                        <div class="text-lg font-bold text-gray-900">$245,000,000</div>
+                    </div>
                 </div>
             </div>
 
             <div class="document-container p-6">
-                <h3 class="text-lg font-bold text-primary font-serif mb-4">AI Analysis Details</h3>
+                <h3 class="text-lg font-bold text-primary font-serif mb-4">Risk Summary</h3>
                 <div class="space-y-4">
                     <div>
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-sm font-medium text-gray-700">Confidence Score</span>
-                            <span class="text-sm font-bold text-gray-900">94%</span>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-gray-700">Overall Risk Score</span>
+                            <span class="text-lg font-bold text-red-600">72/100</span>
                         </div>
-                        <div class="confidence-meter">
-                            <div class="confidence-fill" style="width: 94%"></div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-red-600 h-2 rounded-full" style="width: 72%"></div>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4 text-center">
-                        <div class="p-3 bg-blue-50 rounded-lg">
-                            <div class="text-lg font-bold text-blue-700">127</div>
-                            <div class="text-xs text-blue-600">Documents Analyzed</div>
+                        <div class="p-3 bg-red-50 rounded-lg border border-red-200">
+                            <div class="text-lg font-bold text-red-700">4</div>
+                            <div class="text-xs text-red-600">Critical Issues</div>
                         </div>
-                        <div class="p-3 bg-green-50 rounded-lg">
-                            <div class="text-lg font-bold text-green-700">42</div>
-                            <div class="text-xs text-green-600">IP Assets</div>
+                        <div class="p-3 bg-amber-50 rounded-lg border border-amber-200">
+                            <div class="text-lg font-bold text-amber-700">7</div>
+                            <div class="text-xs text-amber-600">High Risks</div>
                         </div>
                     </div>
 
                     <div class="pt-4 border-t border-gray-200">
-                        <h4 class="font-medium text-gray-800 mb-2">AI Model</h4>
-                        <p class="text-sm text-gray-600">LegisForge M&A Analyzer v3.2</p>
+                        <h4 class="font-medium text-gray-800 mb-2">AI Analysis</h4>
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-sm text-gray-600">Confidence</span>
+                            <span class="text-sm font-bold text-gray-900">94%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-600 h-2 rounded-full" style="width: 94%"></div>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Quick Actions section removed as requested -->
         </div>
 
-        <!-- Report Content -->
+        <!-- Document Content -->
         <div class="xl:col-span-3">
-            <div class="document-container p-8">
-                <div class="flex justify-between items-start mb-6">
-                    <div>
-                        <h2 class="text-2xl font-bold text-primary font-serif">Due Diligence Report: Tech Innovations Inc.</h2>
-                        <p class="text-gray-600 mt-1">Acquisition analysis for Global Solutions Corp.</p>
-                    </div>
-                    <span class="ai-badge">
-                                    <i class="fas fa-robot"></i>
-                                    AI-Generated Report
-                                </span>
-                </div>
-
-                <!-- Executive Summary -->
-                <div class="document-section active" id="page1">
-                    <div class="mb-8">
-                        <h3 class="text-xl font-bold text-primary font-serif mb-4 pb-2 border-b border-gray-200">Executive Summary</h3>
-                        <p class="text-gray-700 mb-4">This AI-generated due diligence report provides a comprehensive analysis of Tech Innovations Inc. as an acquisition target for Global Solutions Corp. The analysis identifies significant intellectual property risks that could impact deal valuation and post-acquisition integration.</p>
-
-                        <div class="critical-issue">
-                            <h4 class="font-bold text-red-700 mb-3 text-lg">CRITICAL FINDINGS</h4>
-                            <ul class="list-disc pl-5 space-y-2 text-gray-700">
-                                <li>Active patent infringement claim on core encryption technology</li>
-                                <li>Ownership disputes on key patents from former employees</li>
-                                <li>Insufficient trade secret protection for proprietary algorithms</li>
-                                <li>Trademark transfer restrictions in key markets</li>
-                            </ul>
-                        </div>
-
-                        <div class="recommendation-box">
-                            <h4 class="font-bold text-blue-700 mb-3 text-lg">AI RECOMMENDATION</h4>
-                            <p class="text-gray-700">Based on identified risks, recommend reducing offer price by $18.5M or implementing escrow arrangement to cover potential IP liabilities. Critical issues must be resolved before acquisition closing.</p>
+            <form th:action="@{/tasks/complete/{taskId}(taskId=${taskId})}" id="legalAssessmentForm" method="post" action="#">
+                <div class="red-document">
+                    <div class="red-document-header">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h2 class="text-xl font-bold text-white font-serif">LEGAL RISK ASSESSMENT DOCUMENT</h2>
+                                <p class="text-white text-opacity-90 mt-1">Confidential Attorney-Client Communication</p>
+                            </div>
+                            <span class="ai-badge">
+                                <i class="fas fa-robot"></i>
+                                AI-Generated Analysis
+                            </span>
                         </div>
                     </div>
 
-                    <div class="value-impact p-6 rounded-xl mb-6">
-                        <h4 class="font-bold text-white mb-4 text-lg">Deal Value Impact Analysis</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="text-center p-4 bg-white bg-opacity-20 rounded-lg">
-                                <div class="text-2xl font-bold text-white">$245M</div>
-                                <div class="text-white text-opacity-90 text-sm">Original Value</div>
-                            </div>
-                            <div class="text-center p-4 bg-white bg-opacity-20 rounded-lg">
-                                <div class="text-2xl font-bold text-white">$226.5M</div>
-                                <div class="text-white text-opacity-90 text-sm">After Risk Adjustment</div>
-                            </div>
-                            <div class="text-center p-4 bg-white bg-opacity-20 rounded-lg">
-                                <div class="text-2xl font-bold text-white">-$18.5M</div>
-                                <div class="text-white text-opacity-90 text-sm">Value at Risk</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                    <div class="red-document-content">
+                        <!-- Document Content -->
+                        <div class="legal-document-content">
+                            <div class="legal-document">
+                                <h1>FINAL LEGAL RISK ASSESSMENT</h1>
 
-                <!-- IP Portfolio Analysis -->
-                <div class="document-section hidden" id="page2">
-                    <h3 class="text-xl font-bold text-primary font-serif mb-6 pb-2 border-b border-gray-200">IP Portfolio Analysis</h3>
+                                <p><strong>MATTER:</strong> L-2023-4286 / ACQ-2023-0150</p>
+                                <p><strong>CLIENT:</strong> Global Solutions Corp.</p>
+                                <p><strong>TARGET COMPANY:</strong> Tech Innovations Inc.</p>
+                                <p><strong>ASSESSMENT DATE:</strong> October 25, 2023</p>
+                                <p><strong>PREPARED BY:</strong> LegisForge AI Legal Analysis System</p>
+                                <p><strong>REVIEWING ATTORNEY:</strong> Robert Kensington, Esq.</p>
 
-                    <div class="mb-6">
-                        <p class="text-gray-700 mb-4">Tech Innovations Inc. maintains a portfolio of 42 intellectual property assets across patents, trademarks, copyrights, and trade secrets.</p>
+                                <h2>EXECUTIVE SUMMARY</h2>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                            <div class="p-4 border border-gray-200 rounded-lg">
-                                <h4 class="font-bold text-gray-800 mb-3 flex items-center">
-                                    Patent Portfolio
-                                    <span class="risk-flag risk-high ml-2">HIGH RISK</span>
-                                </h4>
-                                <ul class="list-disc pl-5 space-y-1 text-gray-700">
-                                    <li>12 utility patents covering core technologies</li>
-                                    <li>3 design patents for user interface elements</li>
-                                    <li>5 pending patent applications</li>
-                                </ul>
-                                <div class="mt-3 p-2 bg-red-50 rounded text-sm text-red-700">
-                                    <i class="fas fa-exclamation-circle mr-1"></i>
-                                    2 critical ownership issues identified
-                                </div>
-                            </div>
+                                <p>This final legal risk assessment represents the comprehensive analysis of material legal risks identified during the due diligence process for the proposed acquisition of Tech Innovations Inc. by Global Solutions Corp.</p>
 
-                            <div class="p-4 border border-gray-200 rounded-lg">
-                                <h4 class="font-bold text-gray-800 mb-3 flex items-center">
-                                    Trademark Portfolio
-                                    <span class="risk-flag risk-medium ml-2">MEDIUM RISK</span>
-                                </h4>
-                                <ul class="list-disc pl-5 space-y-1 text-gray-700">
-                                    <li>8 registered trademarks in key markets</li>
-                                    <li>3 pending trademark applications</li>
-                                    <li>Brand recognition in North America and Europe</li>
-                                </ul>
-                                <div class="mt-3 p-2 bg-amber-50 rounded text-sm text-amber-700">
-                                    <i class="fas fa-info-circle mr-1"></i>
-                                    Transfer restrictions in Asia-Pacific
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="recommendation-box">
-                            <h4 class="font-bold text-blue-700 mb-2">VALUATION IMPACT</h4>
-                            <p class="text-gray-700">The IP portfolio represents approximately 65% of the company's valuation. Critical risks identified could reduce portfolio value by 18-25%.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Critical Risks -->
-                <div class="document-section hidden" id="page3">
-                    <h3 class="text-xl font-bold text-primary font-serif mb-6 pb-2 border-b border-gray-200">Critical Risk Assessment</h3>
-
-                    <div class="space-y-6">
-                        <div class="critical-issue">
-                            <h4 class="font-bold text-red-700 mb-3 text-lg">Patent Infringement Claim</h4>
-                            <p class="text-gray-700 mb-3">Active infringement claim on US Patent 10,123,456 "System and Method for Advanced Data Encryption" - the company's most valuable patent representing 22% of IP portfolio value.</p>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                <div>
-                                    <h5 class="font-semibold text-gray-800 mb-1">Risk Details</h5>
-                                    <ul class="list-disc pl-5 space-y-1 text-gray-700">
-                                        <li>Claim filed by SecureTech Systems</li>
-                                        <li>Potential damages: $12-18M</li>
-                                        <li>Could result in product injunction</li>
+                                <div class="critical-issue">
+                                    <h4 class="font-bold text-red-700 mb-3 text-lg">CRITICAL LEGAL FINDINGS</h4>
+                                    <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                                        <li><span class="risk-indicator risk-critical">CRITICAL</span> Patent infringement claim on core encryption technology - $12M exposure</li>
+                                        <li><span class="risk-indicator risk-critical">CRITICAL</span> Ownership disputes on key patents - $8M exposure</li>
+                                        <li><span class="risk-indicator risk-high">HIGH</span> Wage & hour compliance violations - $3.2M exposure</li>
+                                        <li><span class="risk-indicator risk-high">HIGH</span> Executive compensation disclosure issues - $5M exposure</li>
                                     </ul>
                                 </div>
-                                <div>
-                                    <h5 class="font-semibold text-gray-800 mb-1">Acquisition Impact</h5>
-                                    <p class="text-gray-700">Targets flagship product line. Could reduce deal value by 7-10%.</p>
+
+                                <div class="recommendation-box">
+                                    <h4 class="font-bold text-blue-700 mb-3 text-lg">LEGAL RECOMMENDATION</h4>
+                                    <p class="text-gray-700">Based on the comprehensive legal analysis, we recommend proceeding with the acquisition subject to the following conditions:</p>
+                                    <ul class="list-disc pl-5 space-y-2 text-gray-700 mt-2">
+                                        <li>Purchase price reduction of $38,000,000 to account for legal risks</li>
+                                        <li>Establishment of $25,000,000 escrow for 18 months</li>
+                                        <li>Resolution of critical IP issues prior to closing</li>
+                                    </ul>
+                                </div>
+
+                                <h2>DETAILED RISK ANALYSIS</h2>
+
+                                <h3>Intellectual Property Portfolio</h3>
+                                <p>The target company maintains 42 intellectual property assets with significant valuation concerns:</p>
+
+                                <table>
+                                    <thead>
+                                    <tr>
+                                        <th>Risk Category</th>
+                                        <th>Severity</th>
+                                        <th>Exposure</th>
+                                        <th>Status</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>Patent Infringement</td>
+                                        <td><span class="risk-indicator risk-critical">Critical</span></td>
+                                        <td>$12,000,000</td>
+                                        <td>Active Claim</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Ownership Disputes</td>
+                                        <td><span class="risk-indicator risk-critical">Critical</span></td>
+                                        <td>$8,000,000</td>
+                                        <td>Multiple Claims</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Trademark Restrictions</td>
+                                        <td><span class="risk-indicator risk-high">High</span></td>
+                                        <td>$3,200,000</td>
+                                        <td>Transfer Issues</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                                <h3>Employment & Compliance</h3>
+                                <p>Significant employment law compliance issues identified:</p>
+
+                                <div class="critical-issue">
+                                    <h4 class="font-bold text-red-700 mb-2">Wage & Hour Violations</h4>
+                                    <p class="text-gray-700 mb-3">Misclassification of 45 employees as exempt from overtime requirements. Potential liability includes back wages, penalties, and litigation costs.</p>
+                                    <div class="grid grid-cols-2 gap-4 text-sm">
+                                        <div>
+                                            <h5 class="font-semibold text-gray-800 mb-1">Affected Employees</h5>
+                                            <p class="text-gray-700">45 technical staff members</p>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-semibold text-gray-800 mb-1">Time Period</h5>
+                                            <p class="text-gray-700">Last 3 years</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h2>FINAL RECOMMENDATIONS</h2>
+
+                                <h3>Deal Structure Adjustments</h3>
+                                <p>Based on the quantified legal risks, the following adjustments are recommended:</p>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
+                                    <div class="p-4 border border-gray-300 rounded-lg bg-white">
+                                        <h5 class="font-bold text-gray-800 mb-3">Price Reduction</h5>
+                                        <p class="text-gray-700 mb-3">Reduce offer price by $38M to account for legal risks.</p>
+                                        <div class="p-3 bg-gray-100 rounded text-center">
+                                            <div class="text-xl font-bold text-gray-800">$207M</div>
+                                            <div class="text-sm text-gray-600">Adjusted Deal Value</div>
+                                        </div>
+                                    </div>
+                                    <div class="p-4 border border-gray-300 rounded-lg bg-white">
+                                        <h5 class="font-bold text-gray-800 mb-3">Escrow Protection</h5>
+                                        <p class="text-gray-700 mb-3">$25M escrow for 18-month liability coverage.</p>
+                                        <div class="p-3 bg-gray-100 rounded text-center">
+                                            <div class="text-xl font-bold text-gray-800">$25M</div>
+                                            <div class="text-sm text-gray-600">Escrow Amount</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Completion Section removed from inside the document -->
+                                <div class="mt-8 pt-6 border-t border-gray-200 text-center text-sm text-gray-500">
+                                    <p>CONFIDENTIAL ATTORNEY-CLIENT COMMUNICATION | LEGISFORGE AI LEGAL ANALYSIS v3.2</p>
+                                    <p class="mt-1">DOCUMENT ID: L-2023-4286-FINAL-1.0 | GENERATED: 2023-10-25</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="critical-issue">
-                            <h4 class="font-bold text-red-700 mb-3 text-lg">IP Ownership Gaps</h4>
-                            <p class="text-gray-700 mb-3">Three key patents have questionable ownership documentation with potential claims from former employees and contractors.</p>
-
-                            <div class="space-y-3">
-                                <div class="p-3 bg-red-50 rounded-lg border border-red-200">
-                                    <h5 class="font-semibold text-red-800">US Patent 10,234,567</h5>
-                                    <p class="text-sm text-red-700">Former CTO claiming partial ownership</p>
-                                </div>
-                                <div class="p-3 bg-red-50 rounded-lg border border-red-200">
-                                    <h5 class="font-semibold text-red-800">US Patent 10,345,678</h5>
-                                    <p class="text-sm text-red-700">Missing inventor assignments</p>
-                                </div>
-                            </div>
+                        <!-- Editor Container -->
+                        <div id="editor-container">
+                            <!-- Quill editor will be inserted here -->
                         </div>
                     </div>
                 </div>
 
-                <!-- Acquisition Strategy -->
-                <div class="document-section hidden" id="page4">
-                    <h3 class="text-xl font-bold text-primary font-serif mb-6 pb-2 border-b border-gray-200">Acquisition Strategy & Recommendations</h3>
-
-                    <div class="mb-6">
-                        <h4 class="font-bold text-gray-800 mb-4">Deal Structure Options</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                            <div class="p-5 border border-gray-300 rounded-lg bg-white">
-                                <h5 class="font-bold text-gray-800 mb-3 text-lg">Option 1: Price Reduction</h5>
-                                <p class="text-gray-700 mb-4">Reduce offer price by $18.5M to account for identified IP risks and resolution costs.</p>
-                                <div class="p-3 bg-gray-100 rounded">
-                                    <div class="text-lg font-bold text-gray-800">New Deal Value: $226.5M</div>
-                                    <div class="text-sm text-gray-600">-7.5% adjustment</div>
-                                </div>
-                            </div>
-                            <div class="p-5 border border-gray-300 rounded-lg bg-white">
-                                <h5 class="font-bold text-gray-800 mb-3 text-lg">Option 2: Escrow Arrangement</h5>
-                                <p class="text-gray-700 mb-4">Maintain $245M offer with $25M escrow for 18 months to cover IP liabilities.</p>
-                                <div class="p-3 bg-gray-100 rounded">
-                                    <div class="text-lg font-bold text-gray-800">Risk Coverage: High</div>
-                                    <div class="text-sm text-gray-600">18-month protection</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="recommendation-box">
-                            <h4 class="font-bold text-blue-700 mb-3">PRE-CLOSING REQUIREMENTS</h4>
-                            <ul class="list-disc pl-5 space-y-2 text-gray-700">
-                                <li>Resolve patent infringement claim through settlement or licensing</li>
-                                <li>Secure verified ownership for all key patents</li>
-                                <li>Renegotiate trademark licenses to remove transfer restrictions</li>
-                                <li>Implement trade secret protection program</li>
-                            </ul>
-                        </div>
-                    </div>
+                <!-- External Complete Button Section -->
+                <div class="external-complete-section">
+                    <h3 class="text-xl font-bold">FINAL DOCUMENT REVIEW COMPLETE</h3>
+                    <p class="text-gray-700 mb-4">This legal risk assessment has been thoroughly reviewed and is ready for final submission.</p>
+                    <p class="text-gray-700 mb-6">Click below to complete the acquisition due diligence process.</p>
+                    <button type="submit" class="complete-btn" id="completeBtn">
+                        <i class="fas fa-check-double"></i>
+                        COMPLETE ACQUISITION DUE DILIGENCE
+                    </button>
                 </div>
-
-                <div class="mt-8 pt-6 border-t border-gray-200">
-                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                        <div class="text-sm text-gray-500">
-                            Report ID: AI-DD-2023-045-TECH-INNOV | Generated: Nov 5, 2023
-                        </div>
-                        <div class="flex gap-3">
-                            <button class="flex items-center px-4 py-2 bg-secondary hover:bg-legal-burgundy-800 text-white rounded-lg transition-colors duration-200 font-medium">
-                                <i class="fas fa-download mr-2"></i>
-                                PDF
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </form>
         </div>
     </div>
+
+    <script>
+        // Initialize Quill editor
+        const quill = new Quill('#editor-container', {
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    [{ 'indent': '-1'}, { 'indent': '+1' }],
+                    ['blockquote'],
+                    ['link'],
+                    [{ 'align': [] }],
+                    ['clean']
+                ]
+            },
+            placeholder: 'Edit the legal risk assessment document...',
+            theme: 'snow'
+        });
+
+        // Set initial content to match the document
+        quill.root.innerHTML = document.querySelector('.legal-document').innerHTML;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const editToggleBtn = document.getElementById('editToggleBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const completeBtn = document.getElementById('completeBtn');
+            const documentContent = document.querySelector('.legal-document-content');
+            const editorContainer = document.getElementById('editor-container');
+            const redDocument = document.querySelector('.red-document-content');
+            const legalAssessmentForm = document.getElementById('legalAssessmentForm');
+
+            let isEditMode = false;
+
+            // Toggle edit mode
+            editToggleBtn.addEventListener('click', function() {
+                isEditMode = !isEditMode;
+
+                if (isEditMode) {
+                    // Enter edit mode
+                    redDocument.classList.add('edit-mode');
+                    editToggleBtn.innerHTML = '<i class="fas fa-eye"></i> View Mode';
+                    editToggleBtn.classList.remove('secondary');
+                    editToggleBtn.classList.add('primary');
+
+                    // Update editor content with current document content
+                    quill.root.innerHTML = document.querySelector('.legal-document').innerHTML;
+                } else {
+                    // Exit edit mode
+                    redDocument.classList.remove('edit-mode');
+                    editToggleBtn.innerHTML = '<i class="fas fa-edit"></i> Edit Document';
+                    editToggleBtn.classList.remove('primary');
+                    editToggleBtn.classList.add('secondary');
+
+                    // Update document content with editor content
+                    document.querySelector('.legal-document').innerHTML = quill.root.innerHTML;
+                }
+            });
+
+            // Download functionality
+            downloadBtn.addEventListener('click', function() {
+                // Show download confirmation
+                const originalText = downloadBtn.innerHTML;
+                downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+
+                setTimeout(() => {
+                    alert('Legal Risk Assessment document has been downloaded as PDF successfully!');
+                    downloadBtn.innerHTML = originalText;
+                }, 1500);
+            });
+
+            // Form submission handler
+            legalAssessmentForm.addEventListener('submit', function(e) {
+
+
+                completeBtn.disabled = true;
+            completeBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Finalizing Review...';
+
+            });
+
+            // Auto-save simulation for edit mode
+            setInterval(function() {
+                if (isEditMode) {
+                    console.log('Auto-saving document edits...');
+                    // In a real application, this would save to a backend
+                }
+            }, 30000); // Auto-save every 30 seconds
+        });
+    </script>
 </main>
 </body>
 </html>

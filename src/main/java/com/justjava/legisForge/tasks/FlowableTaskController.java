@@ -83,28 +83,27 @@ public class FlowableTaskController {
         }
 
         String currentTask;
-        String heading = "";
         switch (task.getTaskDefinitionKey().toLowerCase()) {
-            case "formtask_19":
-                heading = "Brief Drafting ";
-                currentTask = "tasks/briefDrafting";
+            case "activity_10a4it4":
+                currentTask = "tasks/uploadCompanyDocuments";
                 break;
-            case "formtask_18":
-                heading = "Brief Review & Follow-up Questions ";
-                currentTask = "/tasks/followUpQuestions";
+            case "activity_1b25bh8":
+                currentTask = "/tasks/reviewDocuments";
                 break;
-            case "formtask_6":
-                heading = "Collect Relevant Documents ";
-                currentTask = "/tasks/collectRelevantDocuments";
+            case "formtask_66":
+                currentTask = "/tasks/ipRisk";
                 break;
-            case "formtask_11":
-                currentTask = "tasks/reviewSolutionArchitecture";
+            case "formtask_68":
+                currentTask = "tasks/employmentRisk";
                 break;
-            case "formtask_1":
-                currentTask = "tasks/codeReview";
+            case "formtask_70":
+                currentTask = "tasks/corporateRisk";
                 break;
-            case "formtask_4":
-                currentTask = "tasks/UAT";
+            case "formtask_74":
+                currentTask = "tasks/combinedRisk";
+                break;
+            case "formtask_78":
+                currentTask = "tasks/redDocument";
                 break;
             default:
                 currentTask = "tasks/default";
@@ -134,7 +133,6 @@ public class FlowableTaskController {
         model.addAttribute("processVariables", runtimeService.getVariables(task.getExecutionId()));
         model.addAttribute("isCompleted", false);
         model.addAttribute("processInstanceId", task.getProcessInstanceId());
-        model.addAttribute("heading", heading);
         return currentTask;
     }
     @GetMapping("/viewCompleted/{taskId}")
@@ -274,7 +272,17 @@ public class FlowableTaskController {
 
 
             redirectAttributes.addFlashAttribute("success", "Task completed successfully");
-            return "redirect:/caseReview/" + task.getProcessInstanceId();
+
+// Check if process instance has ended
+            boolean isProcessEnded = runtimeService.createProcessInstanceQuery()
+                    .processInstanceId(task.getProcessInstanceId())
+                    .singleResult() == null;
+
+            if (isProcessEnded) {
+                redirectAttributes.addFlashAttribute("info", "Great! This project is now complete.");
+                return "redirect:/projects";  // Or wherever your projects list lives
+            }
+            return "redirect:/project-details/" + task.getProcessInstanceId();
 
         } catch (Exception e) {
             e.printStackTrace();
